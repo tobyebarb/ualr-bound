@@ -2,9 +2,8 @@
 
 #python venv
 venv/
+../__pycache__/
 __pycache__/
-**/__pycache__/
-api/__pycache__
 
 # dependencies
 /node_modules
