@@ -7,10 +7,7 @@ import EmailIcon from "../../icons/EmailIcon";
 import AccessLevelIcon from "../../icons/AccessLevelIcon";
 import ualrLogo from "../../icons/UALR Logo.svg";
 import { Link, BrowserRouter } from "react-router-dom";
-import {
-  RegisterDropdown,
-  Option,
-} from "./components/RegisterDropdown/RegisterDropdown";
+import * as constants from "../../utils/Constants";
 
 const RegisterPage = () => {
   const [usernameInput, setUsernameInput] = useState("");
@@ -33,6 +30,13 @@ const RegisterPage = () => {
   const RegisterBlockDuration = "1";
   const RegisterBlockImgDisplacement = "0.75rem";
 
+  const headers = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
+
+  const endpoint = `${constants.ENDPOINT_URL.LOCAL}/register`;
+
   const svgContainerStyle = {
     margin: "0.3rem",
     marginRight: "1rem",
@@ -45,7 +49,31 @@ const RegisterPage = () => {
     color: "#ffffff",
   };
 
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    var data = {
+      username: usernameInput,
+      email: emailInput,
+      password: passwordInput,
+      "access-level": accessLevelInput,
+    };
+
+    fetch(endpoint, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error(
+          "There was an error with your request. Try again.\nError: " + error
+        );
+      });
+  };
 
   const updateUsername = (e) => {
     e.preventDefault();
@@ -93,7 +121,7 @@ const RegisterPage = () => {
           repeatType: "reverse",
         }}
       >
-        <form className="register-form-container" onSubmit={handleSubmit}>
+        <div className="register-form-container">
           <div
             style={{
               border: userFocused
@@ -109,6 +137,7 @@ const RegisterPage = () => {
               focusedColor={focusColor}
             />
             <input
+              required
               type="text"
               className="register-input"
               onFocus={onUserFocus}
@@ -137,6 +166,7 @@ const RegisterPage = () => {
               focusedColor={focusColor}
             />
             <input
+              required
               type="email"
               className="register-input"
               onFocus={onEmailFocus}
@@ -165,6 +195,7 @@ const RegisterPage = () => {
               focusedColor={focusColor}
             />
             <input
+              required
               type="password"
               className="register-input"
               onFocus={onPassFocus}
@@ -192,7 +223,8 @@ const RegisterPage = () => {
               focused={accessLevelFocused}
               focusedColor={focusColor}
             />
-            <input
+            <select
+              required
               type="text"
               className="register-input"
               onFocus={onAccessLevelFocus}
@@ -203,9 +235,16 @@ const RegisterPage = () => {
               value={accessLevelInput}
               onChange={updateAccessLevel}
               content={focusColor}
-            />
+            >
+              <option value="" selected disabled hidden>
+                Choose one...
+              </option>
+              <option value="caller">Caller</option>
+              <option value="admin">Admin</option>
+              <option value="root">Root</option>
+            </select>
           </div>
-        </form>
+        </div>
       </motion.div>
       <div className="register-details">
         <img className="register-details-logo" src={ualrLogo} />
@@ -213,8 +252,8 @@ const RegisterPage = () => {
         <div className="register-form-button-container-col">
           <button
             content={focusColor}
-            type="submit"
             className="register-form-button"
+            onClick={handleSubmit}
           >
             Send Request
           </button>
