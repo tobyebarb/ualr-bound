@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,900&display=swap');
+
+.register-container {
+    background: linear-gradient(128.95deg, #4D212C 51.1%, #A64961 94.27%);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 100vh;
+}
+
+.hovering-image-container {
+    width: 60rem;
+    height: 60rem;
+    background: linear-gradient(135.27deg, #7D3C4D 0.97%, #6E2639 98.57%);
+    border-radius: 25px;
+
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.register-form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.register-input {
+    border: none;
+    background: transparent;
+    box-sizing: border-box;
+    width: 80%;
+
+    
+    font-family: Montserrat;
+    font-style: normal;
+    font-size: 3rem;
+
+    color: #FFFFFF;
+    border-bottom: solid 0 #fff;  
+    transition: all 250ms ease-in-out;
+    /* transform-origin: 100% 50%; */
+}
+
+.register-input:focus {
+    background:transparent;
+    outline: none;
+    border-bottom: solid 3px attr(content);
+}
+
+.register-input-row {
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+    display: flex;
+    flex-direction: row;
+    border: 5px solid #FFFFFF;
+    box-sizing: border-box;
+    border-radius: 15px;
+    background: rgba(81, 81, 81, 0.4);
+
+    margin-left: 5rem;
+    margin-right: 5rem;
+    transition: all 250ms ease-in-out;
+}
+
+.icon path {
+    transition: all 250ms ease-in-out;
+}
+
+.register-form-button {
+    background: rgba(81, 81, 81, 0.4);
+    font-family: Montserrat;
+    font-style: normal;
+    font-size: 2rem;
+    color: #ffffff;
+    
+    border: 5px solid #FFFFFF;
+    box-sizing: border-box;
+    border-radius: 15px;
+    padding: 2rem;
+    transition: all 250ms ease-in-out;
+    min-width: 15rem;
+    text-decoration: none;
+    text-align: center;
+
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.register-form-button:hover {
+    background: #4c212c;
+}
+
+.register-form-button-container-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin-top: auto;
+    margin-bottom: 8rem;
+}
+
+.register-form-button-container-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: auto;
+    margin-bottom: 8rem;
+}
+
+.register-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 10rem;
+}
+
+.register-details-text {
+    font-family: Montserrat;
+    font-style: normal;
+    font-size: 3rem;
+    text-align: start;
+    
+    color: #FFFFFF;
+    width: 30rem;
+}
+
+.register-details-logo {
+    margin-top: 15rem;
+    width: 30rem;
+}
+
+.register-details-divider {
+    height: 5px;
+    color: #fff;
+    width: 100%;
+    background: #fff;
+    border: solid #fff 1px;
+    opacity: 0.5;
+    margin-top: 4rem;
+    border-radius: 5px;
+}
+
+.register-input > option {
+    font-family: Montserrat;
+    font-style: normal;
+    font-size: 3rem;
+
+    color: #FFFFFF;
+    border-bottom: solid 0 #fff;  
+    transition: all 250ms ease-in-out;
+
+}
