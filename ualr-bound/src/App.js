@@ -4,8 +4,10 @@ import { Deploy } from "./components/deploy/Deploy";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
+import injectContext from "./store/appContext";
+import DashboardPage from "./pages/DashboardPage/DashboardPage";
 
-function App() {
+const App = () => {
   const [state, setState] = useState({});
 
   // useEffect(() => {
@@ -22,11 +24,12 @@ function App() {
   return (
     <Router>
       <div className="app-container">
-        <Route exact path="/" component={LoginPage} />
+        <Route exact path="/" component={DashboardPage} />
+        <Route exact path="/login" component={LoginPage} />
         <Route exact path="/register" component={RegisterPage} />
       </div>
     </Router>
   );
-}
+};
 
-export default App;
+export default injectContext(App);

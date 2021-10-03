@@ -50,6 +50,7 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = () => {
+    //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
     var data = {
       username: usernameInput,
       email: emailInput,
@@ -188,6 +189,13 @@ const RegisterPage = () => {
             }}
             className="register-input-row"
           >
+            {/* 
+          
+          TODO: Add another password input to re-enter information, so user doesn't mess up password.
+          TODO: Add api response support to receive login fail cases ('user doesn't exist', 'invalid password', etc.)
+            *TODO: Add dynamic password style, red for invalid pass/user
+          
+          */}
             <PassIcon
               style={svgContainerStyle}
               svgStyle={svgStyle}

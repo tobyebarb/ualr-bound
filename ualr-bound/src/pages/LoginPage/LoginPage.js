@@ -1,19 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { motion } from "framer-motion";
 import "./LoginPage.css";
 import UserIcon from "../../icons/UserIcon";
 import PassIcon from "../../icons/PassIcon";
 import ualrLogo from "../../icons/UALR Logo.svg";
-import { Link, BrowserRouter } from "react-router-dom";
+import { Link, BrowserRouter, useHistory, Redirect } from "react-router-dom";
 import * as constants from "../../utils/Constants";
+import { Context } from "../../store/appContext";
 
 const LoginPage = () => {
+  const { store, actions } = useContext(Context);
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [userFocused, setUserFocused] = useState(false);
   const [passFocused, setPassFocused] = useState(false);
-  const token = sessionStorage.getItem("token");
-  console.log("This is your token", token);
+  const history = useHistory();
+
+  console.log("Token: ", store.token);
 
   const usernamePlaceholder = "Username";
   const passwordPlaceholder = "Password";
@@ -35,13 +38,6 @@ const LoginPage = () => {
     color: "#ffffff",
   };
 
-  const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`;
-
-  const headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  };
-
   const onKeyPressHandler = (e) => {
     e.preventDefault();
     if (e.key === "Enter") {
@@ -50,40 +46,11 @@ const LoginPage = () => {
   };
 
   const handleLogout = () => {
-    sessionStorage.setItem("token", "");
-    window.location.href = "/";
+    //TODO Logout - Remove store's token
   };
 
   const handleSubmit = () => {
-    if (!usernameInput || !passwordInput) {
-      alert("Please fill out required fields.");
-      return 0;
-    }
-
-    var data = {
-      username: usernameInput,
-      password: passwordInput,
-    };
-
-    fetch(endpoint, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        if (response.status === 200) return response.json();
-        else console.error("There was an error code: " + response.status);
-      })
-      .then((data) => {
-        console.log("this came from backend", data);
-        sessionStorage.setItem("token", data.access_token);
-        window.location.href = "/";
-      })
-      .catch((error) => {
-        console.error(
-          "There was an error with your request. Try again.\nError: " + error
-        );
-      });
+    actions.login(usernameInput, passwordInput);
   };
 
   const updateUsername = (e) => {
@@ -102,7 +69,12 @@ const LoginPage = () => {
   const onPassFocus = () => setPassFocused(true);
   const onPassBlur = () => setPassFocused(false);
 
-  if (!token || token === "" || token === null) {
+  useEffect(() => {
+    if (store.token && store.token !== "" && store.token !== null)
+      history.push("/");
+  }, []);
+
+  if (!store.token || store.token === "" || store.token === null) {
     return (
       <div className="login-container">
         <motion.div
@@ -211,18 +183,8 @@ const LoginPage = () => {
     );
   } else {
     //TODO: Already Logged In, redirect to dashboard/callers page
-    return (
-      <div className="login-container">
-        <h1>Logged In.</h1>
-        <button
-          content={focusColor}
-          onClick={handleLogout}
-          className="login-form-button"
-        >
-          Log Out
-        </button>
-      </div>
-    );
+    console.log("Redirecting to dashboard.");
+    return <Redirect to="/" />;
   }
 };
 

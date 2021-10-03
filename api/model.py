@@ -13,7 +13,7 @@ class ValidUser(db.Model):
     __tablename__ = 'valid_user_set'
 
     id=db.Column(db.Integer, primary_key=True)
-    username=db.Column(db.String(40))
+    username=db.Column(db.String(40), unique=True)
     hashedPassword=db.Column(db.Text, nullable=False)
     email=db.Column(db.String(300), unique=True, nullable=False)
     accessLevel=db.Column(db.Enum(accessLevel))
@@ -31,3 +31,6 @@ class ValidUser(db.Model):
 
     def verify_password(self, pwd):
         return check_password_hash(self.hashedPassword, pwd)
+
+    def getId(self):
+        return f''
