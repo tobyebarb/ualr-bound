@@ -8,7 +8,7 @@ const getState = ({ getStore, getActions, setStore }) => {
     },
     actions: {
       login: async (usernameInput, passwordInput) => {
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`;
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -22,6 +22,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           username: usernameInput,
           password: passwordInput,
         };
+
         try {
           const response = await fetch(endpoint, {
             method: "POST",
@@ -35,7 +36,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
 
           const data = await response.json();
-          console.log("this came from backend", data);
           sessionStorage.setItem("token", data.access_token);
           setStore({ token: data.access_token });
           //   window.location.href = "/";

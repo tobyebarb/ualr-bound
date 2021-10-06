@@ -51,6 +51,7 @@ const RegisterPage = () => {
 
   const handleSubmit = () => {
     //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
+    //TODO: Handle invalid emails
     var data = {
       username: usernameInput,
       email: emailInput,
@@ -107,176 +108,181 @@ const RegisterPage = () => {
 
   return (
     <div className="register-container">
-      <motion.div
-        className="hovering-image-container"
-        initial={{
-          y: RegisterBlockImgDisplacement,
-        }}
-        animate={{
-          x: 0,
-          y: 0,
-        }}
-        transition={{
-          duration: RegisterBlockDuration,
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
-      >
-        <div className="register-form-container">
-          <div
-            style={{
-              border: userFocused
-                ? `5px solid ${focusColor}`
-                : "5px solid #FFFFFF",
+      <div className="register-middle">
+        <div className="register-content">
+          <motion.div
+            className="hovering-image-container"
+            initial={{
+              y: RegisterBlockImgDisplacement,
             }}
-            className="register-input-row"
+            animate={{
+              x: 0,
+              y: 0,
+            }}
+            transition={{
+              duration: RegisterBlockDuration,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
           >
-            <UserIcon
-              style={svgContainerStyle}
-              svgStyle={svgStyle}
-              focused={userFocused}
-              focusedColor={focusColor}
-            />
-            <input
-              required
-              type="text"
-              className="register-input"
-              onFocus={onUserFocus}
-              onBlur={onUserBlur}
-              placeholder={usernamePlaceholder}
-              name="username"
-              id="user"
-              value={usernameInput}
-              onChange={updateUsername}
-              content={focusColor}
-            />
-          </div>
+            <div className="register-form-container">
+              <div
+                style={{
+                  border: userFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                <UserIcon
+                  style={svgContainerStyle}
+                  svgStyle={svgStyle}
+                  focused={userFocused}
+                  focusedColor={focusColor}
+                />
+                <input
+                  required
+                  type="text"
+                  className="register-input"
+                  onFocus={onUserFocus}
+                  onBlur={onUserBlur}
+                  placeholder={usernamePlaceholder}
+                  name="username"
+                  id="user"
+                  value={usernameInput}
+                  onChange={updateUsername}
+                  content={focusColor}
+                />
+              </div>
 
-          <div
-            style={{
-              border: emailFocused
-                ? `5px solid ${focusColor}`
-                : "5px solid #FFFFFF",
-            }}
-            className="register-input-row"
-          >
-            <EmailIcon
-              style={svgContainerStyle}
-              svgStyle={svgStyle}
-              focused={emailFocused}
-              focusedColor={focusColor}
-            />
-            <input
-              required
-              type="email"
-              className="register-input"
-              onFocus={onEmailFocus}
-              onBlur={onEmailBlur}
-              placeholder={emailPlaceholder}
-              name="email"
-              id="email"
-              value={emailInput}
-              onChange={updateEmail}
-              content={focusColor}
-            />
-          </div>
+              <div
+                style={{
+                  border: emailFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                <EmailIcon
+                  style={svgContainerStyle}
+                  svgStyle={svgStyle}
+                  focused={emailFocused}
+                  focusedColor={focusColor}
+                />
+                <input
+                  required
+                  type="email"
+                  className="register-input"
+                  onFocus={onEmailFocus}
+                  onBlur={onEmailBlur}
+                  placeholder={emailPlaceholder}
+                  name="email"
+                  id="email"
+                  value={emailInput}
+                  onChange={updateEmail}
+                  content={focusColor}
+                />
+              </div>
 
-          <div
-            style={{
-              border: passFocused
-                ? `5px solid ${focusColor}`
-                : "5px solid #FFFFFF",
-            }}
-            className="register-input-row"
-          >
-            {/* 
+              <div
+                style={{
+                  border: passFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                {/* 
           
           TODO: Add another password input to re-enter information, so user doesn't mess up password.
+          TODO: Add "eyeball" visibility option to password input, so user doesn't mess up password.
           TODO: Add api response support to receive login fail cases ('user doesn't exist', 'invalid password', etc.)
             *TODO: Add dynamic password style, red for invalid pass/user
           
           */}
-            <PassIcon
-              style={svgContainerStyle}
-              svgStyle={svgStyle}
-              focused={passFocused}
-              focusedColor={focusColor}
-            />
-            <input
-              required
-              type="password"
-              className="register-input"
-              onFocus={onPassFocus}
-              onBlur={onPassBlur}
-              placeholder={passwordPlaceholder}
-              name="password"
-              id="pass"
-              value={passwordInput}
-              onChange={updatePassword}
-              content={focusColor}
-            />
-          </div>
+                <PassIcon
+                  style={svgContainerStyle}
+                  svgStyle={svgStyle}
+                  focused={passFocused}
+                  focusedColor={focusColor}
+                />
+                <input
+                  required
+                  type="password"
+                  className="register-input"
+                  onFocus={onPassFocus}
+                  onBlur={onPassBlur}
+                  placeholder={passwordPlaceholder}
+                  name="password"
+                  id="pass"
+                  value={passwordInput}
+                  onChange={updatePassword}
+                  content={focusColor}
+                />
+              </div>
 
-          <div
-            style={{
-              border: accessLevelFocused
-                ? `5px solid ${focusColor}`
-                : "5px solid #FFFFFF",
-            }}
-            className="register-input-row"
-          >
-            <AccessLevelIcon
-              style={svgContainerStyle}
-              svgStyle={svgStyle}
-              focused={accessLevelFocused}
-              focusedColor={focusColor}
-            />
-            <select
-              required
-              type="text"
-              className="register-input"
-              onFocus={onAccessLevelFocus}
-              onBlur={onAccessLevelBlur}
-              placeholder={accessLevelPlaceholder}
-              name="access-level"
-              id="access-level"
-              value={accessLevelInput}
-              onChange={updateAccessLevel}
-              content={focusColor}
-            >
-              <option value="" selected disabled hidden>
-                Choose one...
-              </option>
-              <option value="caller">Caller</option>
-              <option value="admin">Admin</option>
-              <option value="root">Root</option>
-            </select>
+              <div
+                style={{
+                  border: accessLevelFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                <AccessLevelIcon
+                  style={svgContainerStyle}
+                  svgStyle={svgStyle}
+                  focused={accessLevelFocused}
+                  focusedColor={focusColor}
+                />
+                <select
+                  required
+                  type="text"
+                  className="register-input"
+                  onFocus={onAccessLevelFocus}
+                  onBlur={onAccessLevelBlur}
+                  placeholder={accessLevelPlaceholder}
+                  name="access-level"
+                  id="access-level"
+                  value={accessLevelInput}
+                  onChange={updateAccessLevel}
+                  content={focusColor}
+                >
+                  <option value="" selected disabled hidden>
+                    Choose one...
+                  </option>
+                  <option value="caller">Caller</option>
+                  <option value="admin">Admin</option>
+                  <option value="root">Root</option>
+                </select>
+              </div>
+            </div>
+          </motion.div>
+          <div className="register-details">
+            <img className="register-details-logo" src={ualrLogo} />
+            <hr className="register-details-divider" />
+            <div className="register-form-button-container-col">
+              <button
+                content={focusColor}
+                className="register-form-button"
+                onClick={handleSubmit}
+              >
+                Send Request
+              </button>
+              <BrowserRouter>
+                <Link
+                  to="/"
+                  onClick={() => {
+                    window.location.href = "/";
+                  }}
+                  content={focusColor}
+                  className="register-form-button"
+                >
+                  Go Back
+                </Link>
+              </BrowserRouter>
+            </div>
           </div>
-        </div>
-      </motion.div>
-      <div className="register-details">
-        <img className="register-details-logo" src={ualrLogo} />
-        <hr className="register-details-divider" />
-        <div className="register-form-button-container-col">
-          <button
-            content={focusColor}
-            className="register-form-button"
-            onClick={handleSubmit}
-          >
-            Send Request
-          </button>
-          <BrowserRouter>
-            <Link
-              to="/"
-              onClick={() => {
-                window.location.href = "/";
-              }}
-              content={focusColor}
-              className="register-form-button"
-            >
-              Go Back
-            </Link>
-          </BrowserRouter>
         </div>
       </div>
     </div>

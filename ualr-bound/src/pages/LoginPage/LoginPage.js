@@ -45,10 +45,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleLogout = () => {
-    //TODO Logout - Remove store's token
-  };
-
   const handleSubmit = () => {
     actions.login(usernameInput, passwordInput);
   };
@@ -182,7 +178,6 @@ const LoginPage = () => {
       </div>
     );
   } else {
-    //TODO: Already Logged In, redirect to dashboard/callers page
     console.log("Redirecting to dashboard.");
     return <Redirect to="/" />;
   }
