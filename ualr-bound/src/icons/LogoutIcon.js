@@ -1,7 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
+import { Context } from "../store/appContext";
 
 const LogoutIcon = (props) => {
+  const { store, actions } = useContext(Context);
+
+  const logoutDialog = () => {
+    const r = window.confirm("Are you sure you want to log out?");
+    if (r === true) {
+      actions.logout();
+    }
+  };
+
   if (!props.focused) {
     return (
       <div style={props.style}>
@@ -28,7 +38,7 @@ const LogoutIcon = (props) => {
     );
   } else {
     return (
-      <div style={props.style}>
+      <div style={props.style} onClick={logoutDialog}>
         <svg
           width="100"
           height="100"
