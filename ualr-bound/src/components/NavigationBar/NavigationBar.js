@@ -1,5 +1,6 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { Redirect } from "react-router-dom";
+import PropTypes from "prop-types";
 import styled from "styled-components";
 import "./NavigationBar.css";
 import * as constants from "../../utils/Constants";
@@ -14,7 +15,7 @@ import NavBarUserIcon from "../../icons/NavBarUserIcon";
 import NavBarAccessLevelIcon from "../../icons/NavBarAccessLevelIcon";
 import NavBarLabelIcon from "../../icons/NavBarLabelIcon";
 
-const NavigationBar = () => {
+const NavigationBar = ({ logoutFunc }) => {
   const { store, actions } = useContext(Context);
   const [collapseOffset, setCollapseOffset] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -298,6 +299,7 @@ const NavigationBar = () => {
             style={svgContainerStyle}
             focused={logoutFocused}
             focusedColor={focusColor}
+            onClick={logoutFunc}
           />
         </div>
         <Divider ref={dividerWidthRef} />
@@ -318,6 +320,14 @@ const NavigationBar = () => {
       {/* ---------------------------------- */}
     </div>
   );
+};
+
+NavigationBar.propTypes = {
+  editCallersFunc: PropTypes.func,
+  requestsFunc: PropTypes.func,
+  studentsFunc: PropTypes.func,
+  analyticsFunc: PropTypes.func,
+  logoutFunc: PropTypes.func,
 };
 
 export default NavigationBar;
