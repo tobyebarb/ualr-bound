@@ -1,6 +1,5 @@
 import "./App.css";
 import { useState, useEffect } from "react";
-import { Deploy } from "./components/deploy/Deploy";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";

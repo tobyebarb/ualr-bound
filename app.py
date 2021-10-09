@@ -17,7 +17,7 @@ CORS(app)
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIIFICATIONS"] = False
-app. permanent_session_lifetime = timedelta(minutes=5)
+app.permanent_session_lifetime = timedelta(minutes=5)
 jwt = JWTManager(app)
 db.init_app(app)
 
@@ -55,10 +55,7 @@ def register():
             print('\nCreated new row.\n')
 
         return jsonify({
-            "user": username,
-            "pass": password,
-            "email": email,
-            "access_level": access_level,
+            "msg": "success"
             }), 200
     #access_token = create_access_token(identity=username)
     #return jsonify(access_token=access_token)
@@ -76,8 +73,10 @@ def login():
     if user:
         if ValidUser.verify_password(self=user, pwd=password):
             access_token = create_access_token(identity=username)
+            email = user.email
+            access_level = str(user.accessLevel)
             print('Login successful.')
-            return jsonify(access_token=access_token), 200
+            return jsonify(access_token=access_token, username=username, email=email, access_level=access_level), 200
         else:
             print('Invalid password.')
             return jsonify({"msg": "Invalid password."}), 401

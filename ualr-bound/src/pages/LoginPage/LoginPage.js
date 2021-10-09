@@ -32,12 +32,8 @@ const LoginPage = () => {
     display: "flex",
     float: "left",
   };
-  const svgStyle = {
-    height: "24px",
-    width: "24px",
-    color: "#ffffff",
-  };
 
+  //TODO: On key press==="Enter", perform handleSubmit()
   const onKeyPressHandler = (e) => {
     e.preventDefault();
     if (e.key === "Enter") {
@@ -99,7 +95,6 @@ const LoginPage = () => {
             >
               <UserIcon
                 style={svgContainerStyle}
-                svgStyle={svgStyle}
                 focused={userFocused}
                 focusedColor={focusColor}
               />
@@ -127,7 +122,6 @@ const LoginPage = () => {
             >
               <PassIcon
                 style={svgContainerStyle}
-                svgStyle={svgStyle}
                 focused={passFocused}
                 focusedColor={focusColor}
               />
