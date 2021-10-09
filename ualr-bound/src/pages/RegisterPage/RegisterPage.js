@@ -43,11 +43,6 @@ const RegisterPage = () => {
     display: "flex",
     float: "left",
   };
-  const svgStyle = {
-    height: "24px",
-    width: "24px",
-    color: "#ffffff",
-  };
 
   const handleSubmit = () => {
     //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
@@ -136,7 +131,6 @@ const RegisterPage = () => {
               >
                 <UserIcon
                   style={svgContainerStyle}
-                  svgStyle={svgStyle}
                   focused={userFocused}
                   focusedColor={focusColor}
                 />
@@ -165,7 +159,6 @@ const RegisterPage = () => {
               >
                 <EmailIcon
                   style={svgContainerStyle}
-                  svgStyle={svgStyle}
                   focused={emailFocused}
                   focusedColor={focusColor}
                 />
@@ -202,7 +195,6 @@ const RegisterPage = () => {
           */}
                 <PassIcon
                   style={svgContainerStyle}
-                  svgStyle={svgStyle}
                   focused={passFocused}
                   focusedColor={focusColor}
                 />
@@ -231,7 +223,6 @@ const RegisterPage = () => {
               >
                 <AccessLevelIcon
                   style={svgContainerStyle}
-                  svgStyle={svgStyle}
                   focused={accessLevelFocused}
                   focusedColor={focusColor}
                 />

@@ -9,6 +9,7 @@ class accessLevel(enum.Enum):
     admin = 2
     root = 3
 
+
 class ValidUser(db.Model):
     __tablename__ = 'valid_user_set'
 
@@ -34,3 +35,10 @@ class ValidUser(db.Model):
 
     def getId(self):
         return f''
+
+class pendingRegistrationRequests(db.Model):
+    __tablename__ = 'pendingRegistrationRequests'
+
+    rid=db.Column(db.Integer, primary_key=True)
+    username=db.Column(db.String(40), unique=True)
+    

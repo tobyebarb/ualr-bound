@@ -49,7 +49,6 @@ const EmailIcon = (props) => {
 
 EmailIcon.propTypes = {
   style: PropTypes.object,
-  svgStyle: PropTypes.object,
   focused: PropTypes.bool,
   focusedColor: PropTypes.string,
 };

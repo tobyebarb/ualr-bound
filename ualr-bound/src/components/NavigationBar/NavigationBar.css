@@ -1,0 +1,51 @@
+#user-detail-user svg.icon, #user-detail-level svg.icon{
+    width: 50px;
+    height: 50px;
+}
+
+#user-detail-user, #user-detail-level {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.navigation-container{
+    background: #582633;
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+    width: fit-content;
+    height: 8rem;
+    min-height: 10vh;
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    transition: all ease-in-out 0.5s;
+    bottom: 3rem;
+}
+
+.icon-div {
+    transition: all ease-in-out 0.5s;
+}
+
+.icon-svg, .focused {
+    transition: all 1s ease-in-out;
+    transform-origin: 50% 50%;
+}
+
+.icon-svg  {
+    transform: scale(0);
+}
+
+.focused {
+    animation: switch 0.2s;
+    transform: scale(1);
+
+}
+
+@keyframes switch {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+  }

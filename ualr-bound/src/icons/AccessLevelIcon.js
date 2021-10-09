@@ -45,7 +45,6 @@ const AccessLevelIcon = (props) => {
 
 AccessLevelIcon.propTypes = {
   style: PropTypes.object,
-  svgStyle: PropTypes.object,
   focused: PropTypes.bool,
   focusedColor: PropTypes.string,
 };

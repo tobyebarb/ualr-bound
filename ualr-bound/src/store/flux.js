@@ -5,6 +5,11 @@ const getState = ({ getStore, getActions, setStore }) => {
     store: {
       token: null,
       message: null,
+      user: {
+        username: null,
+        email: null,
+        access_level: null,
+      },
     },
     actions: {
       login: async (usernameInput, passwordInput) => {
@@ -36,8 +41,19 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
 
           const data = await response.json();
+          console.log(data);
           sessionStorage.setItem("token", data.access_token);
-          setStore({ token: data.access_token });
+          sessionStorage.setItem("username", data.username);
+          sessionStorage.setItem("email", data.email);
+          sessionStorage.setItem("access_level", data.access_level);
+          setStore({
+            token: data.access_token,
+            user: {
+              username: data.username,
+              email: data.email,
+              access_level: data.access_level,
+            },
+          });
           //   window.location.href = "/";
         } catch (error) {
           console.error("There has been an error logging in.");
@@ -47,14 +63,32 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       logout: () => {
         sessionStorage.removeItem("token");
+        sessionStorage.removeItem("username");
+        sessionStorage.removeItem("email");
+        sessionStorage.removeItem("access_level");
         console.log("Logging out...");
-        setStore({ token: null });
+        setStore({
+          token: null,
+          user: { username: null, email: null, access_level: null },
+        });
       },
 
       syncTokenFromSessionStore: () => {
         const token = sessionStorage.getItem("token");
+        const username = sessionStorage.getItem("username");
+        const email = sessionStorage.getItem("email");
+        const access_level = sessionStorage.getItem("access_level");
         console.log("Application just loaded; syncing session storage");
-        if (token && token !== "" && token !== null) setStore({ token: token });
+        if (token && token !== "" && token !== null) {
+          setStore({
+            token: token,
+            user: {
+              username: username,
+              email: email,
+              access_level: access_level,
+            },
+          });
+        }
       },
 
       getMessage: () => {
