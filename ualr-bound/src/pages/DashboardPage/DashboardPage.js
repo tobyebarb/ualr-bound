@@ -3,6 +3,7 @@ import "./DashboardPage.css";
 import { Redirect, useHistory } from "react-router-dom";
 import * as constants from "../../utils/Constants";
 import { Context } from "../../store/appContext";
+import {Link, BrowserRouter} from "react-router-dom"
 
 const DashboardPage = () => {
   const { store, actions } = useContext(Context);
@@ -21,6 +22,19 @@ const DashboardPage = () => {
         <h1>UALR Bound Dashboard :)</h1>
         <h2>{store.message === null ? "Loading..." : store.message}</h2>
         <button onClick={actions.logout}>Logout</button>
+        <button>{               <BrowserRouter>
+                <Link
+                  to="/registerRequest"
+                  onClick={() => {
+                    window.location.href = "/registerRequest";
+                  }}
+                  content={focusColor}
+                >
+                  RegisterRequestPage
+                </Link>
+              </BrowserRouter>
+  }
+        </button>
       </div>
     );
   } else {

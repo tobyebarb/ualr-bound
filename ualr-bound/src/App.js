@@ -4,6 +4,7 @@ import { Deploy } from "./components/deploy/Deploy";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
+import RegistrationRequestPage from "./pages/RegistrationRequestPage/RegistrationRequestPage";
 import injectContext from "./store/appContext";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 
@@ -27,6 +28,7 @@ const App = () => {
         <Route exact path="/" component={DashboardPage} />
         <Route exact path="/login" component={LoginPage} />
         <Route exact path="/register" component={RegisterPage} />
+        <Route exact path="/registerRequest" component={RegistrationRequestPage} />
       </div>
     </Router>
   );
