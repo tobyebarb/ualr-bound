@@ -76,6 +76,7 @@ def login():
             email = user.email
             access_level = str(user.accessLevel)
             print('Login successful.')
+            print(f'{username}, {email}, {access_level}')
             return jsonify(access_token=access_token, username=username, email=email, access_level=access_level), 200
         else:
             print('Invalid password.')

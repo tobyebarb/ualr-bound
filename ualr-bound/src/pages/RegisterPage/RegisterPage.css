@@ -175,88 +175,63 @@
     width: 80vw;
 }
 
-@media screen and (min-width: 320px) and (max-width: 480px) {}
-
-@media screen and (min-width: 480px) and (max-width: 768px) {}
-
-@media screen and (min-width: 768px) and (max-width: 992px) {}
-
-@media screen and (min-width: 992px) and (max-width: 1200px) {}
-
-@media screen and (min-width: 1200px) and (max-width: 1920px) {
-    .register-input-row {
-        margin: 1rem;
-    }
-
-    .register-container {
-        /* display: block;
-        position: static; */
-    }
-
-    .register-middle {
-        /* display: block;
-        position: static; */
-    }
-
-    .register-content {
-        margin-top: auto;
-        margin-bottom: auto;
-    }
-
+@media screen and (min-width: 320px) and (max-width: 480px) {
     .register-details-logo {
-        width: 15rem;
         margin-left: auto;
         margin-right: auto;
-    }
+        margin-top: 5rem;
+        width: 15rem;
+    }}
 
-    .register-details {
-        display: flex;
-        flex-direction: row;
-        margin-bottom: 0;
-    }
-
+@media screen and (min-width: 480px) and (max-width: 768px) {
     .register-details-logo {
-        order: 1;
-        margin-top: 0;
-    }
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5rem;
+        width: 15rem;
+    }}
 
-    .register-form-button-container-col {
-        margin-bottom: auto;
+@media screen and (min-width: 768px) and (max-width: 992px) {
+    .register-details-logo {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5rem;
+        width: 15rem;
+        display:none;
     }
-
     .register-details-divider {
         display: none;
     }
-
-    .register-form-button{
-        background: rgba(81, 81, 81, 0.4);
-        font-family: Montserrat;
-        font-style: normal;
-        font-size: 2rem;
-        color: #ffffff;
-        
-        border: 5px solid #FFFFFF;
-        box-sizing: border-box;
-        border-radius: 15px;
-        padding: 1.25rem;
-        transition: all 250ms ease-in-out;
-        min-width: 10rem;
-        text-decoration: none;
-        text-align: center;
-    
-        margin-top: 2.5rem;
-        margin-bottom: 2.5rem;
-        margin-right: 2rem;
+    .register-form-button-container-col {
+        flex-direction: row;
+        margin-bottom: initial;
+        margin-left: initial;
+        margin-right: initial;
     }
-
-    .hovering-image-container {
-        max-height: 30rem;
-        max-width: 30rem;
+    .register-details {
+        margin-bottom: initial;
+        margin-left: initial;
+        margin-right: initial;
     }
+    .register-content {
+        flex-direction: column;
+    }
+}
 
-    svg.icon {
-        width:50px;
-        height:50px;
+@media screen and (min-width: 992px) and (max-width: 1200px) {
+    .register-details-logo {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5rem;
+        width: 15rem;
+    }}
+
+@media screen and (min-width: 1200px) and (max-width: 1920px) {
+    .register-details-logo {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5rem;
+        width: 15rem;
     }
 }
 

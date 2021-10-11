@@ -15,7 +15,7 @@ import NavBarUserIcon from "../../icons/NavBarUserIcon";
 import NavBarAccessLevelIcon from "../../icons/NavBarAccessLevelIcon";
 import NavBarLabelIcon from "../../icons/NavBarLabelIcon";
 
-const NavigationBar = ({ logoutFunc }) => {
+const NavigationBar = () => {
   const { store, actions } = useContext(Context);
   const [collapseOffset, setCollapseOffset] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -31,20 +31,6 @@ const NavigationBar = ({ logoutFunc }) => {
     setStudentsFocused(boolean);
     setAnalyticsFocused(boolean);
     setLogoutFocused(boolean);
-  };
-
-  const Label = ({ label, focused }) => {
-    return (
-      <div
-        style={{
-          display: focused ? "inline-block" : "none",
-          position: "absolute",
-          top: 0,
-        }}
-      >
-        <span>{label}</span>
-      </div>
-    );
   };
 
   const svgContainerStyle = {
@@ -64,7 +50,6 @@ const NavigationBar = ({ logoutFunc }) => {
         (arrowWidthRef.current.offsetWidth +
           dividerWidthRef.current.offsetWidth)
     );
-    console.log(collapseOffset);
   }, []);
 
   const svgStyle = {
@@ -91,7 +76,9 @@ const NavigationBar = ({ logoutFunc }) => {
   };
 
   const username = store.user.username;
-  const access_level = parseAccessLevelStr(store.user.access_level);
+  const access_level = store.user.access_level
+    ? parseAccessLevelStr(store.user.access_level)
+    : "";
 
   const focusColor = "#FFFFFF";
 
@@ -299,7 +286,6 @@ const NavigationBar = ({ logoutFunc }) => {
             style={svgContainerStyle}
             focused={logoutFocused}
             focusedColor={focusColor}
-            onClick={logoutFunc}
           />
         </div>
         <Divider ref={dividerWidthRef} />
