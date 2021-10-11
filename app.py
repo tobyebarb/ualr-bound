@@ -49,8 +49,8 @@ def register():
         
         if username and password and email and access_level:
             print('\nCreating row in database...\n')
-            validUser = ValidUser(username=username, password=password, email=email, accessLevel=access_level, activationStatus=True)
-            db.session.add(validUser)
+            regRequest = RegistrationRequest(username=username, password=password, email=email, accessLevel=access_level)
+            db.session.add(regRequest)
             db.session.commit()
             print('\nCreated new row.\n')
 
