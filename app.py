@@ -51,18 +51,14 @@ def register():
         
         if username and password and email and access_level:
 
-            for users in RegistrationRequest:
-                if username == users.username:
-                    regMatch = True
-            for users in ValidUser:
-                if username == users.username:
-                    userMatch = True
-            for users in RegistrationRequest:
-                if email == users.email:
-                    regMatch = True
-            for users in ValidUser:
-                if email == users.email:
-                    userMatch = True
+            if RegistrationRequest.query.filter_by(username=username).first():
+                regMatch = True
+            if ValidUser.query.filter_by(username=username).first():
+                userMatch = True
+            if RegistrationRequest.query.filter_by(email=email).first():
+                regMatch = True
+            if ValidUser.query.filter_by(email=email).first():
+                userMatch = True
 
             if not (userMatch or regMatch):
                 print('\nCreating row in database...\n')
