@@ -1,7 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useHistory } from "react-router-dom";
 
 const RequestsIcon = (props) => {
+  const history = useHistory();
+
+  const redirect = () => {
+    history.push("/requests");
+  };
+
   if (!props.focused) {
     return (
       <div style={props.style}>
@@ -38,7 +45,7 @@ const RequestsIcon = (props) => {
     );
   } else {
     return (
-      <div style={props.style}>
+      <div style={props.style} onClick={redirect}>
         <svg
           width="100"
           height="100"

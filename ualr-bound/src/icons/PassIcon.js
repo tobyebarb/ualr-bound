@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const UserIcon = (props) => {
+const PassIcon = (props) => {
   if (!props.focused) {
     return (
       <div style={props.style}>
@@ -49,10 +49,10 @@ const UserIcon = (props) => {
   }
 };
 
-UserIcon.propTypes = {
+PassIcon.propTypes = {
   style: PropTypes.object,
   focused: PropTypes.bool,
   focusedColor: PropTypes.string,
 };
 
-export default UserIcon;
+export default PassIcon;

@@ -70,7 +70,7 @@ const LoginPage = () => {
     return (
       <div className="login-container">
         <motion.div
-          className="hovering-image-container"
+          className="login-hovering-image-container"
           initial={{
             y: loginBlockImgDisplacement,
           }}

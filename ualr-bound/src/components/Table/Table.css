@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,900&display=swap');
+
+
+.table-root {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ag-root-wrapper {
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+
+}
+
+.ag-row-even {
+    background: #E5E5E5 !important;
+}
+
+.ag-row-odd {
+    background: #BFBFBF !important;
+}
+
+.ag-row-focus {
+    background: #582633 !important;
+}
+
+.ag-row-focus > div {
+    color: #FFF !important;
+}
+
+
+.ag-cell {
+    font-family: Montserrat;
+    font-style: normal;
+    font-size: 18px;
+    align-items: center;
+
+    color: #000000;
+}
+
+.ag-row .ag-cell {
+    display: flex;
+  }
+
+.ag-header-cell-text {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+
+    color: #000000;
+}
+
+.table-searchbar {
+    border:hidden;
+    width: 95%;
+    border-radius: 20px;
+    height: 3rem;
+
+    font-family: Montserrat;
+    font-style: normal;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+
+    color: #515151;
+
+    margin-top:2rem;
+    margin-bottom: 2rem;
+    padding-left: 80px;
+}
+
+.table-searchbar-container {
+    background: #4D212C;
+    display: flex;
+    justify-content: center;
+
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+
+}
+
+::-webkit-scrollbar {
+    background: #6E2639;
+    width: 15px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+  
+/* Track */
+::-webkit-scrollbar-track {
+    background: #6E2639;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+   
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #FFF;
+    border: 3px solid #6E2639;
+    border-radius: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+  
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(156, 156, 156); 
+}
+
+.search-icon {
+    position: absolute;
+    transition: all ease-in-out 1s;
+}
+
+.search-icon-container {
+    margin: 0;
+    padding: 0;
+    height: 120px;
+    width: 100px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    margin-top: -4px;
+    margin-right: -60px;
+
+
+}

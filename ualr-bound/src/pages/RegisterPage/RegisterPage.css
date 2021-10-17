@@ -17,7 +17,7 @@
 
 }
 
-.hovering-image-container {
+.register-hovering-image-container {
     width: 100%;
     height: 100%;
     max-width: 50rem;
@@ -227,11 +227,36 @@
     }}
 
 @media screen and (min-width: 1200px) and (max-width: 1920px) {
+    .register-input-row {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .register-form-button-container-col {
+        margin-bottom: 0;
+    }
+
     .register-details-logo {
         margin-left: auto;
         margin-right: auto;
-        margin-top: 5rem;
+        margin-top: 0;
         width: 15rem;
+    }
+
+    .register-details-divider {
+        margin-top: 2rem;
+    }
+
+    .register-details {
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
+    .register-hovering-image-container{
+        max-width: 40rem;
+        max-height: 40rem;
+        margin-top: auto;
+        margin-bottom: auto;
     }
 }
 
@@ -245,7 +270,7 @@
         position: absolute;
     }
     
-    .hovering-image-container {
+    .register-hovering-image-container {
         background: linear-gradient(135.27deg, #7D3C4D 0.97%, #6E2639 98.57%);
         border-radius: 25px;
     

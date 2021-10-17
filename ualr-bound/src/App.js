@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import injectContext from "./store/appContext";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
+import RegisterRequestPage from "./pages/RegisterRequestPage/RegisterRequestPage";
 
 const App = () => {
   const [state, setState] = useState({});
@@ -26,6 +27,7 @@ const App = () => {
         <Route exact path="/" component={DashboardPage} />
         <Route exact path="/login" component={LoginPage} />
         <Route exact path="/register" component={RegisterPage} />
+        <Route exact path="/requests" component={RegisterRequestPage} />
       </div>
     </Router>
   );

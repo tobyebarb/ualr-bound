@@ -3,6 +3,7 @@ import * as constants from "../utils/Constants";
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      decisionBtnHeight: null,
       token: null,
       message: null,
       user: {
@@ -89,6 +90,13 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
           });
         }
+      },
+
+      setDecisionBtnHeight: (size) => {
+        console.log("Setting decision button height to " + size);
+        setStore({
+          decisionBtnHeight: size,
+        });
       },
 
       getMessage: () => {
