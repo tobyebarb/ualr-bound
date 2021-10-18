@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, date
 import os
 from flask import Flask, request, jsonify
 from flask.helpers import send_from_directory
@@ -7,7 +7,8 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
-from api.model import db, ValidUser
+from api.model import db, ValidUser, RegistrationRequest
+from collections import defaultdict
 
 
 app = Flask(__name__, static_folder='ualr-bound/build', static_url_path='')
@@ -17,7 +18,7 @@ CORS(app)
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIIFICATIONS"] = False
-app.permanent_session_lifetime = timedelta(minutes=5)
+app.permanent_session_lifetime = timedelta(minutes=30)
 jwt = JWTManager(app)
 db.init_app(app)
 
@@ -36,6 +37,72 @@ def get_message():
     }
     return jsonify(dictionary)
 
+@app.route("/api/updateRegistrationRequests", methods=["POST"])
+@jwt_required()
+@cross_origin()
+def updateRegistrationRequests():
+    if request.method == 'POST':
+        data = request.json
+        print("data is " + format(data))
+        username = request.json.get("username", None)
+        decision = request.json.get("decision", None)
+
+        print(f'\n~Recieved Request~\nUsername: {username}\nDecision: {decision}\n')
+
+        #Update database and convert RegistrationRequest to ValidUser
+        if username and decision:
+            regRequest = RegistrationRequest.query.filter_by(username=username).first()
+            if regRequest:
+                print(f'Registration request {regRequest.username} found')
+                if decision == "approve":
+                    print('\nConverting request into user...\n')
+                    user = ValidUser( # Create new user based on the request
+                        name=regRequest.name,
+                        username=regRequest.username, 
+                        password=regRequest.hashedPassword, 
+                        email=regRequest.email, 
+                        accessLevel=regRequest.accessLevel,
+                        activationStatus=True,
+                        )
+                    db.session.add(user)
+                    db.session.delete(regRequest) # Delete request
+                    db.session.commit()
+                    print('\nCreated new user.\n')
+                if decision == "deny":
+                    print('\nDeleting request...\n')
+                    db.session.delete(regRequest) # Delete request
+                    db.session.commit()
+                    print('\nDeleted.\n')
+
+                return jsonify({"msg":"success"}), 200
+            print("Registration request not found.")
+            return jsonify({"msg":"fail"}), 400
+    print("Not POST method.")
+    return jsonify({"msg":"fail"}), 400
+
+@app.route("/api/getRegistrationRequests", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getPendingRegistrationRequests(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
+    #user = get_jwt_identity()
+    jsonData = formatRegReqQuery(db.session.query(RegistrationRequest).all())
+    return jsonify(jsonData, 200)
+
+def row2dict(row):
+    d = {}
+    unwantedColumns = ["hashedPassword"]
+    for column in row.__table__.columns:
+        if column.name not in unwantedColumns:
+            d[column.name] = str(getattr(row, column.name))
+    return d
+
+def formatRegReqQuery(data):
+    rows = db.session.query(RegistrationRequest).count()
+    jsonData = {}
+    for i in range(rows):
+        jsonData[i] = row2dict(data[i])
+    return jsonData
+
 @app.route("/register", methods=["POST"])
 @cross_origin()
 def register():
@@ -44,19 +111,41 @@ def register():
         password = request.json.get("password", None)
         email = request.json.get("email", None)
         access_level = request.json.get("access-level", None)
+        userMatch = False
+        regMatch = False
 
         print(f'\nRecieved Request:\nUsername:{username}\nPassword:{password}\nEmail:{email}\nAccess Level:{access_level}\n')
         
         if username and password and email and access_level:
-            print('\nCreating row in database...\n')
-            validUser = ValidUser(username=username, password=password, email=email, accessLevel=access_level, activationStatus=True)
-            db.session.add(validUser)
-            db.session.commit()
-            print('\nCreated new row.\n')
 
-        return jsonify({
-            "msg": "success"
-            }), 200
+            if RegistrationRequest.query.filter_by(username=username).first():
+                regMatch = True
+            if ValidUser.query.filter_by(username=username).first():
+                userMatch = True
+            if RegistrationRequest.query.filter_by(email=email).first():
+                regMatch = True
+            if ValidUser.query.filter_by(email=email).first():
+                userMatch = True
+
+            if not (userMatch or regMatch):
+                print('\nCreating row in database...\n')
+                regRequest = RegistrationRequest(username=username, password=password, email=email, accessLevel=access_level)
+                db.session.add(regRequest)
+                db.session.commit()
+                print('\nCreated new row.\n')
+
+                return jsonify({
+                    "user": username,
+                    "pass": password,
+                    "email": email,
+                    "access_level": access_level,
+                    }), 200
+            elif userMatch:
+                print('\nA user with that information already exists!')
+                return jsonify({"msg":  "Information already exists among valid users."}), 400
+            else:
+                print('\nA request with that information is awaiting approval.')
+                return jsonify({"msg":  "Information already exists on pending request."}), 400
     #access_token = create_access_token(identity=username)
     #return jsonify(access_token=access_token)
 

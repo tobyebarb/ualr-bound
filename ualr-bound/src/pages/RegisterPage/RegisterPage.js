@@ -1,3 +1,5 @@
+/* TODO: Add first and last name as an entry to registration */
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import "./RegisterPage.css";
@@ -106,7 +108,7 @@ const RegisterPage = () => {
       <div className="register-middle">
         <div className="register-content">
           <motion.div
-            className="hovering-image-container"
+            className="register-hovering-image-container"
             initial={{
               y: RegisterBlockImgDisplacement,
             }}
