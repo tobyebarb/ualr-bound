@@ -50,13 +50,15 @@ const Table = () => {
 
   const tableMult = 0.95;
 
-  const ridColMult = 0.1;
-  const nameColMult = 0.2;
-  const usernameColMult = 0.2;
-  const emailColMult = 0.2;
-  const accessLevelColMult = 0.1;
-  const dateColMult = 0.1;
-  const decisionColMult = 0.1;
+  console.log(dimensions.width);
+
+  const ridColMult = dimensions.width > 1650 ? 0.1 : 0.1;
+  const nameColMult = dimensions.width > 1650 ? 0.2 : 0.15;
+  const usernameColMult = dimensions.width > 1650 ? 0.2 : 0.2;
+  const emailColMult = dimensions.width > 1650 ? 0.2 : 0.2;
+  const accessLevelColMult = dimensions.width > 1650 ? 0.1 : 0.1;
+  const dateColMult = dimensions.width > 1650 ? 0.1 : 0.1;
+  const decisionColMult = dimensions.width > 1650 ? 0.1 : 0.15;
 
   const focusedColor = "#582633";
 
