@@ -16,12 +16,12 @@ const DecisionButton = (props) => {
 
   const onCheckClick = () => {
     console.log("yes", data);
-    props.updateRows(data);
+    props.updateRows(data, true);
   };
 
   const onCrossClick = () => {
     console.log("no", data);
-    props.updateRows(data);
+    props.updateRows(data, false);
   };
 
   useEffect(() => {

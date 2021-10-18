@@ -6,6 +6,7 @@ import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-balham.css";
 import SearchIcon from "../../icons/SearchIcon";
 import { Context } from "../../store/appContext";
+import * as constants from "../../utils/Constants";
 
 const Table = () => {
   const { store, actions } = useContext(Context);
@@ -45,10 +46,6 @@ const Table = () => {
     decisionWidth = tableWidth * decisionColMult;
   };
 
-  const updateRows = (data) => {
-    console.log("Updating Rows...");
-  };
-
   const rowHeight = 100;
 
   const tableMult = 0.95;
@@ -74,13 +71,18 @@ const Table = () => {
   let decisionWidth =
     tableWidth * decisionColMult - (getScrollbarSize().width + 2);
 
-  console.log("ridWidth", ridWidth);
-  console.log("nameWidth", nameWidth);
-  console.log("usernameWidth", usernameWidth);
-  console.log("emailWidth", emailWidth);
-  console.log("accessLevelWidth", accessLevelWidth);
-  console.log("decisionWidth", decisionWidth);
-  console.log(getScrollbarSize().width);
+  var data = [];
+
+  const updateData = async () => {
+    data = await actions.getRegistrationRequests();
+    setRowData(data);
+  };
+
+  const decisionBtnClicked = async (data, isApproved) => {
+    let res = await actions.updateRequestDecision(data, isApproved); //wait for response when all backend ops are done
+    // check to make sure the it is waiting for res
+    updateData(); // update table with new data
+  };
 
   useEffect(() => {
     window.addEventListener("resize", handleResize, false);
@@ -103,194 +105,27 @@ const Table = () => {
         cellClass: "decision-btn-cell",
         width: decisionWidth,
         cellRendererFramework: (params) => {
-          return <DecisionButton params={params} updateRows={updateRows} />;
+          return (
+            <DecisionButton params={params} updateRows={decisionBtnClicked} />
+          );
         },
       },
     ]);
-    setRowData([
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000002",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000003",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000004",
-        name: "John Poe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "jerrey",
-        username: "john.doe1",
-        email: "j34e@gmail.com",
-        access_level: "CALLER",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-      {
-        request_id: "000001",
-        name: "John Doe",
-        username: "john.doe1",
-        email: "johndoe@gmail.com",
-        access_level: "ROOT",
-        date_created: "09-19-2021",
-      },
-    ]);
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  async function createRowData() {
+    data = await actions.getRegistrationRequests();
+    console.log("DATA: ", data);
+    setRowData(data);
+  }
 
   function onGridReady(params) {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
+
+    createRowData();
   }
 
   return (
