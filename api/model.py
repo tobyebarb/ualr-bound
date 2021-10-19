@@ -56,3 +56,29 @@ class RegistrationRequest(db.Model):
 
     def getId(self):
         return f''
+
+
+class CallerList(db.Model):
+    __tablename__ = 'callerlist'
+
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String, unique = True)
+    totalCalls = db.Column(db.Integer)
+    numCampaigns = db.Column(db.Integer)
+    campaigns = db.Column(db.ARRAY(db.String, dimensions=2)
+    #Set as string so campaign name can be included.
+    #Stats will have to be converted back to int to be read
+    inCampaign = db.Column(db.Boolean)
+    currentCampaign = db.Column(db.String)
+
+    def __init__(self, username, password, email, accessLevel):
+        self.username = username
+        self.hashedPassword = generate_password_hash(password)
+        self.email = email
+        self.accessLevel = accessLevel
+
+    def __repr__(self):
+        return f'<Request {self.username}>'
+
+    def getId(self):
+        return f''
