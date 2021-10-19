@@ -62,7 +62,7 @@ class CallerList(db.Model):
     __tablename__ = 'callerlist'
 
     id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String, unique = True)
+    username = db.Column(db.String, ForeignKey('ValidUser.username')
     totalCalls = db.Column(db.Integer)
     numCampaigns = db.Column(db.Integer)
     campaigns = db.Column(db.ARRAY(db.String, dimensions=2)
