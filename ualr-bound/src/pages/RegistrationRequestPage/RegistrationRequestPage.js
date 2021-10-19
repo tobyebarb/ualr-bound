@@ -1,91 +1,92 @@
 import { Link, BrowserRouter } from "react-router-dom";
 import { useState, useMemo } from "react";
-import { useTable } from "react-table";
-import { COLUMNS } from "./Columns";
+import makeData from "./RegisterData.json"
 import "./RegistrationRequestPage.css";
+import ColumnData from "./Columns";
 
 const RegistrationRequestPage = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: "000000",
-      name: "Chris Stone",
-      username: "ChrisS",
-      email: "chrisstone22@gmail.com",
-      accessLevel: "ROOT",
-      dateCreated: "05-19-2021",
-    },
-    {
-      id: "000001",
-      name: "Julie Andrews",
-      username: "JDrews",
-      email: "jasoundofmusic@gmail.com",
-      accessLevel: "ADMIN",
-      dateCreated: "03-27-2021",
-    },
-    {
-      id: "000002",
-      name: "Abby Rowlan",
-      username: "Abrow",
-      email: "abbyrowlan@yahoo.com",
-      accessLevel: "CALLER",
-      dateCreated: "11-03-2021",
-    },
-  ]);
+  const [requests, setRequests] = useState(useMemo(() => makeData, []))
+  const [approvedRequest, setApprovedRequest] = useState([])
+  const [search, setSearch] = useState("");
 
-  const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => requests, []);
 
-  const tableInstance = useTable({
-    columns: columns,
-    data: data,
-  });
+ const handleDelete = (requestId) => {
+   const newRequest = [...requests];
+   const index = requests.findIndex((request) => request.id === requestId);
+   newRequest.splice(index, 1);
+   setRequests(newRequest);
+ }
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    tableInstance;
+ const handleAppend = (requestId) => {
+  const newRequest = [...requests];
+  const index = requests.findIndex((request) => request.id === requestId);
+  setApprovedRequest(approvedRequest.concat(newRequest.splice(index,1)))
+ }
 
   return (
+    <>
+    <input 
+      type="text" 
+      placeholder="Search..."
+      onChange={(e) => {
+        setSearch(e.target.value)}}
+    />
     <div>
-      <table className="request-table" {...getTableProps()}>
+      <table className ="request-table">
         <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps}>
-              {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-              ))}
-            </tr>
-          ))}
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Access Level</th>
+            <th>Date Created</th>
+            <th>Appove/Deny</th>
+          </tr>
         </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {
-                  row.cells.map((cell) => {
-                    return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                  })
-                }
-              </tr>
-            );
-          })}
+        <tbody>
+          {requests.filter((value)=>{
+            if(search ===""){
+              return value
+            }
+            else if(
+              value.id.toLowerCase().includes(search.toLowerCase()) ||
+              value.name.toLowerCase().includes(search.toLowerCase()) ||
+              value.username.toLowerCase().includes(search.toLowerCase()) ||
+              value.email.toLowerCase().includes(search.toLowerCase())
+            ){
+              return value;
+            }
+          }).map((request) => (
+            <ColumnData 
+              key={request.id}
+              request={request}
+              handleDelete={handleDelete}
+              handleAppend={handleAppend}/>
+          ))}
         </tbody>
       </table>
-      <div>
-        <p>
-          <BrowserRouter>
-            <Link
-              to="/"
-              onClick={() => {
-                window.location.href = "/";
+    </div>
+      <p>
+        <BrowserRouter>
+          <Link to="/"
+           onClick={() => {
+              window.location.href = "/";
               }}
             >
               Dashboard
-            </Link>
-          </BrowserRouter>
-        </p>
-      </div>
-    </div>
-  );
+          </Link>
+        </BrowserRouter>
+      </p>
+      <p>
+        {approvedRequest.map((list) => (
+          <li key={list.id}>
+            {list.id}
+          </li>
+        ))}
+      </p>
+    </>
+  )
 };
 
 export default RegistrationRequestPage;

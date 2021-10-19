@@ -1,26 +1,30 @@
-export const COLUMNS = [
-    {
-        Header: "ID",
-        accessor: 'id'
-      },
-      {
-        Header: "Name",
-        accessor: "name"
-      },
-      {
-        Header: "Username",
-        accessor: "username"
-      },
-      {
-        Header: "Email",
-        accessor: "email"
-      },
-      {
-        Header: "Classification",
-        accessor: "accessLevel"
-      },
-      {
-        Header: "Date Created",
-        accessor: "dateCreated"
-      }
-]
+import React from "react";
+
+const ColumnData = ({request, handleAppend, handleDelete}) => {
+  function handleBothEvents(requestID){
+    handleAppend(requestID);
+    handleDelete(requestID);
+  }
+  
+  return(
+    <tr>
+    <td>{request.id}</td>
+    <td>{request.name}</td>
+    <td>{request.username}</td>
+    <td>{request.email}</td>
+    <td>{request.accessLevel}</td>
+    <td>{request.dateCreated}</td>
+    <td>
+      <button onClick={()=> handleBothEvents(request.id)}>
+        Approve
+      </button>
+      <button onClick={()=> handleDelete(request.id)}>
+        Deny
+      </button>
+    </td>
+
+  </tr>
+  )
+}
+
+export default ColumnData
