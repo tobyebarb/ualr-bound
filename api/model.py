@@ -63,3 +63,23 @@ class RegistrationRequest(db.Model):
 
     def getId(self):
         return f''
+
+class ProspectList(db.Model):
+    __tablename__ = 'prospect_list'
+    id = db.Column(db.Integer, primary_key = True)
+    tNumber = db.Column(db.String(9), unique = True)
+    campaignStatus = db.Column(db.Boolean)
+    numCampaigns = db.Column(db.Integer)
+
+    def __init__(self, tNumber)
+        self.tNumber = tNumber
+        self.campaignStatus = True
+        self.numCampaigns = 0
+
+    def __repr__(self):
+        return "{}({!r})".format(self.__class__.__name__, self.__dict__)
+
+    def getId(self):
+        return f''
+
+
