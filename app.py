@@ -16,7 +16,7 @@ CORS(app)
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('PRODUCTION_DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIIFICATIONS"] = False
 app.permanent_session_lifetime = timedelta(minutes=30)
 jwt = JWTManager(app)
