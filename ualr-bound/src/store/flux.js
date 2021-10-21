@@ -15,7 +15,7 @@ const getState = ({ getStore, getActions, setStore }) => {
     },
     actions: {
       login: async (usernameInput, passwordInput) => {
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/token`; //http://127.0.0.1:5000/token
         const headers = {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -107,7 +107,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             Authorization: "Bearer " + store.token,
           },
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/message`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/message`;
         // fetching data from the backend
         fetch(endpoint, opts)
           .then((resp) => resp.json())
@@ -139,7 +139,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           body: JSON.stringify(newData),
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateRegistrationRequests`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/updateRegistrationRequests`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -168,7 +168,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             Authorization: "Bearer " + store.token,
           },
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getRegistrationRequests`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getRegistrationRequests`;
         // fetching data from the backend
 
         // console.log("Updating rows...");
