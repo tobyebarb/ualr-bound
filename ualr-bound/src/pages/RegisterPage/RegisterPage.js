@@ -37,7 +37,7 @@ const RegisterPage = () => {
     "Content-Type": "application/json",
   };
 
-  const endpoint = `${constants.ENDPOINT_URL.LOCAL}/register`;
+  const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/register`;
 
   const svgContainerStyle = {
     margin: "0.3rem",
