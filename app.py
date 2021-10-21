@@ -174,6 +174,10 @@ def login():
         print('User does not exist.')
         return jsonify({"msg": "User does not exist."}), 401
 
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory(app.static_folder, 'index.html')
+
 @app.route('/')
 @cross_origin()
 def serve():
