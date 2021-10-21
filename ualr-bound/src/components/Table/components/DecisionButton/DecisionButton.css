@@ -1,0 +1,69 @@
+.decision-button-container {
+    display: flex;
+    flex-direction: row;
+    
+    background: rgba(54, 50, 50, 0.5);
+    border-radius: 25px;
+
+    justify-content: center;
+
+}
+
+.decision-button-divider {
+    border: 1px solid #FFFFFF;
+    margin-top: auto;
+    margin-bottom: auto;
+    border-radius: 5px;
+    height: 60px;
+}
+
+.decision-btn-cell {
+    height: 100%;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+/* <CHECK STYLE> */
+
+.decision-button-check-container {
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+    transition: all ease-in-out 0.3s;
+}
+
+.decision-button-check-container:hover {
+    background: #582633;
+}
+
+.decision-button-check-container path {
+    fill: #21D31D;
+    transition: all ease-in-out 0.3s;
+}
+
+.decision-button-check-container:hover path{
+    fill: #FFFFFF;
+}
+
+/* </CHECK STYLE> */
+/* <CROSS STYLE> */
+
+.decision-button-cross-container {
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+    transition: all ease-in-out 0.3s;
+}
+
+.decision-button-cross-container:hover {
+    background: #582633;
+}
+
+.decision-button-cross-container path {
+    fill: #E8372B;
+    transition: all ease-in-out 0.3s;
+}
+
+.decision-button-cross-container:hover path{
+    fill: #FFFFFF;
+}
+/* </CROSS STYLE> */
