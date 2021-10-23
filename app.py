@@ -16,7 +16,7 @@ CORS(app)
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('PRODUCTION_DATABASE_URL')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIIFICATIONS"] = False
 app.permanent_session_lifetime = timedelta(minutes=30)
 jwt = JWTManager(app)
@@ -173,6 +173,11 @@ def login():
     else:
         print('User does not exist.')
         return jsonify({"msg": "User does not exist."}), 401
+
+@app.errorhandler(404)
+@cross_origin()
+def not_found(e):
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/')
 @cross_origin()
