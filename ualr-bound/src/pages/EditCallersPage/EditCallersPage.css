@@ -1,0 +1,9 @@
+.edit-callers-container {
+    height: 100vh;
+    background: linear-gradient(135.27deg, #7D3C4D 0.97%, #6E2639 98.57%);
+    padding-top: 2rem;
+}
+
+body {
+    overflow: hidden;
+}

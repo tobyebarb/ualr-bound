@@ -35,6 +35,7 @@ def get_message():
     dictionary = {
         "message": "Hello, " + user
     }
+
     return jsonify(dictionary)
 
 @app.route("/api/updateRegistrationRequests", methods=["POST"])
@@ -85,28 +86,43 @@ def updateRegistrationRequests():
 @cross_origin()
 def getPendingRegistrationRequests(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
     #user = get_jwt_identity()
-    jsonData = formatRegReqQuery(db.session.query(RegistrationRequest).all())
+    data = db.session.query(RegistrationRequest).all()
+    count = db.session.query(RegistrationRequest).count()
+
+    jsonData = formatQuery(data, count, ["id", "name", "username", "email", "accessLevel", "time_created"])
     return jsonify(jsonData, 200)
 
-def row2dict(row):
+@app.route("/api/getCallers", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getCallers(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
+    #user = get_jwt_identity()
+
+    data = db.session.query(ValidUser).all()
+    count = db.session.query(ValidUser).count()
+    
+    jsonData = formatQuery(data, count, ["id", "name", "accessLevel", "time_created", "activationStatus"])
+
+    return jsonify(jsonData, 200)
+
+def row2dict(row, wantedColumns):
     d = {}
-    unwantedColumns = ["hashedPassword"]
     for column in row.__table__.columns:
-        if column.name not in unwantedColumns:
+        if column.name in wantedColumns:
             d[column.name] = str(getattr(row, column.name))
     return d
 
-def formatRegReqQuery(data):
-    rows = db.session.query(RegistrationRequest).count()
+def formatQuery(data, rowCount, wantedColumns):
     jsonData = {}
-    for i in range(rows):
-        jsonData[i] = row2dict(data[i])
+    for i in range(rowCount):
+        jsonData[i] = row2dict(data[i], wantedColumns)
     return jsonData
 
 @app.route("/register", methods=["POST"])
 @cross_origin()
 def register():
     if request.method == 'POST':
+        name = request.json.get("name", None)
         username = request.json.get("username", None)
         password = request.json.get("password", None)
         email = request.json.get("email", None)
@@ -114,9 +130,9 @@ def register():
         userMatch = False
         regMatch = False
 
-        print(f'\nRecieved Request:\nUsername:{username}\nPassword:{password}\nEmail:{email}\nAccess Level:{access_level}\n')
+        print(f'\nRecieved Request:\nName:{name}\nUsername:{username}\nPassword:{password}\nEmail:{email}\nAccess Level:{access_level}\n')
         
-        if username and password and email and access_level:
+        if name and username and password and email and access_level:
 
             if RegistrationRequest.query.filter_by(username=username).first():
                 regMatch = True
@@ -129,7 +145,7 @@ def register():
 
             if not (userMatch or regMatch):
                 print('\nCreating row in database...\n')
-                regRequest = RegistrationRequest(username=username, password=password, email=email, accessLevel=access_level)
+                regRequest = RegistrationRequest(name=name, username=username, password=password, email=email, accessLevel=access_level)
                 db.session.add(regRequest)
                 db.session.commit()
                 print('\nCreated new row.\n')

@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import injectContext from "./store/appContext";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import RegisterRequestPage from "./pages/RegisterRequestPage/RegisterRequestPage";
+import EditCallersPage from "./pages/EditCallersPage/EditCallersPage";
 
 const App = () => {
   const [state, setState] = useState({});
@@ -28,6 +29,7 @@ const App = () => {
         <Route exact path="/login" component={LoginPage} />
         <Route exact path="/register" component={RegisterPage} />
         <Route exact path="/requests" component={RegisterRequestPage} />
+        <Route exact path="/callers" component={EditCallersPage} />
       </div>
     </Router>
   );
