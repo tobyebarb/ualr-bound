@@ -21,6 +21,7 @@ class ValidUser(db.Model):
     email=db.Column(db.String(300), unique=True, nullable=False)
     accessLevel=db.Column(db.Enum(accessLevel))
     activationStatus=db.Column(db.Boolean)
+    time_created = db.Column(db.DateTime(timezone=True), server_default=now())
 
     def __init__(self, name, username, password, email, accessLevel, activationStatus):
         self.name = name
@@ -31,7 +32,7 @@ class ValidUser(db.Model):
         self.activationStatus = activationStatus
 
     def __repr__(self):
-        return f'<User {self.username}>'
+        return "{}({!r})".format(self.__class__.__name__, self.__dict__)
 
     def verify_password(self, pwd):
         return check_password_hash(self.hashedPassword, pwd)
@@ -51,8 +52,8 @@ class RegistrationRequest(db.Model):
     accessLevel = db.Column(db.Enum(accessLevel))
     time_created = db.Column(db.DateTime(timezone=True), server_default=now())
 
-    def __init__(self, username, password, email, accessLevel):
-        self.name = "John Doe (temp)"
+    def __init__(self, name, username, password, email, accessLevel):
+        self.name = name
         self.username = username
         self.hashedPassword = generate_password_hash(password)
         self.email = email

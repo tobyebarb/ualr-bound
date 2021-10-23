@@ -119,11 +119,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       updateRequestDecision: async (data, isApproved) => {
         const store = getStore();
-        // Iterate over the property names:
-        // for (let key of Object.keys(data)) {
-        //   var value = data[key];
-        //   console.log(key, value);
-        // }
 
         var newData = {
           username: data.username,
@@ -158,7 +153,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
 
-      getRegistrationRequests: async (/*{ updateRowsFunc }*/) => {
+      getRegistrationRequests: async () => {
         const store = getStore();
         const opts = {
           method: "GET",
@@ -169,27 +164,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
         };
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getRegistrationRequests`;
-        // fetching data from the backend
-
-        // console.log("Updating rows...");
-        // fetch(endpoint, opts)
-        //   .then((response) => {
-        //     return response.json();
-        //   })
-        //   .then((data) => {
-        //     console.log(data);
-        //     var count = Object.keys(data[0]).length;
-
-        //     setStore({ requests: data[0] });
-        //     console.log(store.requests);
-        //     console.log("Updated rows.");
-        //   })
-        //   .catch((error) => {
-        //     console.error(
-        //       "There was an error with your request. Try again.\nError: " +
-        //         error
-        //     );
-        //   });
 
         try {
           const response = await fetch(endpoint, opts);
@@ -219,6 +193,62 @@ const getState = ({ getStore, getActions, setStore }) => {
               email: row.email,
               access_level: row.accessLevel.split(".")[1].toUpperCase(),
               date_created: row.time_created.split(" ")[0],
+            };
+            new_data.push(row_data);
+          }
+
+          setStore({ requests: new_data });
+          // updateRowsFunc(new_data);
+          console.log("Updated rows.", store.requests);
+          return new_data;
+        } catch (error) {
+          console.error("Error", error);
+          console.log("Error", error);
+        }
+      },
+
+      getCallers: async () => {
+        const store = getStore();
+
+        const opts = {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + store.token,
+          },
+        };
+
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getCallers`;
+
+        try {
+          const response = await fetch(endpoint, opts);
+
+          if (response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+          var count = Object.keys(data[0]).length;
+
+          console.log("DATA: ", data);
+          var new_data = [];
+
+          function padLeadingZeros(num, size) {
+            var s = num + "";
+            while (s.length < size) s = "0" + s;
+            return s;
+          }
+
+          for (let i = 0; i < count; i++) {
+            var row = data[0][i];
+            var row_data = {
+              user_id: padLeadingZeros(row.id, 6),
+              name: row.name,
+              access_level: row.accessLevel.split(".")[1].toUpperCase(),
+              date_created: row.time_created.split(" ")[0],
+              status: row.activationStatus ? "ACTIVE" : "INACTIVE",
             };
             new_data.push(row_data);
           }

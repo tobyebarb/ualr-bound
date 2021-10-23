@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import "./RegisterPage.css";
+import NameIcon from "../../icons/NameIcon";
 import UserIcon from "../../icons/UserIcon";
 import PassIcon from "../../icons/PassIcon";
 import EmailIcon from "../../icons/EmailIcon";
@@ -12,16 +13,19 @@ import { Link, BrowserRouter } from "react-router-dom";
 import * as constants from "../../utils/Constants";
 
 const RegisterPage = () => {
+  const [nameInput, setNameInput] = useState("");
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [emailInput, setEmailInput] = useState("");
   const [accessLevelInput, setAccessLevelInput] = useState("");
 
+  const [nameFocused, setNameFocused] = useState(false);
   const [userFocused, setUserFocused] = useState(false);
   const [passFocused, setPassFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [accessLevelFocused, setAccessLevelFocused] = useState(false);
 
+  const namePlaceholder = "Name";
   const usernamePlaceholder = "Username";
   const passwordPlaceholder = "Password";
   const emailPlaceholder = "Email";
@@ -50,6 +54,7 @@ const RegisterPage = () => {
     //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
     //TODO: Handle invalid emails
     var data = {
+      name: nameInput,
       username: usernameInput,
       email: emailInput,
       password: passwordInput,
@@ -74,6 +79,11 @@ const RegisterPage = () => {
       });
   };
 
+  const updateName = (e) => {
+    e.preventDefault();
+    setNameInput(e.target.value);
+  };
+
   const updateUsername = (e) => {
     e.preventDefault();
     setUsernameInput(e.target.value);
@@ -94,6 +104,8 @@ const RegisterPage = () => {
     setAccessLevelInput(e.target.value);
   };
 
+  const onNameFocus = () => setNameFocused(true);
+  const onNameBlur = () => setNameFocused(false);
   const onUserFocus = () => setUserFocused(true);
   const onUserBlur = () => setUserFocused(false);
   const onPassFocus = () => setPassFocused(true);
@@ -123,6 +135,34 @@ const RegisterPage = () => {
             }}
           >
             <div className="register-form-container">
+              <div
+                style={{
+                  border: nameFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                <NameIcon
+                  style={svgContainerStyle}
+                  focused={nameFocused}
+                  focusedColor={focusColor}
+                />
+                <input
+                  required
+                  type="text"
+                  className="register-input"
+                  onFocus={onNameFocus}
+                  onBlur={onNameBlur}
+                  placeholder={namePlaceholder}
+                  name="name"
+                  id="name"
+                  value={nameInput}
+                  onChange={updateName}
+                  content={focusColor}
+                />
+              </div>
+
               <div
                 style={{
                   border: userFocused
