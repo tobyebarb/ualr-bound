@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useImperativeHandle } from "react";
 import "./Table.css";
-import DecisionButton from "./components/DecisionButton/DecisionButton";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-balham.css";
@@ -8,19 +7,24 @@ import SearchIcon from "../../icons/SearchIcon";
 import { Context } from "../../store/appContext";
 import * as constants from "../../utils/Constants";
 
-const Table = () => {
-  const { store, actions } = useContext(Context);
-  const [columnDefs, setColumnDefs] = useState([]);
+/* {
+  tableWidth,
+  rowHeight,
+  getData,
+  getColumnDefs,
+  getFrameworkComponents,
+  handleResize,
+} */
+
+const Table = React.forwardRef((props, ref) => {
+  //const [columnDefs, setColumnDefs] = useState([]);
   const [rowData, setRowData] = useState([]);
+  const [columnDefs, setColumnDefs] = useState([]);
   const [frameworkComponents, setFrameworkComponents] = useState([]);
+  //const [frameworkComponents, setFrameworkComponents] = useState([]);
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [searchFocused, setSearchFocused] = useState(false);
-  const [dimensions, setDimensions] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
 
   const onSearchFocus = () => setSearchFocused(true);
   const onSearchBlur = () => setSearchFocused(false);
@@ -29,114 +33,54 @@ const Table = () => {
     gridApi.setQuickFilter(e.target.value);
   };
 
-  const handleResize = () => {
-    setDimensions({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-
-    tableWidth = dimensions.width - dimensions.width * tableMult;
-
-    ridWidth = tableWidth * ridColMult;
-    nameWidth = tableWidth * nameColMult;
-    usernameWidth = tableWidth * usernameColMult;
-    emailWidth = tableWidth * emailColMult;
-    accessLevelWidth = tableWidth * accessLevelColMult;
-    dateWidth = tableWidth * dateColMult;
-    decisionWidth = tableWidth * decisionColMult;
-  };
-
-  const rowHeight = 100;
-
-  const tableMult = 0.95;
-
-  console.log(dimensions.width);
-
-  const ridColMult = dimensions.width > 1650 ? 0.1 : 0.1;
-  const nameColMult = dimensions.width > 1650 ? 0.2 : 0.15;
-  const usernameColMult = dimensions.width > 1650 ? 0.2 : 0.2;
-  const emailColMult = dimensions.width > 1650 ? 0.2 : 0.2;
-  const accessLevelColMult = dimensions.width > 1650 ? 0.1 : 0.1;
-  const dateColMult = dimensions.width > 1650 ? 0.1 : 0.1;
-  const decisionColMult = dimensions.width > 1650 ? 0.1 : 0.15;
-
   const focusedColor = "#582633";
-
-  let tableWidth = dimensions.width * tableMult;
-
-  let ridWidth = tableWidth * ridColMult;
-  let nameWidth = tableWidth * nameColMult;
-  let usernameWidth = tableWidth * usernameColMult;
-  let emailWidth = tableWidth * emailColMult;
-  let accessLevelWidth = tableWidth * accessLevelColMult;
-  let dateWidth = tableWidth * dateColMult;
-  let decisionWidth =
-    tableWidth * decisionColMult - (getScrollbarSize().width + 2);
 
   var data = [];
 
   const updateData = async () => {
-    data = await actions.getRegistrationRequests();
+    data = await props.getData();
     setRowData(data);
   };
 
-  const decisionBtnClicked = async (data, isApproved) => {
-    let res = await actions.updateRequestDecision(data, isApproved); //wait for response when all backend ops are done
-    // check to make sure the it is waiting for res
-    updateData(); // update table with new data
-  };
+  useImperativeHandle(ref, () => ({
+    updateData,
+  }));
 
   useEffect(() => {
-    window.addEventListener("resize", handleResize, false);
-    setScrollbarWidth(getScrollbarSize().width);
-    setFrameworkComponents([{ decisionButtonRenderer: DecisionButton }]);
-    setColumnDefs([
-      { headerName: "Request ID", field: "request_id", width: ridWidth },
-      { headerName: "Name", field: "name", width: nameWidth },
-      { headerName: "Username", field: "username", width: usernameWidth },
-      { headerName: "Email", field: "email", width: emailWidth },
-      {
-        headerName: "Access Level",
-        field: "access_level",
-        width: accessLevelWidth,
-      },
-      { headerName: "Date Created", field: "date_created", width: dateWidth },
-      {
-        headerName: "Approve/Deny",
-        field: "decision",
-        cellClass: "decision-btn-cell",
-        width: decisionWidth,
-        cellRendererFramework: (params) => {
-          return (
-            <DecisionButton params={params} updateRows={decisionBtnClicked} />
-          );
-        },
-      },
-    ]);
+    let initialize = async () => {
+      var initFrameworkComponents = await props.getFrameworkComponents();
+      var initColumnDefs = await props.getColumnDefs();
 
-    return () => window.removeEventListener("resize", handleResize);
+      setFrameworkComponents(initFrameworkComponents);
+      setColumnDefs(initColumnDefs);
+
+      return [initFrameworkComponents, initColumnDefs];
+    };
+
+    initialize();
+
+    window.addEventListener("resize", props.handleResize, false);
+
+    return () => window.removeEventListener("resize", props.handleResize);
   }, []);
 
-  async function createRowData() {
-    data = await actions.getRegistrationRequests();
-    console.log("DATA: ", data);
-    setRowData(data);
-  }
-
-  function onGridReady(params) {
+  async function onGridReady(params) {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
 
-    createRowData();
+    let data = await props.getData();
+    setRowData(data);
   }
 
-  return (
+  return columnDefs === [] && frameworkComponents === [] ? (
+    <div>Loading Data...</div>
+  ) : (
     <div className="table-container">
       <div
         className="ag-theme-balham table-root"
         style={{
           height: "80vh",
-          width: tableWidth,
+          width: props.tableWidth,
         }}
       >
         <div className="table-searchbar-container">
@@ -152,7 +96,7 @@ const Table = () => {
         </div>
         <AgGridReact
           onGridReady={onGridReady}
-          rowHeight={rowHeight}
+          rowHeight={props.rowHeight}
           frameworkComponents={frameworkComponents}
           columnDefs={columnDefs}
           rowData={rowData}
@@ -161,32 +105,6 @@ const Table = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Table;
-
-export const getScrollbarSize = () => {
-  const { body } = document;
-  const scrollDiv = document.createElement("div");
-
-  // Append element with defined styling
-  scrollDiv.setAttribute(
-    "style",
-    "width: 1337px; height: 1337px; position: absolute; left: -9999px; overflow: scroll;"
-  );
-  body.appendChild(scrollDiv);
-
-  // Collect width & height of scrollbar
-  const calculateValue = (type) =>
-    scrollDiv[`offset${type}`] - scrollDiv[`client${type}`];
-  const scrollbarWidth = calculateValue("Width");
-  const scrollbarHeight = calculateValue("Height");
-
-  // Remove element
-  body.removeChild(scrollDiv);
-
-  return {
-    width: scrollbarWidth,
-    height: scrollbarHeight,
-  };
-};
