@@ -15,6 +15,13 @@ class term(enum.Enum):
     SPRING = 2
     SUMMER = 3
 
+class response(enum.Enum):
+    ANSWERED_BY_PROSPECTIVE_STUDENT = 1
+    ANSWERED_BY_OTHER = 2
+    NO_ANSWER = 3
+    LEFT_VOICE_MESSAGE = 4
+    LEFT_MESSAGE_WITH_OTHER = 5
+
 class ValidUser(db.Model):
     __tablename__ = 'valid_user_set'
 
@@ -150,4 +157,37 @@ class ProspectImportData(db.Model):
         return f''
 
 
+
+class ProspectSRA(db.Model):
+    __tablename__ = 'prospect_sra'
+    id = db.Column(db.Integer, primary_key=True
+    tNumber = db.Column(db.String(9), ForeignKey('ProspectList.tNumber'))
+    currentCampaign = db.Column(db.Enum(term))
+    year = db.Column(db.Integer, nullable=False)
+    #Previous caller and date of call
+    wasCalled = db.Column(db.Boolean)
+    prevCaller = db.Column(db.String(100))
+    dateCalled = db.Column(db.DateTime(timezone=True))
+    numTimesCalled = db.Column(db.Integer, nullable=False)
+    #Information about previous call
+    callResponse = db.Column(db.Enum(response))
+    callNotes = db.Column(db.String(500))
+    #Information about email
+    wasEmailed = db.Column(db.Boolean)
+    dateEmailed = db.Column(db.DateTime(timezone=True))
+    emailText = db.Column(db.String(500))
+
+    def __init__(self,tNumber,term,year):
+        self.tNumber = tNumber
+        self.currentCampaign = term
+        self.year = year
+        self.wasCalled = False
+        self.numTimesCalled = 0
+        self.wasEmailed = False
+
+    def __repr__(self):
+        return "{}({!r})".format(self.__class__.__name__, self.__dict__)
+
+    def getId(self):
+        return f''
 
