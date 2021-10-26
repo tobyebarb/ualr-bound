@@ -156,13 +156,14 @@ class ProspectImportData(db.Model):
     def getId(self):
         return f''
 
-
+#Only saves one campaign.  Must be passed year and term on initialization.
+#May need to add that information for current campaign to caller table.
 
 class ProspectSRA(db.Model):
     __tablename__ = 'prospect_sra'
     id = db.Column(db.Integer, primary_key=True
     tNumber = db.Column(db.String(9), ForeignKey('ProspectList.tNumber'))
-    currentCampaign = db.Column(db.Enum(term))
+    term = db.Column(db.Enum(term))
     year = db.Column(db.Integer, nullable=False)
     #Previous caller and date of call
     wasCalled = db.Column(db.Boolean)
@@ -179,7 +180,7 @@ class ProspectSRA(db.Model):
 
     def __init__(self,tNumber,term,year):
         self.tNumber = tNumber
-        self.currentCampaign = term
+        self.term = term
         self.year = year
         self.wasCalled = False
         self.numTimesCalled = 0
