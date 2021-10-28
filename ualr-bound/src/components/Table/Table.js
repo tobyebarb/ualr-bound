@@ -1,4 +1,9 @@
-import React, { useState, useEffect, useImperativeHandle } from "react";
+import React, {
+  useState,
+  useEffect,
+  useImperativeHandle,
+  useContext,
+} from "react";
 import "./Table.css";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
@@ -18,6 +23,7 @@ import * as constants from "../../utils/Constants";
 
 const Table = React.forwardRef((props, ref) => {
   //const [columnDefs, setColumnDefs] = useState([]);
+  const { store, actions } = useContext(Context);
   const [rowData, setRowData] = useState([]);
   const [columnDefs, setColumnDefs] = useState([]);
   const [frameworkComponents, setFrameworkComponents] = useState([]);
@@ -40,6 +46,17 @@ const Table = React.forwardRef((props, ref) => {
   const updateData = async () => {
     data = await props.getData();
     setRowData(data);
+  };
+
+  const onSelectionChanged = async () => {
+    var selectedRows = gridApi.getSelectedRows();
+    var uid = parseInt(selectedRows[0].user_id);
+
+    let res = await actions.updateSelectedUserID(uid);
+    if (props.rowSelectionCallback !== null) {
+      console.log(res);
+      props.rowSelectionCallback(uid);
+    }
   };
 
   useImperativeHandle(ref, () => ({
@@ -101,6 +118,8 @@ const Table = React.forwardRef((props, ref) => {
           columnDefs={columnDefs}
           rowData={rowData}
           scrollbarWidth={0}
+          onSelectionChanged={onSelectionChanged}
+          rowSelection={"single"}
         />
       </div>
     </div>
@@ -108,3 +127,7 @@ const Table = React.forwardRef((props, ref) => {
 });
 
 export default Table;
+
+Table.defaultProps = {
+  rowSelectionCallback: null,
+};

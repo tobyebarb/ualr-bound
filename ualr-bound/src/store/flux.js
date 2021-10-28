@@ -3,6 +3,9 @@ import * as constants from "../utils/Constants";
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      ui: {
+        selectedUserID: null,
+      },
       decisionBtnHeight: null,
       token: null,
       message: null,
@@ -14,6 +17,33 @@ const getState = ({ getStore, getActions, setStore }) => {
       requests: null,
     },
     actions: {
+      getUserInfo: async (userID) => {
+        const store = getStore();
+        const opts = {
+          headers: {
+            Authorization: "Bearer " + store.token,
+          },
+          method: "GET",
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getUserInfo/${userID}`;
+        // fetching data from the backend
+        const response = await fetch(endpoint, opts);
+
+        if (response.status !== 200) {
+          alert("There has been some error");
+          return false;
+        }
+
+        const data = await response.json();
+        console.log(data);
+        return data;
+      },
+      updateSelectedUserID: async (userID) => {
+        setStore({
+          ui: { selectedUserID: userID },
+        });
+        return true;
+      },
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {

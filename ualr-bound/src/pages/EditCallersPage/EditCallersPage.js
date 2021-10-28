@@ -1,12 +1,14 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import NavigationBar from "../../components/NavigationBar/NavigationBar";
 import Table from "../../components/Table/Table";
+import UserDetails from "../../components/Table/components/UserDetails/UserDetails";
 import { Context } from "../../store/appContext";
 import "./EditCallersPage.css";
 
 const EditCallersPage = () => {
   const { store, actions } = useContext(Context);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const [selectedUID, setSelectedUID] = useState(null);
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -60,6 +62,12 @@ const EditCallersPage = () => {
 
   var data = [];
 
+  const rowSelectionCallback = (uid) => {
+    console.log("UID CALLBACK", uid);
+    setSelectedUID(uid);
+    return uid;
+  };
+
   async function getData() {
     data = await actions.getCallers();
     return data;
@@ -98,15 +106,19 @@ const EditCallersPage = () => {
 
   return (
     <div className="edit-callers-container">
-      <Table
-        ref={tableRef}
-        rowHeight={rowHeight}
-        tableWidth={tableWidth}
-        getData={getData}
-        getColumnDefs={getColumnDefs}
-        getFrameworkComponents={getFrameworkComponents}
-        handleResize={handleResize}
-      />
+      <div className="table-components">
+        <Table
+          ref={tableRef}
+          rowHeight={rowHeight}
+          tableWidth={tableWidth}
+          getData={getData}
+          getColumnDefs={getColumnDefs}
+          getFrameworkComponents={getFrameworkComponents}
+          handleResize={handleResize}
+          rowSelectionCallback={rowSelectionCallback}
+        />
+        <UserDetails selectedUID={selectedUID} />
+      </div>
       <NavigationBar />
     </div>
   );

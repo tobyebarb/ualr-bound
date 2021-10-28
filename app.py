@@ -18,6 +18,7 @@ CORS(app)
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIIFICATIONS"] = False
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.permanent_session_lifetime = timedelta(minutes=30)
 jwt = JWTManager(app)
 db.init_app(app)
@@ -91,6 +92,17 @@ def getPendingRegistrationRequests(): #TODO: Add user authentication (check if u
 
     jsonData = formatQuery(data, count, ["id", "name", "username", "email", "accessLevel", "time_created"])
     return jsonify(jsonData, 200)
+
+@app.route("/api/getUserInfo/<userID>", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getUserInfo(userID):
+    user = ValidUser.query.filter_by(id=userID).first()
+    if user:
+        jsonData = row2dict(user, ["id", "name", "username", "email", "accessLevel", "time_created"])
+        print(jsonData)
+        return jsonify(jsonData), 200
+    return jsonify({"msg": "user doesn't exist"}), 404
 
 @app.route("/api/getCallers", methods=["GET"])
 @jwt_required()
