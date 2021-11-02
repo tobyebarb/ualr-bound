@@ -7,3 +7,9 @@
 body {
     overflow: hidden;
 }
+
+.table-components {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
