@@ -84,13 +84,23 @@ def updateRegistrationRequests():
 @app.route("/api/getRegistrationRequests", methods=["GET"])
 @jwt_required()
 @cross_origin()
-def getPendingRegistrationRequests(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
-    #user = get_jwt_identity()
-    data = db.session.query(RegistrationRequest).all()
-    count = db.session.query(RegistrationRequest).count()
+def getPendingRegistrationRequests(): #TODO: Add user authentication (check if user is ROOT/ADMIN) - currently doesn't work
+    currentUser = get_jwt_identity()
+    user = ValidUser.query.filter_by(username=currentUser).first()
+    print (user.accessLevel)
 
-    jsonData = formatQuery(data, count, ["id", "name", "username", "email", "accessLevel", "time_created"])
-    return jsonify(jsonData, 200)
+    isAuthorized = False
+    if user.accessLevel == "accessLevel.root" or "accessLevel.admin":
+        isAuthorized = True
+
+    if isAuthorized: 
+        data = db.session.query(RegistrationRequest).all()
+        count = db.session.query(RegistrationRequest).count()
+        jsonData = formatQuery(data, count, ["id", "name", "username", "email", "accessLevel", "time_created"])
+        return jsonify(jsonData, 200)
+       
+    else:
+        return jsonify(), 401
 
 @app.route("/api/getCallers", methods=["GET"])
 @jwt_required()
