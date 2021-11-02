@@ -4,6 +4,7 @@ import Table from "../../components/Table/Table";
 import UserDetails from "../../components/Table/components/UserDetails/UserDetails";
 import { Context } from "../../store/appContext";
 import "./EditCallersPage.css";
+import UserDetailsModal from "../../components/Table/components/UserDetailsModal/UserDetailsModal";
 
 const EditCallersPage = () => {
   const { store, actions } = useContext(Context);
@@ -117,8 +118,9 @@ const EditCallersPage = () => {
           handleResize={handleResize}
           rowSelectionCallback={rowSelectionCallback}
         />
-        <UserDetails selectedUID={selectedUID} />
+        <UserDetails updateData={updateData} selectedUID={selectedUID} />
       </div>
+      <UserDetailsModal updateData={updateData} selectedUID={selectedUID} />
       <NavigationBar />
     </div>
   );

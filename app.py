@@ -93,14 +93,53 @@ def getPendingRegistrationRequests(): #TODO: Add user authentication (check if u
     jsonData = formatQuery(data, count, ["id", "name", "username", "email", "accessLevel", "time_created"])
     return jsonify(jsonData, 200)
 
+@app.route("/api/updateUserInfo/<userID>", methods=["POST"])
+@jwt_required()
+@cross_origin()
+def updateUserInfo(userID):
+    if request.method == 'POST':
+        # data = request.json
+        # print("data is " + format(data))
+        id = request.json.get("id", None)
+        name = request.json.get("name", None)
+        username = request.json.get("username", None)
+        email = request.json.get("email", None)
+        access_level = request.json.get("accessLevel", None)
+        status = request.json.get("activationStatus", None)
+        time_created = request.json.get("time_created", None)
+        data = [id, name, username, email, access_level, status, time_created]
+
+        #print(f'{id}, {name}, {username}, {email}, {access_level}, {status}, {time_created}')
+        user = ValidUser.query.filter_by(id=userID).first()
+        if user:
+            if name is not None:
+                user.name = name
+                print('Changing name to ' + name)
+            if username is not None:
+                user.username = username
+                print('Changing username to ' + username)
+            if email is not None:
+                user.email = email
+                print('Changing email to ' + email)
+            if access_level is not None:
+                user.accessLevel = access_level
+                print('Changing access_level to ' + access_level)
+            if status is not None:
+                user.activationStatus = status
+                print('Changing status to ' + str(status))
+            db.session.commit()
+            return jsonify({"msg": "success"}), 200
+        return jsonify({"msg": "user doesn't exist"}), 404
+    return jsonify({"msg": "Request method not supported."}), 404
+
 @app.route("/api/getUserInfo/<userID>", methods=["GET"])
 @jwt_required()
 @cross_origin()
 def getUserInfo(userID):
     user = ValidUser.query.filter_by(id=userID).first()
     if user:
-        jsonData = row2dict(user, ["id", "name", "username", "email", "accessLevel", "time_created"])
-        print(jsonData)
+        jsonData = row2dict(user, ["id", "name", "username", "email", "accessLevel", "time_created", "activationStatus"])
+        #print(jsonData)
         return jsonify(jsonData), 200
     return jsonify({"msg": "user doesn't exist"}), 404
 
