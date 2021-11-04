@@ -3,6 +3,11 @@ import * as constants from "../utils/Constants";
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      ui: {
+        modalIsVisible: false,
+        selectedUserID: null,
+        selectedUserData: null,
+      },
       decisionBtnHeight: null,
       token: null,
       message: null,
@@ -14,6 +19,134 @@ const getState = ({ getStore, getActions, setStore }) => {
       requests: null,
     },
     actions: {
+      setModalVisibility: (bool) => {
+        //const store = getStore();
+        //console.log("here");
+        setStore({
+          ui: { modalIsVisible: bool },
+        });
+        return true;
+      },
+      modifyUser: async (userID, newData) => {
+        const store = getStore();
+
+        console.log(newData);
+
+        const opts = {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + store.token,
+          },
+          body: JSON.stringify(newData),
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateUserInfo/${userID}`;
+
+        try {
+          const response = await fetch(endpoint, opts);
+
+          if (response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+
+          return data;
+        } catch (error) {
+          console.error("Error", error);
+          console.log("Error", error);
+        }
+      },
+      getUserInfo: async (userID) => {
+        const store = getStore();
+        const opts = {
+          headers: {
+            Authorization: "Bearer " + store.token,
+          },
+          method: "GET",
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getUserInfo/${userID}`;
+        // fetching data from the backend
+        const response = await fetch(endpoint, opts);
+
+        if (response.status !== 200) {
+          alert("There has been some error");
+          return false;
+        }
+
+        const data = await response.json();
+
+        function padLeadingZeros(num, size) {
+          var s = num + "";
+          while (s.length < size) s = "0" + s;
+          return s;
+        }
+
+        var row_data = {
+          id: padLeadingZeros(data.id, 6),
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          accessLevel: data.accessLevel.split(".")[1].toUpperCase(),
+          time_created: data.time_created.split(" ")[0],
+          status: data.activationStatus === "True" ? "ACTIVE" : "INACTIVE",
+        };
+
+        console.log(row_data);
+
+        setStore({
+          ui: { selectedUserData: row_data },
+        });
+        return row_data;
+      },
+      updateSelectedUserID: async (userID) => {
+        setStore({
+          ui: { selectedUserID: userID },
+        });
+        return true;
+      },
+      register: async (
+        nameInput,
+        usernameInput,
+        emailInput,
+        passwordInput,
+        accessLevelInput
+      ) => {
+        const headers = {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        };
+
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/register`;
+
+        var data = {
+          name: nameInput,
+          username: usernameInput,
+          email: emailInput,
+          password: passwordInput,
+          "access-level": accessLevelInput,
+        };
+
+        fetch(endpoint, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(data),
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error(
+              "There was an error with your request. Try again.\nError: " +
+                error
+            );
+          });
+      },
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {
@@ -43,7 +176,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
 
           const data = await response.json();
-          console.log(data);
           sessionStorage.setItem("token", data.access_token);
           sessionStorage.setItem("username", data.username);
           sessionStorage.setItem("email", data.email);

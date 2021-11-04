@@ -84,26 +84,32 @@ def updateRegistrationRequests():
 @app.route("/api/getRegistrationRequests", methods=["GET"])
 @jwt_required()
 @cross_origin()
-def getPendingRegistrationRequests(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
-    #user = get_jwt_identity()
-    data = db.session.query(RegistrationRequest).all()
-    count = db.session.query(RegistrationRequest).count()
+def getPendingRegistrationRequests():
+    user = ValidUser.query.filter_by(username=get_jwt_identity()).first()
 
-    jsonData = formatQuery(data, count, ["id", "name", "username", "email", "accessLevel", "time_created"])
-    return jsonify(jsonData, 200)
+    if str(user.accessLevel) == "accessLevel.root" or str(user.accessLevel) == "accessLevel.admin":
+        data = db.session.query(RegistrationRequest).all()
+        count = db.session.query(RegistrationRequest).count()
+
+        jsonData = formatQuery(data, count, ["id", "name", "username", "email", "accessLevel", "time_created"])
+        return jsonify(jsonData, 200)
+        
+    return jsonify({"msg":"fail"}), 401
 
 @app.route("/api/getCallers", methods=["GET"])
 @jwt_required()
 @cross_origin()
-def getCallers(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
-    #user = get_jwt_identity()
+def getCallers():
+    user = ValidUser.query.filter_by(username=get_jwt_identity()).first()
 
-    data = db.session.query(ValidUser).all()
-    count = db.session.query(ValidUser).count()
-    
-    jsonData = formatQuery(data, count, ["id", "name", "accessLevel", "time_created", "activationStatus"])
+    if str(user.accessLevel) == "accessLevel.root" or str(user.accessLevel) == "accessLevel.admin":
+        data = db.session.query(ValidUser).all()
+        count = db.session.query(ValidUser).count()
+        
+        jsonData = formatQuery(data, count, ["id", "name", "accessLevel", "time_created", "activationStatus"])
 
-    return jsonify(jsonData, 200)
+        return jsonify(jsonData, 200)
+    return jsonify({"msg":"fail"}), 401
 
 def row2dict(row, wantedColumns):
     d = {}
