@@ -1,6 +1,7 @@
 /* TODO: Add first and last name as an entry to registration */
 
 import React, { useState } from "react";
+import validator from "validator"
 import { motion } from "framer-motion";
 import "./RegisterPage.css";
 import NameIcon from "../../icons/NameIcon";
@@ -16,18 +17,21 @@ const RegisterPage = () => {
   const [nameInput, setNameInput] = useState("");
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
+  const [checkPasswordInput, setCheckPasswordInput] = useState("");
   const [emailInput, setEmailInput] = useState("");
   const [accessLevelInput, setAccessLevelInput] = useState("");
 
   const [nameFocused, setNameFocused] = useState(false);
   const [userFocused, setUserFocused] = useState(false);
   const [passFocused, setPassFocused] = useState(false);
+  const [checkPassFocused, setCheckPassFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [accessLevelFocused, setAccessLevelFocused] = useState(false);
 
   const namePlaceholder = "Name";
   const usernamePlaceholder = "Username";
   const passwordPlaceholder = "Password";
+  const checkPasswordPlaceholder = "Re-Enter Password";
   const emailPlaceholder = "Email";
   const accessLevelPlaceholder = "Choose one...";
 
@@ -53,30 +57,41 @@ const RegisterPage = () => {
   const handleSubmit = () => {
     //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
     //TODO: Handle invalid emails
-    var data = {
-      name: nameInput,
-      username: usernameInput,
-      email: emailInput,
-      password: passwordInput,
-      "access-level": accessLevelInput,
-    };
+    if(validator.isEmail(emailInput)){
+      if(passwordInput === checkPasswordInput){       
+        var data = {
+          name: nameInput,
+          username: usernameInput,
+          email: emailInput,
+          password: passwordInput,
+          "access-level": accessLevelInput,
+        };
+    
+        fetch(endpoint, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(data),
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error(
+              "There was an error with your request. Try again.\nError: " + error
+            );
+          });
+      }
+      else{
+        alert("Passwords don't match, please re-enter your password")
+      }
+    }
+    else{
+      alert("Invalid Email! Please re-enter your email")
+    }
 
-    fetch(endpoint, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error(
-          "There was an error with your request. Try again.\nError: " + error
-        );
-      });
   };
 
   const updateName = (e) => {
@@ -94,6 +109,11 @@ const RegisterPage = () => {
     setPasswordInput(e.target.value);
   };
 
+  const updataeValidatePassword = (e) => {
+    e.preventDefault();
+    setCheckPasswordInput(e.target.value);
+  }
+
   const updateEmail = (e) => {
     e.preventDefault();
     setEmailInput(e.target.value);
@@ -110,6 +130,8 @@ const RegisterPage = () => {
   const onUserBlur = () => setUserFocused(false);
   const onPassFocus = () => setPassFocused(true);
   const onPassBlur = () => setPassFocused(false);
+  const onCheckPassFocus = () => setCheckPassFocused(true);
+  const onCheckPassBlur = () => setCheckPassFocused(false);
   const onEmailFocus = () => setEmailFocused(true);
   const onEmailBlur = () => setEmailFocused(false);
   const onAccessLevelFocus = () => setAccessLevelFocused(true);
@@ -257,6 +279,34 @@ const RegisterPage = () => {
 
               <div
                 style={{
+                  border: passFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                <PassIcon
+                  style={svgContainerStyle}
+                  focused={checkPassFocused}
+                  focusedColor={focusColor}
+                />
+                <input
+                  required
+                  type="password"
+                  className="register-input"
+                  onFocus={onCheckPassFocus}
+                  onBlur={onCheckPassBlur}
+                  placeholder={checkPasswordPlaceholder}
+                  name="password"
+                  id="pass"
+                  value={checkPasswordInput}
+                  onChange={updataeValidatePassword}
+                  content={focusColor}
+                />
+              </div>
+
+              <div
+                style={{
                   border: accessLevelFocused
                     ? `5px solid ${focusColor}`
                     : "5px solid #FFFFFF",
@@ -304,9 +354,9 @@ const RegisterPage = () => {
               </button>
               <BrowserRouter>
                 <Link
-                  to="/"
+                  to="/login"
                   onClick={() => {
-                    window.location.href = "/";
+                    window.location.href = "/login";
                   }}
                   content={focusColor}
                   className="register-form-button"
