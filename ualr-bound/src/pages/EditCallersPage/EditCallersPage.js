@@ -76,7 +76,7 @@ const EditCallersPage = () => {
 
   async function getColumnDefs() {
     return [
-      { headerName: "User ID", field: "user_id", width: idWidth },
+      { headerName: "User ID", field: "user_id", width: idWidth, sortable: true },
       { headerName: "Name", field: "name", width: nameWidth },
       {
         headerName: "Access Level",
