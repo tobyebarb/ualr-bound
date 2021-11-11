@@ -35,9 +35,11 @@ const LoginPage = () => {
 
   //TODO: On key press==="Enter", perform handleSubmit()
   const onKeyPressHandler = (e) => {
-    e.preventDefault();
     if (e.key === "Enter") {
       // do something
+      e.preventDefault();
+      console.log("Enter key pressed!")
+      handleSubmit();
     }
   };
 
@@ -110,6 +112,7 @@ const LoginPage = () => {
                 value={usernameInput}
                 onChange={updateUsername}
                 content={focusColor}
+                onKeyPress={onKeyPressHandler}
               />
             </div>
             <div
@@ -137,6 +140,7 @@ const LoginPage = () => {
                 value={passwordInput}
                 onChange={updatePassword}
                 content={focusColor}
+                onKeyPress={onKeyPressHandler}
               />
             </div>
             <div className="login-form-button-container">

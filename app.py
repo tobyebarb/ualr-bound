@@ -40,7 +40,7 @@ def get_message():
     return jsonify(dictionary)
 
 @app.route("/api/updateRegistrationRequests", methods=["POST"])
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def updateRegistrationRequests():
     if request.method == 'POST':
@@ -83,7 +83,7 @@ def updateRegistrationRequests():
     return jsonify({"msg":"fail"}), 400
 
 @app.route("/api/getRegistrationRequests", methods=["GET"])
-@jwt_required()
+#@jwt_required()
 @cross_origin()
 def getPendingRegistrationRequests(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
     #user = get_jwt_identity()
