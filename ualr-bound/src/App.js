@@ -7,6 +7,7 @@ import injectContext from "./store/appContext";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import RegisterRequestPage from "./pages/RegisterRequestPage/RegisterRequestPage";
 import EditCallersPage from "./pages/EditCallersPage/EditCallersPage";
+import StudentsPage from "./pages/StudentsPage/StudentsPage";
 
 const App = () => {
   const [state, setState] = useState({});
@@ -30,6 +31,7 @@ const App = () => {
         <Route exact path="/register" component={RegisterPage} />
         <Route exact path="/requests" component={RegisterRequestPage} />
         <Route exact path="/callers" component={EditCallersPage} />
+        <Route exact path="/students" component={StudentsPage} />
       </div>
     </Router>
   );

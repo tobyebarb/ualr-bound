@@ -1,5 +1,3 @@
-/* TODO: Add first and last name as an entry to registration */
-
 import React, { useState } from "react";
 import validator from "validator"
 import { motion } from "framer-motion";
@@ -54,6 +52,15 @@ const RegisterPage = () => {
     float: "left",
   };
 
+  const onKeyPressHandler = (e) => {
+    if (e.key === "Enter") {
+      // do something
+      e.preventDefault();
+      console.log("Enter key pressed!")
+      handleSubmit();
+    }
+  }
+
   const handleSubmit = () => {
     //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
     //TODO: Handle invalid emails
@@ -83,6 +90,8 @@ const RegisterPage = () => {
               "There was an error with your request. Try again.\nError: " + error
             );
           });
+        alert("Request was submitted successfully");
+        window.location.href = "/login";
       }
       else{
         alert("Passwords don't match, please re-enter your password")
@@ -182,6 +191,7 @@ const RegisterPage = () => {
                   value={nameInput}
                   onChange={updateName}
                   content={focusColor}
+                  onKeyPress={onKeyPressHandler}
                 />
               </div>
 
@@ -210,6 +220,8 @@ const RegisterPage = () => {
                   value={usernameInput}
                   onChange={updateUsername}
                   content={focusColor}
+                  onKeyPress={onKeyPressHandler}
+              
                 />
               </div>
 
@@ -229,7 +241,7 @@ const RegisterPage = () => {
                 <input
                   required
                   type="email"
-                  className="register-input"
+                  className="register-input register-input-error"
                   onFocus={onEmailFocus}
                   onBlur={onEmailBlur}
                   placeholder={emailPlaceholder}
@@ -238,6 +250,7 @@ const RegisterPage = () => {
                   value={emailInput}
                   onChange={updateEmail}
                   content={focusColor}
+                  onKeyPress={onKeyPressHandler}
                 />
               </div>
 
@@ -274,6 +287,7 @@ const RegisterPage = () => {
                   value={passwordInput}
                   onChange={updatePassword}
                   content={focusColor}
+                  onKeyPress={onKeyPressHandler}
                 />
               </div>
 
@@ -293,7 +307,7 @@ const RegisterPage = () => {
                 <input
                   required
                   type="password"
-                  className="register-input"
+                  className="register-input register-input-error"
                   onFocus={onCheckPassFocus}
                   onBlur={onCheckPassBlur}
                   placeholder={checkPasswordPlaceholder}
@@ -302,6 +316,7 @@ const RegisterPage = () => {
                   value={checkPasswordInput}
                   onChange={updataeValidatePassword}
                   content={focusColor}
+                  onKeyPress={onKeyPressHandler}
                 />
               </div>
 

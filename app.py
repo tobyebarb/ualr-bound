@@ -40,7 +40,7 @@ def get_message():
     return jsonify(dictionary)
 
 @app.route("/api/updateRegistrationRequests", methods=["POST"])
-#@jwt_required()
+@jwt_required()
 @cross_origin()
 def updateRegistrationRequests():
     if request.method == 'POST':
@@ -83,7 +83,7 @@ def updateRegistrationRequests():
     return jsonify({"msg":"fail"}), 400
 
 @app.route("/api/getRegistrationRequests", methods=["GET"])
-#@jwt_required()
+@jwt_required()
 @cross_origin()
 def getPendingRegistrationRequests(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
     #user = get_jwt_identity()
@@ -155,6 +155,75 @@ def getCallers(): #TODO: Add user authentication (check if user is ROOT/ADMIN)
     jsonData = formatQuery(data, count, ["id", "name", "accessLevel", "time_created", "activationStatus"])
 
     return jsonify(jsonData, 200)
+
+#@app.route("/api/getStudents", methods=["GET"])
+#@jwt_required()
+#@cross_origin()
+#def getStudents(): 
+#   
+#   data = db.session.query(ProspectImportData).all()
+#   count = db.session.query(ProspectImportData).count()
+#   jsonData = formatQuery(data, count, ["TNumber", "name", "email", "status"])
+#   return jsonify(jsonData, 200)
+
+#@app.route("/api/updateStudentInfo/<TNumber>", methods=["POST"])
+#@jwt_required()
+#@cross_origin()
+#def updateStudentInfo(TNumber):
+#   if request.method == 'POST': 
+#       TNumber = request.json.get("TNumber", None)
+#       firstName = request.json.get("firstName", None)
+#       middleName = request.json.get("middleName", None)
+#       lastName = request.json.get("lastName", None)
+#       term = request.json.get("term", None)
+#       level = request.json.get("level", None)
+#       primaryProgram = request.json.get("primaryProgram", None)
+#       primaryCollege = request.json.get("primaryCollege", None)
+#       primaryDepartment = request.json.get("primaryDepartment", None)
+#       admitDate = request.json.get("admitDate", None)
+#       streetAddress = request.json.get("streetAddress", None)
+#       streetAddressTwo = request.json.get("streetAddressTwo", None)
+#       streetAddressThree = request.json.get("streetAddressThree", None)
+#       city = request.json.get("city", None)
+#       state = request.json.get("state", None)
+#       zipcode = request.json.get("zipcode", None)
+#       phoneAreaCode = request.json.get("phoneAreaCode", None)
+#       phoneNumber = request.json.get("phoneNumber", None)
+#       phoneExtension = request.json.get("phoneExtension", None)
+#       email = request.json.get("email", None)
+#       ualrEmail = request.json.get("ualrEmail", None)
+#       ethnicity = request.json.get("ethnicity", None)
+#       sex = request.json.get("sex", None)
+#       admissionType = request.json.get("admissionType", None)
+#       studentType = request.json.get("studentType", None)
+#       status = request.json.get("activationStatus", None)
+#       data = [
+#           TNumber,
+#           firstName,
+#           middleName,
+#           lastName,
+#           term,
+#           level,
+#           primaryProgram,
+#           primaryCollege,
+#           primaryDepartment,
+#           admitDate,
+#           streetAddress,
+#           streetAddressTwo,
+#           streetAddressThree,
+#           city,
+#           state,
+#           zipcode,
+#           phoneAreaCode,
+#           phoneNumber,
+#           phoneExtension,
+#           email,
+#           ualrEmail,
+#           ethnicity,
+#           sex,
+#           admissionType,
+#           studentType,
+#           status]
 
 def row2dict(row, wantedColumns):
     d = {}
