@@ -77,6 +77,7 @@ const RegisterPage = () => {
           "There was an error with your request. Try again.\nError: " + error
         );
       });
+    window.location.href = "/login";
   };
 
   const updateName = (e) => {
