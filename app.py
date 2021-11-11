@@ -39,6 +39,23 @@ def get_message():
 
     return jsonify(dictionary)
 
+@app.route('/upload', methods=['GET'])
+@jwt_required()
+@cross_origin()
+def campaignUpload():
+    data = pd.Dataframe()
+    data.read_csv('example.csv', usecols=['Tnumber','First Name','Middle Name','Last Name','Term','Level','Primary Program','Primary College','Primary Department','Admit Date','Street Address 1','Street Address 2','Street Address 3','City','State','Zip Code','Phone Area code','Phone Number','Phone Extension','Email Address','UALR Email','Ethnicity','Sex','Student Type'])
+    for row in data.itertuples(index=True, name='Pandas'):
+        tempStudent = ProspectList.query.filter_by(tNumber = row.c1).first()
+        if tempStudent:
+            tempStudent.campaignStatus = True
+            tempStudent.numCampaigns++
+            tempStudent = ProspectImportData.query.filter_by(tNumber = row.c1).first()
+            tempStudent.updateInformation(temp=row)
+            termData = row.c5.split()
+            tempStudent = ProspectSRA(tNumber=row.c1,term=termData[1], year=termData[0])
+            db.session.add(tempStudent)
+
 @app.route("/api/updateRegistrationRequests", methods=["POST"])
 @jwt_required()
 @cross_origin()

@@ -120,29 +120,54 @@ class ProspectImportData(db.Model):
     #Requires temp as pandas dataframe
     def __init__(self, temp, tNumber):
         self.tNumber=tNumber
-        self.name1 = temp[0]
-        self.name2 = temp[1]
-        self.name3 = temp[2]
-        self.term = temp[3]
-        self.level = temp[4]
-        self.program = temp[5]
-        self.college = temp[6]
-        self.department = temp[7]
-        self.admitDate = temp[8]
-        self.address1 = temp[9]
-        self.address2 = temp[10]
-        self.address3 = temp[11]
-        self.city = temp[12]
-        self.state = temp[13]
-        self.zip = temp[14]
-        self.areaCode = temp[15]
-        self.phone = temp[16]
-        self.phoneExt = temp[17]
-        self.email = temp[18]
-        self.emailSchool = temp[19]
-        self.ethnicity = temp[20]
-        self.sex = temp[21]
-        self.studentType = temp[22]
+        self.name1 = temp.c2
+        self.name2 = temp.c3
+        self.name3 = temp.c4
+        self.term = temp.c4
+        self.level = temp.c5
+        self.program = temp.c6
+        self.college = temp.c7
+        self.department = temp.c8
+        self.admitDate = temp.c9
+        self.address1 = temp.c10
+        self.address2 = temp.c11
+        self.address3 = temp.c12
+        self.city = temp.c13
+        self.state = temp.c14
+        self.zip = temp.c15
+        self.areaCode = temp.c16
+        self.phone = temp.c17
+        self.phoneExt = temp.c18
+        self.email = temp.c19
+        self.emailSchool = temp.c20
+        self.ethnicity = temp.c21
+        self.sex = temp.c22
+        self.studentType = temp.c23
+
+    def updateInformation(self, temp):
+        self.name1 = temp.c2
+        self.name2 = temp.c3
+        self.name3 = temp.c4
+        self.term = temp.c4
+        self.level = temp.c5
+        self.program = temp.c6
+        self.college = temp.c7
+        self.department = temp.c8
+        self.admitDate = temp.c9
+        self.address1 = temp.c10
+        self.address2 = temp.c11
+        self.address3 = temp.c12
+        self.city = temp.c13
+        self.state = temp.c14
+        self.zip = temp.c15
+        self.areaCode = temp.c16
+        self.phone = temp.c17
+        self.phoneExt = temp.c18
+        self.email = temp.c19
+        self.emailSchool = temp.c20
+        self.ethnicity = temp.c21
+        self.sex = temp.c22
+        self.studentType = temp.c23
 
     def __repr__(self):
         return "{}({!r})".format(self.__class__.__name__, self.__dict__)
