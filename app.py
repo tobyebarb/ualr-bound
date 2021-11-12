@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, date
 import os
 from flask import Flask, request, jsonify
 from flask.helpers import send_from_directory
@@ -8,6 +8,7 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from api.model import db, ValidUser, RegistrationRequest
+from collections import defaultdict
 
 
 app = Flask(__name__, static_folder='ualr-bound/build', static_url_path='')
@@ -15,9 +16,10 @@ CORS(app)
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIIFICATIONS"] = False
-app. permanent_session_lifetime = timedelta(minutes=5)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.permanent_session_lifetime = timedelta(minutes=30)
 jwt = JWTManager(app)
 db.init_app(app)
 
@@ -34,12 +36,150 @@ def get_message():
     dictionary = {
         "message": "Hello, " + user
     }
+
     return jsonify(dictionary)
+
+@app.route("/api/updateRegistrationRequests", methods=["POST"])
+#@jwt_required()
+@cross_origin()
+def updateRegistrationRequests():
+    if request.method == 'POST':
+        data = request.json
+        print("data is " + format(data))
+        username = request.json.get("username", None)
+        decision = request.json.get("decision", None)
+
+        print(f'\n~Recieved Request~\nUsername: {username}\nDecision: {decision}\n')
+
+        #Update database and convert RegistrationRequest to ValidUser
+        if username and decision:
+            regRequest = RegistrationRequest.query.filter_by(username=username).first()
+            if regRequest:
+                print(f'Registration request {regRequest.username} found')
+                if decision == "approve":
+                    print('\nConverting request into user...\n')
+                    user = ValidUser( # Create new user based on the request
+                        name=regRequest.name,
+                        username=regRequest.username, 
+                        password=regRequest.hashedPassword, 
+                        email=regRequest.email, 
+                        accessLevel=regRequest.accessLevel,
+                        activationStatus=True,
+                        )
+                    db.session.add(user)
+                    db.session.delete(regRequest) # Delete request
+                    db.session.commit()
+                    print('\nCreated new user.\n')
+                if decision == "deny":
+                    print('\nDeleting request...\n')
+                    db.session.delete(regRequest) # Delete request
+                    db.session.commit()
+                    print('\nDeleted.\n')
+
+                return jsonify({"msg":"success"}), 200
+            print("Registration request not found.")
+            return jsonify({"msg":"fail"}), 400
+    print("Not POST method.")
+    return jsonify({"msg":"fail"}), 400
+
+@app.route("/api/getRegistrationRequests", methods=["GET"])
+#@jwt_required()
+@cross_origin()
+def getPendingRegistrationRequests():
+    user = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+
+    if str(user.accessLevel) == "accessLevel.root" or str(user.accessLevel) == "accessLevel.admin":
+        data = db.session.query(RegistrationRequest).all()
+        count = db.session.query(RegistrationRequest).count()
+
+        jsonData = formatQuery(data, count, ["id", "name", "username", "email", "accessLevel", "time_created"])
+        return jsonify(jsonData, 200)
+        
+    return jsonify({"msg":"fail"}), 401
+
+@app.route("/api/updateUserInfo/<userID>", methods=["POST"])
+@jwt_required()
+@cross_origin()
+def updateUserInfo(userID):
+    if request.method == 'POST':
+        # data = request.json
+        # print("data is " + format(data))
+        id = request.json.get("id", None)
+        name = request.json.get("name", None)
+        username = request.json.get("username", None)
+        email = request.json.get("email", None)
+        access_level = request.json.get("accessLevel", None)
+        status = request.json.get("activationStatus", None)
+        time_created = request.json.get("time_created", None)
+        data = [id, name, username, email, access_level, status, time_created]
+
+        #print(f'{id}, {name}, {username}, {email}, {access_level}, {status}, {time_created}')
+        user = ValidUser.query.filter_by(id=userID).first()
+        if user:
+            if name is not None:
+                user.name = name
+                print('Changing name to ' + name)
+            if username is not None:
+                user.username = username
+                print('Changing username to ' + username)
+            if email is not None:
+                user.email = email
+                print('Changing email to ' + email)
+            if access_level is not None:
+                user.accessLevel = access_level
+                print('Changing access_level to ' + access_level)
+            if status is not None:
+                user.activationStatus = status
+                print('Changing status to ' + str(status))
+            db.session.commit()
+            return jsonify({"msg": "success"}), 200
+        return jsonify({"msg": "user doesn't exist"}), 404
+    return jsonify({"msg": "Request method not supported."}), 404
+
+@app.route("/api/getUserInfo/<userID>", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getUserInfo(userID):
+    user = ValidUser.query.filter_by(id=userID).first()
+    if user:
+        jsonData = row2dict(user, ["id", "name", "username", "email", "accessLevel", "time_created", "activationStatus"])
+        #print(jsonData)
+        return jsonify(jsonData), 200
+    return jsonify({"msg": "user doesn't exist"}), 404
+
+@app.route("/api/getCallers", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getCallers():
+    user = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+
+    if str(user.accessLevel) == "accessLevel.root" or str(user.accessLevel) == "accessLevel.admin":
+        data = db.session.query(ValidUser).all()
+        count = db.session.query(ValidUser).count()
+        
+        jsonData = formatQuery(data, count, ["id", "name", "accessLevel", "time_created", "activationStatus"])
+
+        return jsonify(jsonData, 200)
+    return jsonify({"msg":"fail"}), 401
+
+def row2dict(row, wantedColumns):
+    d = {}
+    for column in row.__table__.columns:
+        if column.name in wantedColumns:
+            d[column.name] = str(getattr(row, column.name))
+    return d
+
+def formatQuery(data, rowCount, wantedColumns):
+    jsonData = {}
+    for i in range(rowCount):
+        jsonData[i] = row2dict(data[i], wantedColumns)
+    return jsonData
 
 @app.route("/register", methods=["POST"])
 @cross_origin()
 def register():
     if request.method == 'POST':
+        name = request.json.get("name", None)
         username = request.json.get("username", None)
         password = request.json.get("password", None)
         email = request.json.get("email", None)
@@ -47,9 +187,9 @@ def register():
         userMatch = False
         regMatch = False
 
-        print(f'\nRecieved Request:\nUsername:{username}\nPassword:{password}\nEmail:{email}\nAccess Level:{access_level}\n')
+        print(f'\nRecieved Request:\nName:{name}\nUsername:{username}\nPassword:{password}\nEmail:{email}\nAccess Level:{access_level}\n')
         
-        if username and password and email and access_level:
+        if name and username and password and email and access_level:
 
             if RegistrationRequest.query.filter_by(username=username).first():
                 regMatch = True
@@ -62,7 +202,7 @@ def register():
 
             if not (userMatch or regMatch):
                 print('\nCreating row in database...\n')
-                regRequest = RegistrationRequest(username=username, password=password, email=email, accessLevel=access_level)
+                regRequest = RegistrationRequest(name=name, username=username, password=password, email=email, accessLevel=access_level)
                 db.session.add(regRequest)
                 db.session.commit()
                 print('\nCreated new row.\n')
@@ -95,14 +235,22 @@ def login():
     if user:
         if ValidUser.verify_password(self=user, pwd=password):
             access_token = create_access_token(identity=username)
+            email = user.email
+            access_level = str(user.accessLevel)
             print('Login successful.')
-            return jsonify(access_token=access_token), 200
+            print(f'{username}, {email}, {access_level}')
+            return jsonify(access_token=access_token, username=username, email=email, access_level=access_level), 200
         else:
             print('Invalid password.')
             return jsonify({"msg": "Invalid password."}), 401
     else:
         print('User does not exist.')
         return jsonify({"msg": "User does not exist."}), 401
+
+@app.errorhandler(404)
+@cross_origin()
+def not_found(e):
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/')
 @cross_origin()

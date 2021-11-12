@@ -32,16 +32,14 @@ const LoginPage = () => {
     display: "flex",
     float: "left",
   };
-  const svgStyle = {
-    height: "24px",
-    width: "24px",
-    color: "#ffffff",
-  };
 
+  //TODO: On key press==="Enter", perform handleSubmit()
   const onKeyPressHandler = (e) => {
-    e.preventDefault();
     if (e.key === "Enter") {
       // do something
+      e.preventDefault();
+      console.log("Enter key pressed!")
+      handleSubmit();
     }
   };
 
@@ -74,7 +72,7 @@ const LoginPage = () => {
     return (
       <div className="login-container">
         <motion.div
-          className="hovering-image-container"
+          className="login-hovering-image-container"
           initial={{
             y: loginBlockImgDisplacement,
           }}
@@ -99,7 +97,6 @@ const LoginPage = () => {
             >
               <UserIcon
                 style={svgContainerStyle}
-                svgStyle={svgStyle}
                 focused={userFocused}
                 focusedColor={focusColor}
               />
@@ -115,6 +112,7 @@ const LoginPage = () => {
                 value={usernameInput}
                 onChange={updateUsername}
                 content={focusColor}
+                onKeyPress={onKeyPressHandler}
               />
             </div>
             <div
@@ -127,7 +125,6 @@ const LoginPage = () => {
             >
               <PassIcon
                 style={svgContainerStyle}
-                svgStyle={svgStyle}
                 focused={passFocused}
                 focusedColor={focusColor}
               />
@@ -143,6 +140,7 @@ const LoginPage = () => {
                 value={passwordInput}
                 onChange={updatePassword}
                 content={focusColor}
+                onKeyPress={onKeyPressHandler}
               />
             </div>
             <div className="login-form-button-container">

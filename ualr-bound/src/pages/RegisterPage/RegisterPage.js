@@ -1,27 +1,38 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+/* TODO: Add first and last name as an entry to registration */
+import validator from "validator";
 import { motion } from "framer-motion";
 import "./RegisterPage.css";
+import NameIcon from "../../icons/NameIcon";
 import UserIcon from "../../icons/UserIcon";
 import PassIcon from "../../icons/PassIcon";
 import EmailIcon from "../../icons/EmailIcon";
 import AccessLevelIcon from "../../icons/AccessLevelIcon";
 import ualrLogo from "../../icons/UALR Logo.svg";
+import { Context } from "../../store/appContext";
 import { Link, BrowserRouter } from "react-router-dom";
 import * as constants from "../../utils/Constants";
 
 const RegisterPage = () => {
+  const { store, actions } = useContext(Context);
+  const [nameInput, setNameInput] = useState("");
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
+  const [checkPasswordInput, setCheckPasswordInput] = useState("");
   const [emailInput, setEmailInput] = useState("");
   const [accessLevelInput, setAccessLevelInput] = useState("");
 
+  const [nameFocused, setNameFocused] = useState(false);
   const [userFocused, setUserFocused] = useState(false);
   const [passFocused, setPassFocused] = useState(false);
+  const [checkPassFocused, setCheckPassFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [accessLevelFocused, setAccessLevelFocused] = useState(false);
 
+  const namePlaceholder = "Name";
   const usernamePlaceholder = "Username";
   const passwordPlaceholder = "Password";
+  const checkPasswordPlaceholder = "Re-Enter Password";
   const emailPlaceholder = "Email";
   const accessLevelPlaceholder = "Choose one...";
 
@@ -30,51 +41,40 @@ const RegisterPage = () => {
   const RegisterBlockDuration = "1";
   const RegisterBlockImgDisplacement = "0.75rem";
 
-  const headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  };
-
-  const endpoint = `${constants.ENDPOINT_URL.LOCAL}/register`;
-
   const svgContainerStyle = {
     margin: "0.3rem",
     marginRight: "1rem",
     display: "flex",
     float: "left",
   };
-  const svgStyle = {
-    height: "24px",
-    width: "24px",
-    color: "#ffffff",
-  };
 
   const handleSubmit = () => {
-    //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
     //TODO: Handle invalid emails
-    var data = {
-      username: usernameInput,
-      email: emailInput,
-      password: passwordInput,
-      "access-level": accessLevelInput,
-    };
-
-    fetch(endpoint, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error(
-          "There was an error with your request. Try again.\nError: " + error
+    
+    if (validator.isEmail(emailInput)) {
+      if (passwordInput === checkPasswordInput) {
+        var data = {
+          name: nameInput,
+          username: usernameInput,
+          email: emailInput,
+          password: passwordInput,
+          "access-level": accessLevelInput,
+        };
+        
+        actions.register(
+          nameInput,
+          usernameInput,
+          emailInput,
+          passwordInput,
+          accessLevelInput
         );
-      });
+
+    window.location.href = "/login";
+  };
+
+  const updateName = (e) => {
+    e.preventDefault();
+    setNameInput(e.target.value);
   };
 
   const updateUsername = (e) => {
@@ -87,6 +87,11 @@ const RegisterPage = () => {
     setPasswordInput(e.target.value);
   };
 
+  const updataeValidatePassword = (e) => {
+    e.preventDefault();
+    setCheckPasswordInput(e.target.value);
+  };
+
   const updateEmail = (e) => {
     e.preventDefault();
     setEmailInput(e.target.value);
@@ -97,10 +102,14 @@ const RegisterPage = () => {
     setAccessLevelInput(e.target.value);
   };
 
+  const onNameFocus = () => setNameFocused(true);
+  const onNameBlur = () => setNameFocused(false);
   const onUserFocus = () => setUserFocused(true);
   const onUserBlur = () => setUserFocused(false);
   const onPassFocus = () => setPassFocused(true);
   const onPassBlur = () => setPassFocused(false);
+  const onCheckPassFocus = () => setCheckPassFocused(true);
+  const onCheckPassBlur = () => setCheckPassFocused(false);
   const onEmailFocus = () => setEmailFocused(true);
   const onEmailBlur = () => setEmailFocused(false);
   const onAccessLevelFocus = () => setAccessLevelFocused(true);
@@ -111,7 +120,7 @@ const RegisterPage = () => {
       <div className="register-middle">
         <div className="register-content">
           <motion.div
-            className="hovering-image-container"
+            className="register-hovering-image-container"
             initial={{
               y: RegisterBlockImgDisplacement,
             }}
@@ -128,6 +137,34 @@ const RegisterPage = () => {
             <div className="register-form-container">
               <div
                 style={{
+                  border: nameFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                <NameIcon
+                  style={svgContainerStyle}
+                  focused={nameFocused}
+                  focusedColor={focusColor}
+                />
+                <input
+                  required
+                  type="text"
+                  className="register-input"
+                  onFocus={onNameFocus}
+                  onBlur={onNameBlur}
+                  placeholder={namePlaceholder}
+                  name="name"
+                  id="name"
+                  value={nameInput}
+                  onChange={updateName}
+                  content={focusColor}
+                />
+              </div>
+
+              <div
+                style={{
                   border: userFocused
                     ? `5px solid ${focusColor}`
                     : "5px solid #FFFFFF",
@@ -136,7 +173,6 @@ const RegisterPage = () => {
               >
                 <UserIcon
                   style={svgContainerStyle}
-                  svgStyle={svgStyle}
                   focused={userFocused}
                   focusedColor={focusColor}
                 />
@@ -165,7 +201,6 @@ const RegisterPage = () => {
               >
                 <EmailIcon
                   style={svgContainerStyle}
-                  svgStyle={svgStyle}
                   focused={emailFocused}
                   focusedColor={focusColor}
                 />
@@ -202,7 +237,6 @@ const RegisterPage = () => {
           */}
                 <PassIcon
                   style={svgContainerStyle}
-                  svgStyle={svgStyle}
                   focused={passFocused}
                   focusedColor={focusColor}
                 />
@@ -223,6 +257,34 @@ const RegisterPage = () => {
 
               <div
                 style={{
+                  border: passFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                <PassIcon
+                  style={svgContainerStyle}
+                  focused={checkPassFocused}
+                  focusedColor={focusColor}
+                />
+                <input
+                  required
+                  type="password"
+                  className="register-input"
+                  onFocus={onCheckPassFocus}
+                  onBlur={onCheckPassBlur}
+                  placeholder={checkPasswordPlaceholder}
+                  name="password"
+                  id="pass"
+                  value={checkPasswordInput}
+                  onChange={updataeValidatePassword}
+                  content={focusColor}
+                />
+              </div>
+
+              <div
+                style={{
                   border: accessLevelFocused
                     ? `5px solid ${focusColor}`
                     : "5px solid #FFFFFF",
@@ -231,7 +293,6 @@ const RegisterPage = () => {
               >
                 <AccessLevelIcon
                   style={svgContainerStyle}
-                  svgStyle={svgStyle}
                   focused={accessLevelFocused}
                   focusedColor={focusColor}
                 />
@@ -271,9 +332,9 @@ const RegisterPage = () => {
               </button>
               <BrowserRouter>
                 <Link
-                  to="/"
+                  to="/login"
                   onClick={() => {
-                    window.location.href = "/";
+                    window.location.href = "/login";
                   }}
                   content={focusColor}
                   className="register-form-button"
