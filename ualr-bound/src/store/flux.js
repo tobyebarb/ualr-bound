@@ -21,6 +21,9 @@ const getState = ({ getStore, getActions, setStore }) => {
         email: null,
         access_level: null,
       },
+      /*
+      
+      */
       requests: null,
     },
     actions: {
@@ -406,6 +409,55 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error", error);
         }
       },
+      /*getStudents: async () => {
+        const store = getStore();
+        
+        //define the type of HTTP request and content type and authorization
+        const opts = {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer" + store.token,
+          },
+        };
+
+        const enpoint = '${constants.ENDPOINT_URL.LOCAL}/api/getStudents';
+
+        try {
+          const response = await fetch(endpoint, opts);
+          
+          //throw an error is status isn't ok
+          if(response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+          var count = Object.keys(data[0]).length;
+
+          var new_data = [];
+
+          //set the student data
+          for (let i = 0; i < count; i++) {
+            var row = data[0][i];
+            var row_data = {
+              TNumber: row.TNumber,
+              name: row.firstName + row.lastName,
+              email: row.email,
+              status: row.activationStatus === "True" ? "ACTIVE" : "INACTIVE"
+            };
+            new_data.push(row_data);
+          }
+
+          setStore({requests: new_data});
+          return new_data;
+        } catch (eror){
+          console.error("Error", error);
+          console.log("Error", error);
+        }
+      };
+      */
     },
   };
 };
