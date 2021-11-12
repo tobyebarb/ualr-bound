@@ -5,6 +5,7 @@ import styled from "styled-components";
 import "./NavigationBar.css";
 import * as constants from "../../utils/Constants";
 import { Context } from "../../store/appContext";
+import ImportIcon from "../../icons/ImportIcon";
 import EditCallersIcon from "../../icons/EditCallersIcon";
 import RequestsIcon from "../../icons/RequestsIcon";
 import StudentsIcon from "../../icons/StudentsIcon";
@@ -29,6 +30,7 @@ const NavigationBar = () => {
 
     width: window.innerWidth,
   });
+  const [importFocused, setImportFocused] = useState(false);
 
   const setIconsFocus = (boolean) => {
     setEditCallersFocused(boolean);
@@ -36,6 +38,7 @@ const NavigationBar = () => {
     setStudentsFocused(boolean);
     setAnalyticsFocused(boolean);
     setLogoutFocused(boolean);
+    setImportFocused(boolean);
   };
 
   const svgContainerStyle = {
@@ -193,10 +196,20 @@ const NavigationBar = () => {
     margin-right: 1rem;
   `;
 
+  var firstIconStyle = {
+    marginLeft: "2rem",
+    position: "relative",
+    ...outerIconStyle,
+  };
+
+  var iconStyle = {
+    position: "relative",
+    ...outerIconStyle,
+  };
+
   return (
     <div
       className="navigation-container"
-      isCollapsed={isCollapsed}
       ref={navWidthRef}
       style={{
         transform: isCollapsed
@@ -218,13 +231,27 @@ const NavigationBar = () => {
       {/* ---------------------------------- */}
       <TaskBarContainer>
         <div
+          onMouseEnter={() => setImportFocused(true)}
+          onMouseLeave={() => setIconsFocus(false)}
+          style={firstIconStyle}
+        >
+          <NavBarLabelIcon
+            style={navBarLabelStyle}
+            id="icon-div"
+            isFocused={importFocused}
+            text="Import Data"
+          />
+          <ImportIcon
+            style={svgContainerStyle}
+            focused={importFocused}
+            focusedColor={focusColor}
+          />
+        </div>
+        <Divider />
+        <div
           onMouseEnter={() => setEditCallersFocused(true)}
           onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            marginLeft: "2rem",
-            position: "relative",
-            ...outerIconStyle,
-          }}
+          style={iconStyle}
         >
           <NavBarLabelIcon
             style={navBarLabelStyle}
@@ -242,10 +269,7 @@ const NavigationBar = () => {
         <div
           onMouseEnter={() => setRequestsFocused(true)}
           onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            position: "relative",
-            ...outerIconStyle,
-          }}
+          style={iconStyle}
         >
           <NavBarLabelIcon
             style={navBarLabelStyle}
@@ -263,10 +287,7 @@ const NavigationBar = () => {
         <div
           onMouseEnter={() => setStudentsFocused(true)}
           onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            position: "relative",
-            ...outerIconStyle,
-          }}
+          style={iconStyle}
         >
           <NavBarLabelIcon
             style={navBarLabelStyle}
@@ -284,10 +305,7 @@ const NavigationBar = () => {
         <div
           onMouseEnter={() => setAnalyticsFocused(true)}
           onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            position: "relative",
-            ...outerIconStyle,
-          }}
+          style={iconStyle}
         >
           <NavBarLabelIcon
             style={navBarLabelStyle}
@@ -305,10 +323,7 @@ const NavigationBar = () => {
         <div
           onMouseEnter={() => setLogoutFocused(true)}
           onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            position: "relative",
-            ...outerIconStyle,
-          }}
+          style={iconStyle}
         >
           <NavBarLabelIcon
             style={navBarLabelStyle}

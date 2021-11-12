@@ -3,6 +3,7 @@ import * as constants from "../utils/Constants";
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      modalIsVisible: false,
       ui: {
         modalIsVisible: false,
         selectedUserID: null,
@@ -20,8 +21,6 @@ const getState = ({ getStore, getActions, setStore }) => {
     },
     actions: {
       setModalVisibility: (bool) => {
-        //const store = getStore();
-        //console.log("here");
         setStore({
           ui: { modalIsVisible: bool },
         });
@@ -364,7 +363,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           const data = await response.json();
           var count = Object.keys(data[0]).length;
 
-          console.log("DATA: ", data);
           var new_data = [];
 
           function padLeadingZeros(num, size) {
@@ -380,10 +378,12 @@ const getState = ({ getStore, getActions, setStore }) => {
               name: row.name,
               access_level: row.accessLevel.split(".")[1].toUpperCase(),
               date_created: row.time_created.split(" ")[0],
-              status: row.activationStatus ? "ACTIVE" : "INACTIVE",
+              status: row.activationStatus === "True" ? "ACTIVE" : "INACTIVE",
             };
             new_data.push(row_data);
           }
+
+          console.log("DATA: ", new_data);
 
           setStore({ requests: new_data });
           // updateRowsFunc(new_data);

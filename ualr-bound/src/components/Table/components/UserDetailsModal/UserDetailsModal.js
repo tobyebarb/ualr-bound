@@ -102,6 +102,10 @@ const UserDetailsModal = (props) => {
   useEffect(() => {
     if (store.ui.modalIsVisible !== undefined) {
       setVisibility(store.ui.modalIsVisible);
+      console.log("VISIBILITY: ", isVisible);
+      if (store.ui.modalIsVisible) {
+        console.log("WE VISIBLE");
+      }
     }
   }, [store.ui.modalIsVisible]);
 
