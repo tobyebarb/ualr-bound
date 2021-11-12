@@ -55,6 +55,17 @@ def campaignUpload():
             termData = row.c5.split()
             tempStudent = ProspectSRA(tNumber=row.c1,term=termData[1], year=termData[0])
             db.session.add(tempStudent)
+        else:
+            tempStudent = ProspectList(tNumber=row.c1)
+            db.session.add(tempStudent)
+            tempStudent = ProspectImportData(temp=row, tNumber=row.c1)
+            db.session.add(tempStudent)
+            termData = row.c5.split()
+            tempStudent = ProspectSRA(tNumber=row.c1,term=termData[1], year=termData[0])
+            db.session.add(tempStudent)
+    db.session.commit()
+    return jsonify({"msg":"success"}), 200
+
 
 @app.route("/api/updateRegistrationRequests", methods=["POST"])
 @jwt_required()
