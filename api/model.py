@@ -76,40 +76,16 @@ class RegistrationRequest(db.Model):
     def getId(self):
         return f''
 
-class CallerList(db.Model):
-    __tablename__ = 'callerlist'
-
-    id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String, ForeignKey('ValidUser.username')
-    totalCalls = db.Column(db.Integer)
-    numCampaigns = db.Column(db.Integer)
-    campaigns = db.Column(db.ARRAY(db.String, dimensions=2)
-    #Set as string so campaign name can be included.
-    #Stats will have to be converted back to int to be read
-    inCampaign = db.Column(db.Boolean)
-    currentCampaign = db.Column(db.String)
-
-    def __init__(self, username, password, email, accessLevel):
-        self.username = username
-        self.hashedPassword = generate_password_hash(password)
-        self.email = email
-        self.accessLevel = accessLevel
-
-    def __repr__(self):
-        return f'<Request {self.username}>'
-
-    def getId(self):
-        return f''
 #Prospect Information
 
 class ProspectList(db.Model):
     __tablename__ = 'prospect_list'
     id = db.Column(db.Integer, primary_key = True)
-    tNumber = db.Column(db.String(9), unique = True)
+    tNumber = db.Column(db.String(9), primary_key = True, unique = True)
     campaignStatus = db.Column(db.Boolean)
     numCampaigns = db.Column(db.Integer)
 
-    def __init__(self, tNumber)
+    def __init__(self, tNumber):
         self.tNumber = tNumber
         self.campaignStatus = True
         self.numCampaigns = 0
@@ -124,7 +100,7 @@ class ProspectList(db.Model):
 class ProspectImportData(db.Model):
     __tablename__ = 'prospect_import_data'
     id = db.Column(db.Integer, primary_key = True)
-    tNumber = db.Column(db.String(9), ForeignKey('ProspectList.tNumber'))
+    tNumber = db.Column(db.String(9), db.ForeignKey('prospect_list.tNumber'))
     #First, Middle, Last Names
     name1 = db.Column(db.String(30), nullable=False)
     name2 = db.Column(db.String(30))
@@ -142,9 +118,9 @@ class ProspectImportData(db.Model):
     city = db.Column(db.String(100), nullable=False)
     state = db.Column(db.String(20), nullable=False)
     zip = db.Column(db.String(10), nullable=False)
-    areaCode = db.Column(db.Integer), nullable=False)
-    phone = db.Column(db.Integer), nullable=False)
-    phoneExt = db.Column(db.Integer))
+    areaCode = db.Column(db.Integer, nullable=False)
+    phone = db.Column(db.Integer, nullable=False)
+    phoneExt = db.Column(db.Integer)
     email = db.Column(db.String(100), nullable=False)
     emailSchool = db.Column(db.String(100), nullable=False)
     #Might make studentType an enum
@@ -186,8 +162,8 @@ class ProspectImportData(db.Model):
 
 class ProspectSRA(db.Model):
     __tablename__ = 'prospect_sra'
-    id = db.Column(db.Integer, primary_key=True
-    tNumber = db.Column(db.String(9), ForeignKey('ProspectList.tNumber'))
+    id = db.Column(db.Integer, primary_key=True)
+    tNumber = db.Column(db.String(9), db.ForeignKey('prospect_list.tNumber'))
     term = db.Column(db.Enum(term))
     year = db.Column(db.Integer, nullable=False)
     #Previous caller and date of call
