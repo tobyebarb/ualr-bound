@@ -1,14 +1,17 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Context } from "../store/appContext";
+import {useHistory} from "react-router-dom"
 
 const LogoutIcon = (props) => {
   const { store, actions } = useContext(Context);
+  const history = useHistory();
 
   const logoutDialog = () => {
     const r = window.confirm("Are you sure you want to log out?");
     if (r === true) {
       actions.logout();
+      history.push("/login");
     }
   };
 
