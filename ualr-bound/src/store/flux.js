@@ -17,9 +17,6 @@ const getState = ({ getStore, getActions, setStore }) => {
         email: null,
         access_level: null,
       },
-      /*
-      
-      */
       requests: null,
     },
     actions: {
