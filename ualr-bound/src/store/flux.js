@@ -21,8 +21,6 @@ const getState = ({ getStore, getActions, setStore }) => {
     },
     actions: {
       setModalVisibility: (bool) => {
-        //const store = getStore();
-        console.log("here");
         setStore({
           ui: { modalIsVisible: bool },
         });
@@ -108,6 +106,46 @@ const getState = ({ getStore, getActions, setStore }) => {
         });
         return true;
       },
+      register: async (
+        nameInput,
+        usernameInput,
+        emailInput,
+        passwordInput,
+        accessLevelInput
+      ) => {
+        const headers = {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        };
+
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/register`;
+
+        var data = {
+          name: nameInput,
+          username: usernameInput,
+          email: emailInput,
+          password: passwordInput,
+          "access-level": accessLevelInput,
+        };
+
+        fetch(endpoint, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(data),
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error(
+              "There was an error with your request. Try again.\nError: " +
+                error
+            );
+          });
+      },
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {
@@ -137,7 +175,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
 
           const data = await response.json();
-          console.log(data);
           sessionStorage.setItem("token", data.access_token);
           sessionStorage.setItem("username", data.username);
           sessionStorage.setItem("email", data.email);

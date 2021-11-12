@@ -25,6 +25,11 @@ const NavigationBar = () => {
   const [studentsFocused, setStudentsFocused] = useState(false);
   const [analyticsFocused, setAnalyticsFocused] = useState(false);
   const [logoutFocused, setLogoutFocused] = useState(false);
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+
+    width: window.innerWidth,
+  });
   const [importFocused, setImportFocused] = useState(false);
 
   const setIconsFocus = (boolean) => {
@@ -47,13 +52,42 @@ const NavigationBar = () => {
   const arrowWidthRef = useRef(null);
   const dividerWidthRef = useRef(null);
 
+  function debounce(fn, ms) {
+    let timer;
+
+    return (_) => {
+      clearTimeout(timer);
+
+      timer = setTimeout((_) => {
+        timer = null;
+
+        fn.apply(this, arguments);
+      }, ms);
+    };
+  }
+  useEffect(() => {
+    const debouncedHandleResize = debounce(function handleResize() {
+      setDimensions({
+        height: window.innerHeight,
+
+        width: window.innerWidth,
+      });
+    }, 1000);
+
+    window.addEventListener("resize", debouncedHandleResize);
+
+    return (_) => {
+      window.removeEventListener("resize", debouncedHandleResize);
+    };
+  });
+
   useEffect(() => {
     setCollapseOffset(
       navWidthRef.current.offsetWidth -
         (arrowWidthRef.current.offsetWidth +
           dividerWidthRef.current.offsetWidth)
     );
-  }, []);
+  }, [dimensions]); // resize handler?
 
   const svgStyle = {
     width: "50px",
@@ -179,7 +213,7 @@ const NavigationBar = () => {
       ref={navWidthRef}
       style={{
         transform: isCollapsed
-          ? `translateX(calc(-${collapseOffset}px + 3rem ))` //TODO Media Query so small screen dont get collapsed menu invisible
+          ? `translateX(calc(-${collapseOffset}px + 3rem ))`
           : "translateX(0)",
       }}
     >
@@ -311,9 +345,7 @@ const NavigationBar = () => {
               console.log(isCollapsed);
             }}
             style={{
-              transform: isCollapsed
-                ? `rotate(180deg)` //TODO: Create media queries so navbar doesn't go too far left on collapse
-                : "rotate(0deg)",
+              transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
             }}
           />
         </ArrowContainer>
