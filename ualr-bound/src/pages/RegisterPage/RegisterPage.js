@@ -1,5 +1,7 @@
-import React, { useState } from "react";
 import validator from "validator"
+import React, { useContext, useState } from "react";
+/* TODO: Add first and last name as an entry to registration */
+import validator from "validator";
 import { motion } from "framer-motion";
 import "./RegisterPage.css";
 import NameIcon from "../../icons/NameIcon";
@@ -8,10 +10,12 @@ import PassIcon from "../../icons/PassIcon";
 import EmailIcon from "../../icons/EmailIcon";
 import AccessLevelIcon from "../../icons/AccessLevelIcon";
 import ualrLogo from "../../icons/UALR Logo.svg";
+import { Context } from "../../store/appContext";
 import { Link, BrowserRouter } from "react-router-dom";
 import * as constants from "../../utils/Constants";
 
 const RegisterPage = () => {
+  const { store, actions } = useContext(Context);
   const [nameInput, setNameInput] = useState("");
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
@@ -38,13 +42,6 @@ const RegisterPage = () => {
   const RegisterBlockDuration = "1";
   const RegisterBlockImgDisplacement = "0.75rem";
 
-  const headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  };
-
-  const endpoint = `${constants.ENDPOINT_URL.LOCAL}/register`;
-
   const svgContainerStyle = {
     margin: "0.3rem",
     marginRight: "1rem",
@@ -61,11 +58,10 @@ const RegisterPage = () => {
     }
   }
 
-  const handleSubmit = () => {
-    //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
+const handleSubmit = () => {
     //TODO: Handle invalid emails
-    if(validator.isEmail(emailInput)){
-      if(passwordInput === checkPasswordInput){       
+    if (validator.isEmail(emailInput)) {
+      if (passwordInput === checkPasswordInput) {
         var data = {
           name: nameInput,
           username: usernameInput,
@@ -73,34 +69,18 @@ const RegisterPage = () => {
           password: passwordInput,
           "access-level": accessLevelInput,
         };
-    
-        fetch(endpoint, {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(data),
-        })
-          .then((response) => {
-            return response.json();
-          })
-          .then((data) => {
-            console.log(data);
-          })
-          .catch((error) => {
-            console.error(
-              "There was an error with your request. Try again.\nError: " + error
-            );
-          });
-        alert("Request was submitted successfully");
+
+        actions.register(
+          nameInput,
+          usernameInput,
+          emailInput,
+          passwordInput,
+          accessLevelInput
+        );
+
         window.location.href = "/login";
       }
-      else{
-        alert("Passwords don't match, please re-enter your password")
-      }
     }
-    else{
-      alert("Invalid Email! Please re-enter your email")
-    }
-
   };
 
   const updateName = (e) => {
@@ -121,7 +101,7 @@ const RegisterPage = () => {
   const updataeValidatePassword = (e) => {
     e.preventDefault();
     setCheckPasswordInput(e.target.value);
-  }
+  };
 
   const updateEmail = (e) => {
     e.preventDefault();
