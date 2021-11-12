@@ -10,13 +10,23 @@ const EditCallersPage = () => {
   const { store, actions } = useContext(Context);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [selectedUID, setSelectedUID] = useState(null);
-  const [dimensions, setDimensions] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
 
   const rowHeight = 100;
   const tableMult = 0.7;
+  const idColMult = store.window.width > 1650 ? 0.1 : 0.1;
+  const nameColMult = store.window.width > 1650 ? 0.3 : 0.3;
+  const accessLevelColMult = store.window.width > 1650 ? 0.2 : 0.2;
+  const dateColMult = store.window.width > 1650 ? 0.2 : 0.2;
+  const statusColMult = store.window.width > 1650 ? 0.2 : 0.2;
+
+  const [tableWidth, setTableWidth] = useState(store.window.width * tableMult);
+  const [idWidth, setIdWidth] = useState(tableWidth * idColMult);
+  const [nameWidth, setNameWidth] = useState(tableWidth * nameColMult);
+  const [accessLevelWidth, setAccessLevelWidth] = useState(
+    tableWidth * accessLevelColMult
+  );
+  const [dateWidth, setDateWidth] = useState(tableWidth * dateColMult);
+  const [statusWidth, setStatusWidth] = useState(tableWidth * statusColMult);
 
   /*
     ID: 10
@@ -26,19 +36,13 @@ const EditCallersPage = () => {
     STATUS:20
   */
 
-  const idColMult = dimensions.width > 1650 ? 0.1 : 0.1;
-  const nameColMult = dimensions.width > 1650 ? 0.3 : 0.3;
-  const accessLevelColMult = dimensions.width > 1650 ? 0.2 : 0.2;
-  const dateColMult = dimensions.width > 1650 ? 0.2 : 0.2;
-  const statusColMult = dimensions.width > 1650 ? 0.2 : 0.2;
+  // let tableWidth = window.width * tableMult;
 
-  let tableWidth = dimensions.width * tableMult;
-
-  let idWidth = tableWidth * idColMult;
-  let nameWidth = tableWidth * nameColMult;
-  let accessLevelWidth = tableWidth * accessLevelColMult;
-  let dateWidth = tableWidth * dateColMult;
-  let statusWidth = tableWidth * statusColMult;
+  // let idWidth = tableWidth * idColMult;
+  // let nameWidth = tableWidth * nameColMult;
+  // let accessLevelWidth = tableWidth * accessLevelColMult;
+  // let dateWidth = tableWidth * dateColMult;
+  // let statusWidth = tableWidth * statusColMult;
 
   const tableRef = useRef();
 
@@ -46,25 +50,9 @@ const EditCallersPage = () => {
     tableRef.current.updateData();
   };
 
-  const handleResize = () => {
-    setDimensions({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-
-    tableWidth = dimensions.width - dimensions.width * tableMult;
-
-    idWidth = tableWidth * idColMult;
-    nameWidth = tableWidth * nameColMult;
-    accessLevelWidth = tableWidth * accessLevelColMult;
-    dateWidth = tableWidth * dateColMult;
-    statusWidth = tableWidth * statusColMult;
-  };
-
   var data = [];
 
   const rowSelectionCallback = (uid) => {
-    console.log("UID CALLBACK", uid);
     setSelectedUID(uid);
     return uid;
   };
@@ -75,19 +63,32 @@ const EditCallersPage = () => {
   }
 
   async function getColumnDefs() {
+    setTableWidth(store.window.width * tableMult);
     return [
-      { headerName: "User ID", field: "user_id", width: idWidth },
-      { headerName: "Name", field: "name", width: nameWidth },
+      {
+        headerName: "User ID",
+        field: "user_id",
+        width: store.window.width * tableMult * idColMult,
+      },
+      {
+        headerName: "Name",
+        field: "name",
+        width: store.window.width * tableMult * nameColMult,
+      },
       {
         headerName: "Access Level",
         field: "access_level",
-        width: accessLevelWidth,
+        width: store.window.width * tableMult * accessLevelColMult,
       },
-      { headerName: "Created", field: "date_created", width: dateWidth },
+      {
+        headerName: "Created",
+        field: "date_created",
+        width: store.window.width * tableMult * dateColMult,
+      },
       {
         headerName: "Status",
         field: "status",
-        width: statusWidth,
+        width: store.window.width * tableMult * statusColMult,
         cellStyle: (params) => {
           return params.value === "ACTIVE"
             ? { color: "green", fontWeight: "bold" }
@@ -115,7 +116,6 @@ const EditCallersPage = () => {
           getData={getData}
           getColumnDefs={getColumnDefs}
           getFrameworkComponents={getFrameworkComponents}
-          handleResize={handleResize}
           rowSelectionCallback={rowSelectionCallback}
         />
         <UserDetails updateData={updateData} selectedUID={selectedUID} />

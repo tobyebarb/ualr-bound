@@ -27,7 +27,6 @@ const NavigationBar = () => {
   const [logoutFocused, setLogoutFocused] = useState(false);
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
-
     width: window.innerWidth,
   });
   const [importFocused, setImportFocused] = useState(false);
@@ -69,9 +68,10 @@ const NavigationBar = () => {
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({
         height: window.innerHeight,
-
         width: window.innerWidth,
       });
+
+      actions.setDimensions(window.innerWidth, window.innerHeight);
     }, 1000);
 
     window.addEventListener("resize", debouncedHandleResize);

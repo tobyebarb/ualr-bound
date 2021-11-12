@@ -68,6 +68,8 @@ const Table = React.forwardRef((props, ref) => {
       var initFrameworkComponents = await props.getFrameworkComponents();
       var initColumnDefs = await props.getColumnDefs();
 
+      console.log(initColumnDefs);
+
       setFrameworkComponents(initFrameworkComponents);
       setColumnDefs(initColumnDefs);
 
@@ -75,11 +77,7 @@ const Table = React.forwardRef((props, ref) => {
     };
 
     initialize();
-
-    window.addEventListener("resize", props.handleResize, false);
-
-    return () => window.removeEventListener("resize", props.handleResize);
-  }, []);
+  }, [store.window]);
 
   async function onGridReady(params) {
     setGridApi(params.api);

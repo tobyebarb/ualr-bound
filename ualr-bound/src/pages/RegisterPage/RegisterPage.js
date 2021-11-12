@@ -50,7 +50,6 @@ const RegisterPage = () => {
 
   const handleSubmit = () => {
     //TODO: Handle invalid emails
-    
     if (validator.isEmail(emailInput)) {
       if (passwordInput === checkPasswordInput) {
         var data = {
@@ -60,7 +59,7 @@ const RegisterPage = () => {
           password: passwordInput,
           "access-level": accessLevelInput,
         };
-        
+
         actions.register(
           nameInput,
           usernameInput,
@@ -69,7 +68,9 @@ const RegisterPage = () => {
           accessLevelInput
         );
 
-    window.location.href = "/login";
+        window.location.href = "/login";
+      }
+    }
   };
 
   const updateName = (e) => {

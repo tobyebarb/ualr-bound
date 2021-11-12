@@ -3,6 +3,10 @@ import * as constants from "../utils/Constants";
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      window: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      },
       modalIsVisible: false,
       ui: {
         modalIsVisible: false,
@@ -20,6 +24,14 @@ const getState = ({ getStore, getActions, setStore }) => {
       requests: null,
     },
     actions: {
+      setDimensions: (width, height) => {
+        console.log("Width", width);
+        console.log("Height", height);
+        setStore({
+          window: { width: width, height: height },
+        });
+        return true;
+      },
       setModalVisibility: (bool) => {
         setStore({
           ui: { modalIsVisible: bool },
