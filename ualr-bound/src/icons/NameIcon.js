@@ -11,6 +11,7 @@ const NameIcon = (props) => {
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          className="icon"
         >
           <path
             d="M41.6667 37.4999C41.6667 32.8975 45.3976 29.1665 50 29.1665C54.6024 29.1665 58.3333 32.8975 58.3333 37.4999C58.3333 42.1022 54.6024 45.8332 50 45.8332C45.3976 45.8332 41.6667 42.1022 41.6667 37.4999Z"
@@ -38,6 +39,7 @@ const NameIcon = (props) => {
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          className="icon"
         >
           <path
             fill-rule="evenodd"

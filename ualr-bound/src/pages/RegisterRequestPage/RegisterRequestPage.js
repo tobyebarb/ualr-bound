@@ -8,32 +8,18 @@ import "./RegisterRequestPage.css";
 const RegisterRequestPage = () => {
   const { store, actions } = useContext(Context);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
-  const [dimensions, setDimensions] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
 
   const rowHeight = 100;
   const tableMult = 0.95;
+  const ridColMult = store.window.width > 1650 ? 0.1 : 0.1;
+  const nameColMult = store.window.width > 1650 ? 0.2 : 0.15;
+  const usernameColMult = store.window.width > 1650 ? 0.2 : 0.2;
+  const emailColMult = store.window.width > 1650 ? 0.2 : 0.2;
+  const accessLevelColMult = store.window.width > 1650 ? 0.1 : 0.1;
+  const dateColMult = store.window.width > 1650 ? 0.1 : 0.1;
+  const decisionColMult = store.window.width > 1650 ? 0.1 : 0.15;
 
-  const ridColMult = dimensions.width > 1650 ? 0.1 : 0.1;
-  const nameColMult = dimensions.width > 1650 ? 0.2 : 0.15;
-  const usernameColMult = dimensions.width > 1650 ? 0.2 : 0.2;
-  const emailColMult = dimensions.width > 1650 ? 0.2 : 0.2;
-  const accessLevelColMult = dimensions.width > 1650 ? 0.1 : 0.1;
-  const dateColMult = dimensions.width > 1650 ? 0.1 : 0.1;
-  const decisionColMult = dimensions.width > 1650 ? 0.1 : 0.15;
-
-  let tableWidth = dimensions.width * tableMult;
-
-  let ridWidth = tableWidth * ridColMult;
-  let nameWidth = tableWidth * nameColMult;
-  let usernameWidth = tableWidth * usernameColMult;
-  let emailWidth = tableWidth * emailColMult;
-  let accessLevelWidth = tableWidth * accessLevelColMult;
-  let dateWidth = tableWidth * dateColMult;
-  let decisionWidth =
-    tableWidth * decisionColMult - (getScrollbarSize().width + 2);
+  const [tableWidth, setTableWidth] = useState(store.window.width * tableMult);
 
   const tableRef = useRef();
 
@@ -47,23 +33,6 @@ const RegisterRequestPage = () => {
     updateData(); // update table with new data
   };
 
-  const handleResize = () => {
-    setDimensions({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-
-    tableWidth = dimensions.width - dimensions.width * tableMult;
-
-    ridWidth = tableWidth * ridColMult;
-    nameWidth = tableWidth * nameColMult;
-    usernameWidth = tableWidth * usernameColMult;
-    emailWidth = tableWidth * emailColMult;
-    accessLevelWidth = tableWidth * accessLevelColMult;
-    dateWidth = tableWidth * dateColMult;
-    decisionWidth = tableWidth * decisionColMult;
-  };
-
   var data = [];
 
   async function getData() {
@@ -72,22 +41,52 @@ const RegisterRequestPage = () => {
   }
 
   async function getColumnDefs() {
+    setTableWidth(store.window.width * tableMult);
     return [
-      { headerName: "Request ID", field: "request_id", width: ridWidth },
-      { headerName: "Name", field: "name", width: nameWidth },
-      { headerName: "Username", field: "username", width: usernameWidth },
-      { headerName: "Email", field: "email", width: emailWidth },
+      {
+        headerName: "Request ID",
+        field: "request_id",
+        width: store.window.width * tableMult * ridColMult,
+        sortable: true,
+      },
+      {
+        headerName: "Name",
+        field: "name",
+        width: store.window.width * tableMult * nameColMult,
+        sortable: true,
+      },
+      {
+        headerName: "Username",
+        field: "username",
+        width: store.window.width * tableMult * usernameColMult,
+        sortable: true,
+      },
+      {
+        headerName: "Email",
+        field: "email",
+        width: store.window.width * tableMult * emailColMult,
+        sortable: true,
+      },
       {
         headerName: "Access Level",
         field: "access_level",
-        width: accessLevelWidth,
+        width: store.window.width * tableMult * accessLevelColMult,
+        sortable: true,
       },
-      { headerName: "Date Created", field: "date_created", width: dateWidth },
+      {
+        headerName: "Date Created",
+        field: "date_created",
+        width: store.window.width * tableMult * dateColMult,
+        sortable: true,
+      },
       {
         headerName: "Approve/Deny",
         field: "decision",
         cellClass: "decision-btn-cell",
-        width: decisionWidth,
+        width:
+          store.window.width * tableMult * decisionColMult -
+          (getScrollbarSize().width + 2),
+        sortable: true,
         cellRendererFramework: (params) => {
           return (
             <DecisionButton params={params} updateRows={decisionBtnClicked} />
@@ -114,7 +113,7 @@ const RegisterRequestPage = () => {
         getData={getData}
         getColumnDefs={getColumnDefs}
         getFrameworkComponents={getFrameworkComponents}
-        handleResize={handleResize}
+        defaultCol={"request_id"}
       />
       <NavigationBar />
     </div>

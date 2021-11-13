@@ -150,6 +150,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           })
           .then((data) => {
             console.log(data);
+            window.location.assign("/");
           })
           .catch((error) => {
             console.error(
@@ -157,6 +158,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                 error
             );
           });
+
+        return true;
       },
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token

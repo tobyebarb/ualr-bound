@@ -228,8 +228,10 @@
 
 @media screen and (min-width: 1200px) and (max-width: 1920px) {
     .register-input-row {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+
+        height: 5rem;
     }
 
     .register-form-button-container-col {
@@ -240,7 +242,7 @@
         margin-left: auto;
         margin-right: auto;
         margin-top: 0;
-        width: 15rem;
+        width: 10rem;
     }
 
     .register-details-divider {
@@ -257,6 +259,18 @@
         max-height: 40rem;
         margin-top: auto;
         margin-bottom: auto;
+    }
+
+    .register-input-row > div > .icon {
+        width: 4rem;
+        height: 4rem;
+
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
+    .register-input {
+        font-size: 2rem;
     }
 }
 

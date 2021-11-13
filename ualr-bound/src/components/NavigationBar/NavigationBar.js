@@ -51,6 +51,8 @@ const NavigationBar = () => {
   const arrowWidthRef = useRef(null);
   const dividerWidthRef = useRef(null);
 
+  const timeDelay = 250;
+
   function debounce(fn, ms) {
     let timer;
 
@@ -72,7 +74,7 @@ const NavigationBar = () => {
       });
 
       actions.setDimensions(window.innerWidth, window.innerHeight);
-    }, 1000);
+    }, timeDelay);
 
     window.addEventListener("resize", debouncedHandleResize);
 

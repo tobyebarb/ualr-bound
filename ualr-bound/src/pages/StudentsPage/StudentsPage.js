@@ -1,4 +1,4 @@
-import React, {useState, useContext, useRef, useEffect} from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import NavigationBar from "../../components/NavigationBar/NavigationBar";
 import Table from "../../components/Table/Table";
 import { Context } from "../../store/appContext";
@@ -6,55 +6,31 @@ import { getScrollbarSize } from "../EditCallersPage/EditCallersPage";
 import "./StudentsPage.css";
 
 const StudentsPage = () => {
-    const {store, actions} = useContext(Context);
-    const [scrollbarWidth, setScrollbarWidth] = useState(0);
-    const [selectStudentTNum, setSelectStudentTNum] = useState(null);
-    const [dimensions, setDimensions] = useState({
-        width: window.innerWidth,
-        height: window.innerHeight,});
+  const { store, actions } = useContext(Context);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const [selectStudentTNum, setSelectStudentTNum] = useState(null);
 
-    const rowHeight = 100;
-    /*percentage of the screen the table should occupy*/
-    const tableMult = 0.7;
+  const rowHeight = 100;
 
-    /*setting the percentage width for the column headers depending on screen size*/
-    const TNumColMult = dimensions.width > 1650 ? 0.2 : 0.2;
-    const nameColMult = dimensions.width > 1650 ? 0.3 : 0.3;
-    const emailColMult = dimensions.width > 1650 ? 0.3 : 0.3;
-    const statusColMult = dimensions.width > 1650 ? 0.2 : 0.2;
+  /*percentage of the screen the table should occupy*/
+  const tableMult = 0.7;
+  const [tableWidth, setTableWidth] = useState(store.window.width * tableMult);
 
-    let tableWidth = dimensions.width * tableMult;
+  /*setting the percentage width for the column headers depending on screen size*/
+  const TNumColMult = store.window.width > 1650 ? 0.2 : 0.2;
+  const nameColMult = store.window.width > 1650 ? 0.3 : 0.3;
+  const emailColMult = store.window.width > 1650 ? 0.3 : 0.3;
+  const statusColMult = store.window.width > 1650 ? 0.2 : 0.2;
 
-    /*setting the width of each column of the table */
-    let TNumWidth = tableWidth * TNumColMult;
-    let nameWidth = tableWidth * nameColMult;
-    let emailWidth = tableWidth * emailColMult;
-    let statusWidth = tableWidth * statusColMult;
+  /*using a table reference to utilize the functions inside the Table component*/
+  const tableRef = useRef();
 
-    /*using a table reference to utilize the functions inside the Table component*/
-    const tableRef = useRef();
+  /* Update changes made with the table */
+  const updateData = async () => {
+    tableRef.current.updateData();
+  };
 
-    /* Update changes made with the table 
-    const updateData = async () => {
-        tableRef.current.updateData();
-    };
-    */
-
-    /*Recalculating column sizes */
-    const handleResize = () => {
-        setDimensions({
-            width: window.innerWidth,
-            height: window.innerHeight,
-        });
-
-        tableWidth = dimensions.width - dimensions.width * tableMult;
-        TNumWidth = tableWidth * TNumColMult;
-        nameWidth = tableWidth * nameColMult;
-        emailWidth = tableWidth * emailColMult;
-        statusWidth = tableWidth * statusColMult;
-    };
-
-    var data = [];
+  var data = [];
 
   /*needed for the material UI overlay displaying the student information
     const rowSelectionCallBack = (studentTNum) => {
@@ -63,85 +39,94 @@ const StudentsPage = () => {
     };
     */
 
-    async function getData() {
-       /* data = await actions.getStudents();
+  async function getData() {
+    /* data = await actions.getStudents();
         return data;
         */
-        var studentData = [
-            {
-            TNumber: "0000001",
-            name: "John Doe",
-            email: "jdoe@gmail.com",
-            status: "ACTIVE"
+    var studentData = [
+      {
+        TNumber: "0000001",
+        name: "John Doe",
+        email: "jdoe@gmail.com",
+        status: "ACTIVE",
+      },
+      {
+        TNumber: "0000002",
+        name: "John Doe",
+        email: "jdoe@gmail.com",
+        status: "DEACTIVATED",
+      },
+      {
+        TNumber: "0000003",
+        name: "John Doe",
+        email: "jdoe@gmail.com",
+        status: "ACTIVE",
+      },
+    ];
+    return studentData;
+  }
+
+  async function getColumnDefs() {
+    setTableWidth(store.window.width * tableMult);
+    return [
+      {
+        headerName: "T Number",
+        field: "TNumber",
+        width: store.window.width * tableMult * TNumColMult,
+        sortable: true,
+      },
+      {
+        headerName: "Name",
+        field: "name",
+        width: store.window.width * tableMult * nameColMult,
+        sortable: true,
+      },
+      {
+        headerName: "Email",
+        field: "email",
+        width: store.window.width * tableMult * emailColMult,
+        sortable: true,
+      },
+      {
+        headerName: "Status",
+        field: "status",
+        width: store.window.width * tableMult * statusColMult,
+        sortable: true,
+        cellStyle: (params) => {
+          return params.value === "ACTIVE"
+            ? { color: "green", fontWeight: "bold" }
+            : { color: "red", fontWeight: "bold" };
         },
-        {
-            TNumber: "0000002",
-            name: "John Doe",
-            email: "jdoe@gmail.com",
-            status: "DEACTIVATED"
-        },
-        {
-            TNumber: "0000003",
-            name: "John Doe",
-            email: "jdoe@gmail.com",
-            status: "ACTIVE"
-        },
+      },
+    ];
+  }
 
-    ]
-        return studentData;
-    }
+  async function getFrameworkComponents() {
+    return [];
+  }
 
-    async function getColumnDefs() {
-        return [
-            {
-                headerName: "T Number", field: "TNumber", width: TNumWidth
-            },
-            {
-                headerName: "Name", field: "name", width: nameWidth
-            },
-            {
-                headerName: "Email", field: "email", width: emailWidth
-            },
-            {
-                headerName: "Status", field: "status", width: statusWidth,
-                cellStyle: (params) => {
-                    return params.value === "ACTIVE" 
-                    ? {color: "green", fontWeight: "bold"}
-                    : {color: "red", fontWeight: "bold"};
-                },
-            },
-        ];
-    }
+  useEffect(() => {
+    setScrollbarWidth(getScrollbarSize().width);
+  }, []);
 
-    async function getFrameworkComponents() {
-        return [];
-    }
-
-    useEffect(() => {
-        setScrollbarWidth(getScrollbarSize().width);
-    }, []);
-
-    return (
-        <div className="students-container">
-            <div className="table-components">
-                <Table 
-                    ref={tableRef}
-                    rowHeight={rowHeight}
-                    tableWidth={tableWidth}
-                    getData={getData}
-                    getColumnDefs={getColumnDefs}
-                    getFrameworkComponents={getFrameworkComponents}
-                    handleResize={handleResize}    
-                />
-            </div>
-            <NavigationBar />
-        </div>
-    )
-
-
+  return (
+    <div className="students-container">
+      <div className="table-components">
+        <Table
+          ref={tableRef}
+          rowHeight={rowHeight}
+          tableWidth={tableWidth}
+          getData={getData}
+          getColumnDefs={getColumnDefs}
+          getFrameworkComponents={getFrameworkComponents}
+        />
+      </div>
+      <NavigationBar />
+    </div>
+  );
 };
 
-export default StudentsPage
+export default StudentsPage;
 
 /*handle resizing the scrollbar*/
 /*export const getScrollbarSize = () => {

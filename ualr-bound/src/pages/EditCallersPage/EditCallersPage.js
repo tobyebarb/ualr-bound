@@ -20,13 +20,6 @@ const EditCallersPage = () => {
   const statusColMult = store.window.width > 1650 ? 0.2 : 0.2;
 
   const [tableWidth, setTableWidth] = useState(store.window.width * tableMult);
-  const [idWidth, setIdWidth] = useState(tableWidth * idColMult);
-  const [nameWidth, setNameWidth] = useState(tableWidth * nameColMult);
-  const [accessLevelWidth, setAccessLevelWidth] = useState(
-    tableWidth * accessLevelColMult
-  );
-  const [dateWidth, setDateWidth] = useState(tableWidth * dateColMult);
-  const [statusWidth, setStatusWidth] = useState(tableWidth * statusColMult);
 
   /*
     ID: 10
@@ -69,26 +62,31 @@ const EditCallersPage = () => {
         headerName: "User ID",
         field: "user_id",
         width: store.window.width * tableMult * idColMult,
+        sortable: true,
       },
       {
         headerName: "Name",
         field: "name",
         width: store.window.width * tableMult * nameColMult,
+        sortable: true,
       },
       {
         headerName: "Access Level",
         field: "access_level",
         width: store.window.width * tableMult * accessLevelColMult,
+        sortable: true,
       },
       {
         headerName: "Created",
         field: "date_created",
         width: store.window.width * tableMult * dateColMult,
+        sortable: true,
       },
       {
         headerName: "Status",
         field: "status",
         width: store.window.width * tableMult * statusColMult,
+        sortable: true,
         cellStyle: (params) => {
           return params.value === "ACTIVE"
             ? { color: "green", fontWeight: "bold" }
@@ -117,6 +115,7 @@ const EditCallersPage = () => {
           getColumnDefs={getColumnDefs}
           getFrameworkComponents={getFrameworkComponents}
           rowSelectionCallback={rowSelectionCallback}
+          defaultCol={"user_id"}
         />
         <UserDetails updateData={updateData} selectedUID={selectedUID} />
       </div>
