@@ -5,6 +5,7 @@ import UserDetails from "../../components/Table/components/UserDetails/UserDetai
 import { Context } from "../../store/appContext";
 import "./EditCallersPage.css";
 import UserDetailsModal from "../../components/Table/components/UserDetailsModal/UserDetailsModal";
+import { FileUploader } from "../../App";
 
 const EditCallersPage = () => {
   const { store, actions } = useContext(Context);
@@ -20,6 +21,13 @@ const EditCallersPage = () => {
   const statusColMult = store.window.width > 1650 ? 0.2 : 0.2;
 
   const [tableWidth, setTableWidth] = useState(store.window.width * tableMult);
+
+  const fileRef = useRef(null);
+  useEffect(() => {
+    if (store.ui.importIsVisible) {
+      fileRef.current.openUploader();
+    }
+  }, [store.ui.importIsVisible]);
 
   /*
     ID: 10
@@ -121,6 +129,7 @@ const EditCallersPage = () => {
       </div>
       <UserDetailsModal updateData={updateData} selectedUID={selectedUID} />
       <NavigationBar />
+      <FileUploader ref={fileRef} />
     </div>
   );
 };

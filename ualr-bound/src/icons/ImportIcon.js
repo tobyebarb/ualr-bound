@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useContext, useRef } from "react";
 import PropTypes from "prop-types";
+import { Context } from "../store/appContext";
 
 const ImportIcon = (props) => {
+  const { store, actions } = useContext(Context);
+
+  const open = () => {
+    actions.setImportIsVisible(true);
+  };
+
   if (!props.focused) {
     return (
       <div style={props.style}>
@@ -28,7 +35,7 @@ const ImportIcon = (props) => {
     );
   } else {
     return (
-      <div style={props.style}>
+      <div style={props.style} onClick={open}>
         <svg
           width="100"
           height="100"

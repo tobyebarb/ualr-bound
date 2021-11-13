@@ -1,8 +1,10 @@
+import { useRef } from "react";
 import * as constants from "../utils/Constants";
 
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      file: null,
       window: {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -10,6 +12,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       modalIsVisible: false,
       ui: {
         modalIsVisible: false,
+        importIsVisible: false,
         selectedUserID: null,
         selectedUserData: null,
       },
@@ -24,6 +27,47 @@ const getState = ({ getStore, getActions, setStore }) => {
       requests: null,
     },
     actions: {
+      setFile: async (file) => {
+        const store = getStore();
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/uploadFile`; //http://127.0.0.1:5000/api/uploadFile
+
+        const data = new FormData();
+        data.append("file", file);
+
+        const opts = {
+          method: "POST",
+          headers: {
+            Accept: "*",
+            Authorization: "Bearer " + store.token,
+          },
+          body: data,
+        };
+
+        try {
+          const response = await fetch(endpoint, opts);
+
+          if (response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+
+          setStore({
+            file: file,
+          });
+          return true;
+          //   window.location.href = "/";
+        } catch (error) {
+          console.error("Error uploading...");
+        }
+      },
+      setImportIsVisible: (bool) => {
+        setStore({
+          ui: { importIsVisible: bool },
+        });
+        return true;
+      },
       setDimensions: (width, height) => {
         console.log("Width", width);
         console.log("Height", height);

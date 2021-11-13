@@ -4,6 +4,7 @@ import Table from "../../components/Table/Table";
 import DecisionButton from "../../components/Table/components/DecisionButton/DecisionButton";
 import { Context } from "../../store/appContext";
 import "./RegisterRequestPage.css";
+import { FileUploader } from "../../App";
 
 const RegisterRequestPage = () => {
   const { store, actions } = useContext(Context);
@@ -22,6 +23,13 @@ const RegisterRequestPage = () => {
   const [tableWidth, setTableWidth] = useState(store.window.width * tableMult);
 
   const tableRef = useRef();
+
+  const fileRef = useRef(null);
+  useEffect(() => {
+    if (store.ui.importIsVisible) {
+      fileRef.current.openUploader();
+    }
+  }, [store.ui.importIsVisible]);
 
   const updateData = async () => {
     tableRef.current.updateData();
@@ -116,6 +124,7 @@ const RegisterRequestPage = () => {
         defaultCol={"request_id"}
       />
       <NavigationBar />
+      <FileUploader ref={fileRef} />
     </div>
   );
 };
