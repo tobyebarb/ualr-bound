@@ -1,4 +1,3 @@
-import validator from "validator"
 import React, { useContext, useState } from "react";
 /* TODO: Add first and last name as an entry to registration */
 import validator from "validator";
@@ -53,23 +52,15 @@ const RegisterPage = () => {
     if (e.key === "Enter") {
       // do something
       e.preventDefault();
-      console.log("Enter key pressed!")
+      console.log("Enter key pressed!");
       handleSubmit();
     }
-  }
+  };
 
-const handleSubmit = () => {
+  const handleSubmit = () => {
     //TODO: Handle invalid emails
     if (validator.isEmail(emailInput)) {
       if (passwordInput === checkPasswordInput) {
-        var data = {
-          name: nameInput,
-          username: usernameInput,
-          email: emailInput,
-          password: passwordInput,
-          "access-level": accessLevelInput,
-        };
-
         actions.register(
           nameInput,
           usernameInput,
@@ -77,8 +68,8 @@ const handleSubmit = () => {
           passwordInput,
           accessLevelInput
         );
-
-        window.location.href = "/login";
+      } else {
+        console.log("Passwords don't match"); //TODO: User feedback when password not matching
       }
     }
   };
@@ -98,7 +89,7 @@ const handleSubmit = () => {
     setPasswordInput(e.target.value);
   };
 
-  const updataeValidatePassword = (e) => {
+  const updateValidatePassword = (e) => {
     e.preventDefault();
     setCheckPasswordInput(e.target.value);
   };
@@ -201,7 +192,6 @@ const handleSubmit = () => {
                   onChange={updateUsername}
                   content={focusColor}
                   onKeyPress={onKeyPressHandler}
-              
                 />
               </div>
 
@@ -294,7 +284,7 @@ const handleSubmit = () => {
                   name="password"
                   id="pass"
                   value={checkPasswordInput}
-                  onChange={updataeValidatePassword}
+                  onChange={updateValidatePassword}
                   content={focusColor}
                   onKeyPress={onKeyPressHandler}
                 />
@@ -343,7 +333,7 @@ const handleSubmit = () => {
               <button
                 content={focusColor}
                 className="register-form-button"
-                onClick={handleSubmit}
+                onClick={() => handleSubmit()}
               >
                 Send Request
               </button>

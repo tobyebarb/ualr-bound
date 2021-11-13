@@ -43,6 +43,18 @@ const Table = React.forwardRef((props, ref) => {
 
   var data = [];
 
+  const sortGrid = (params, field, sortDir) => {
+    const columnState = {
+      state: [
+        {
+          colId: field,
+          sort: sortDir,
+        },
+      ],
+    };
+    params.columnApi.applyColumnState(columnState);
+  };
+
   const updateData = async () => {
     data = await props.getData();
     setRowData(data);
@@ -83,7 +95,10 @@ const Table = React.forwardRef((props, ref) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
 
+    console.log(params.columnApi);
+
     let data = await props.getData();
+    if (props.defaultCol) sortGrid(params, props.defaultCol, "asc");
     setRowData(data);
   }
 
