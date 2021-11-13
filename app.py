@@ -9,6 +9,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from api.model import db, ValidUser, RegistrationRequest
 from collections import defaultdict
+import pandas as pd
 
 
 app = Flask(__name__, static_folder='ualr-bound/build', static_url_path='')
@@ -38,6 +39,17 @@ def get_message():
     }
 
     return jsonify(dictionary)
+
+
+@app.route("/api/uploadFile", methods=["POST"])
+@jwt_required()
+@cross_origin()
+def uploadFile():
+    file = request.files["file"]
+    
+    csv_data = pd.read_csv(file, index_col=0)
+    print(csv_data)
+    return jsonify({"msg":"success"}), 200
 
 @app.route("/api/updateRegistrationRequests", methods=["POST"])
 @jwt_required()

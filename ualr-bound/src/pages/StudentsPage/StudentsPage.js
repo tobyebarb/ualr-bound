@@ -1,4 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
+import { FileUploader } from "../../App";
 import NavigationBar from "../../components/NavigationBar/NavigationBar";
 import Table from "../../components/Table/Table";
 import { Context } from "../../store/appContext";
@@ -24,6 +25,13 @@ const StudentsPage = () => {
 
   /*using a table reference to utilize the functions inside the Table component*/
   const tableRef = useRef();
+
+  const fileRef = useRef(null);
+  useEffect(() => {
+    if (store.ui.importIsVisible) {
+      fileRef.current.openUploader();
+    }
+  }, [store.ui.importIsVisible]);
 
   /* Update changes made with the table */
   const updateData = async () => {
@@ -122,6 +130,7 @@ const StudentsPage = () => {
         />
       </div>
       <NavigationBar />
+      <FileUploader ref={fileRef} />
     </div>
   );
 };
