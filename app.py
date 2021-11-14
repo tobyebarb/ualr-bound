@@ -145,6 +145,21 @@ def get_message():
 
     return jsonify(dictionary)
 
+@app.route("/api/getStudents", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getStudents():
+    user = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+    print(user)
+    if str(user.accessLevel) == "accessLevel.root" or str(user.accessLevel) == "accessLevel.admin":
+        data = db.session.query(ProspectImportData).all()
+        count = db.session.query(ProspectImportData).count()
+
+        jsonData = formatQuery(data, count, ["tNumber", "name1", "name2", "name3", "email", "status"])
+        return jsonify(jsonData, 200)
+        
+    return jsonify({"msg":"fail"}), 401
+
 @app.route("/api/uploadFile", methods=["POST"])
 @jwt_required()
 @cross_origin()

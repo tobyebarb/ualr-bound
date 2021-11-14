@@ -453,26 +453,24 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error", error);
         }
       },
-      /*getStudents: async () => {
+      getStudents: async () => {
         const store = getStore();
-        
+
         //define the type of HTTP request and content type and authorization
         const opts = {
           method: "GET",
           headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: "Bearer" + store.token,
+            Authorization: "Bearer " + store.token,
           },
         };
 
-        const enpoint = '${constants.ENDPOINT_URL.LOCAL}/api/getStudents';
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudents`;
 
         try {
           const response = await fetch(endpoint, opts);
-          
+
           //throw an error is status isn't ok
-          if(response.status !== 200) {
+          if (response.status !== 200) {
             alert("There has been some error");
             return false;
           }
@@ -486,20 +484,20 @@ const getState = ({ getStore, getActions, setStore }) => {
           for (let i = 0; i < count; i++) {
             var row = data[0][i];
             var row_data = {
-              TNumber: row.TNumber,
-              name: row.firstName + row.lastName,
+              tNumber: row.tNumber,
+              name: row.name2
+                ? row.name1 + " " + row.name2 + " " + row.name3
+                : row.name1 + " " + row.name3,
               email: row.email,
-              status: row.activationStatus === "True" ? "ACTIVE" : "INACTIVE"
+              status: row.status === "True" ? "ACTIVE" : "INACTIVE",
             };
             new_data.push(row_data);
           }
           return new_data;
-        } catch (eror){
-          console.error("Error", error);
+        } catch (error) {
           console.log("Error", error);
         }
-      };
-      */
+      },
     },
   };
 };
