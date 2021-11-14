@@ -493,8 +493,6 @@ const getState = ({ getStore, getActions, setStore }) => {
             };
             new_data.push(row_data);
           }
-
-          setStore({requests: new_data});
           return new_data;
         } catch (eror){
           console.error("Error", error);
