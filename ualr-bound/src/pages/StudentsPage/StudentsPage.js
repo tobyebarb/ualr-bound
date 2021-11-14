@@ -48,30 +48,8 @@ const StudentsPage = () => {
     */
 
   async function getData() {
-    /* data = await actions.getStudents();
-        return data;
-        */
-    var studentData = [
-      {
-        TNumber: "0000001",
-        name: "John Doe",
-        email: "jdoe@gmail.com",
-        status: "ACTIVE",
-      },
-      {
-        TNumber: "0000002",
-        name: "John Doe",
-        email: "jdoe@gmail.com",
-        status: "DEACTIVATED",
-      },
-      {
-        TNumber: "0000003",
-        name: "John Doe",
-        email: "jdoe@gmail.com",
-        status: "ACTIVE",
-      },
-    ];
-    return studentData;
+    data = await actions.getStudents();
+    return data;
   }
 
   async function getColumnDefs() {
@@ -79,7 +57,7 @@ const StudentsPage = () => {
     return [
       {
         headerName: "T Number",
-        field: "TNumber",
+        field: "tNumber",
         width: store.window.width * tableMult * TNumColMult,
         sortable: true,
       },
