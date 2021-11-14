@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
-from api.model import db, ValidUser, RegistrationRequest
+from api.model import db, ValidUser, RegistrationRequest, ProspectImportData, ProspectSRA, formatEntry, parseCampaign
 from collections import defaultdict
 import pandas as pd
 
@@ -24,9 +24,114 @@ app.permanent_session_lifetime = timedelta(minutes=30)
 jwt = JWTManager(app)
 db.init_app(app)
 
+ALLOWED_EXTENSION = {'csv'}
+
 
 with app.app_context():
     db.create_all()
+
+def allowed_files(filename) -> bool :
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
+
+def compareStudents(entry, student):
+    new_student = formatEntry(entry)
+    """
+        CASES:
+            - Student doesn't exist and is imported directly into prospect_import_data
+            - Student does exist, but it is still the same term/year
+                - We just need to update their data, not the campaign number or anything in other tables (easy case) make sure to activate campaignStatus
+            - Student does exist, but it is a different term/year
+                - We need to add a new entry with the same T Number to prospect_sra.
+                    Will also have to update their information in prospect_import_data (less easy case) make sure to activate campaignStatus
+
+        If entry is already existing for specific T Number, then we want to not add a new
+        entry to the prospect_import_data, but instead we want to check the term they are
+        in and make a new entry to prospect_list and up count the number of campaigns they
+        are in as well as prospect_sra with new term and year
+    """ 
+    sameTerm = False
+    term=parseCampaign(new_student)[1]
+    year=parseCampaign(new_student)[0]
+
+    sra_data = ProspectSRA.query.filter_by(tNumber=new_student[0][1])
+    count = sra_data.count()
+
+    for index in range(count): # Go through each entry of sra_data with same T Number and find their year and term
+        sra_year, sra_term = sra_data[index].getCampaign() # Assign sra_year and sra_term to be the specific entrys' campaign details
+        sra_term = str(sra_term)
+        sra_term = sra_term.split(".")[1]
+ 
+
+        if str(sra_year) == str(year) and str(sra_term) == str(term): # Check if student is in same year ; Might have to split sra_term since it is ENUM
+            print("Student " + str(student.tNumber) + " updating with same term")
+            sameTerm = True
+            student.name1 = new_student[1][1] if new_student[1][1] != "nan" else None
+            student.name2 = new_student[2][1] if new_student[2][1] != "nan" else None
+            student.name3 = new_student[3][1] if new_student[3][1] != "nan" else None
+            #student.term = new_student[4][1] if new_student[4][1] != "nan" else None
+            student.level = new_student[5][1] if new_student[5][1] != "nan" else None
+            student.program = new_student[6][1] if new_student[6][1] != "nan" else None
+            student.college = new_student[7][1] if new_student[7][1] != "nan" else None
+            student.department = new_student[8][1] if new_student[8][1] != "nan" else None
+            student.decision = new_student[9][1] if new_student[9][1] != "nan" else None
+            student.admitDate = new_student[10][1] if new_student[10][1] != "nan" else None
+            student.address1 = new_student[11][1] if new_student[11][1] != "nan" else None
+            student.address2 = new_student[12][1] if new_student[12][1] != "nan" else None
+            student.address3 = new_student[13][1] if new_student[13][1] != "nan" else None
+            student.city = new_student[14][1] if new_student[14][1] != "nan" else None
+            student.state = new_student[15][1] if new_student[15][1] != "nan" else None
+            student.zip = new_student[16][1] if new_student[16][1] != "nan" else None
+            student.areaCode = new_student[17][1] if new_student[17][1] != "nan" else None
+            student.phone = new_student[18][1] if new_student[18][1] != "nan" else None
+            student.phoneExt = new_student[19][1] if new_student[19][1] != "nan" else None
+            student.email = new_student[20][1] if new_student[20][1] != "nan" else None
+            student.emailSchool = new_student[21][1] if new_student[21][1] != "nan" else None
+            student.ethnicity = new_student[22][1] if new_student[22][1] != "nan" else None
+            student.sex = new_student[23][1] if new_student[23][1] != "nan" else None
+            student.admissionType = new_student[24][1] if new_student[24][1] != "nan" else None
+            #Might make studentType an enum
+            student.studentType = new_student[25][1] if new_student[25][1] != "nan" else None
+            student.status = True
+            db.session.commit()
+            return
+
+        """
+            We need to add a new entry with the same T Number to prospect_sra.
+            Will also have to update their information in prospect_import_data (less easy case) make sure to activate campaignStatus
+        """
+    if not sameTerm:
+        print("Student " + str(student.tNumber) + " updating with new term")
+        student.name1 = new_student[1][1] if new_student[1][1] != "nan" else None
+        student.name2 = new_student[2][1] if new_student[2][1] != "nan" else None
+        student.name3 = new_student[3][1] if new_student[3][1] != "nan" else None
+        #student.term = new_student[4][1] if new_student[4][1] != "nan" else None
+        student.level = new_student[5][1] if new_student[5][1] != "nan" else None
+        student.program = new_student[6][1] if new_student[6][1] != "nan" else None
+        student.college = new_student[7][1] if new_student[7][1] != "nan" else None
+        student.department = new_student[8][1] if new_student[8][1] != "nan" else None
+        student.decision = new_student[9][1] if new_student[9][1] != "nan" else None
+        student.admitDate = new_student[10][1] if new_student[10][1] != "nan" else None
+        student.address1 = new_student[11][1] if new_student[11][1] != "nan" else None
+        student.address2 = new_student[12][1] if new_student[12][1] != "nan" else None
+        student.address3 = new_student[13][1] if new_student[13][1] != "nan" else None
+        student.city = new_student[14][1] if new_student[14][1] != "nan" else None
+        student.state = new_student[15][1] if new_student[15][1] != "nan" else None
+        student.zip = new_student[16][1] if new_student[16][1] != "nan" else None
+        student.areaCode = new_student[17][1] if new_student[17][1] != "nan" else None
+        student.phone = new_student[18][1] if new_student[18][1] != "nan" else None
+        student.phoneExt = new_student[19][1] if new_student[19][1] != "nan" else None
+        student.email = new_student[20][1] if new_student[20][1] != "nan" else None
+        student.emailSchool = new_student[21][1] if new_student[21][1] != "nan" else None
+        student.ethnicity = new_student[22][1] if new_student[22][1] != "nan" else None
+        student.sex = new_student[23][1] if new_student[23][1] != "nan" else None
+        student.admissionType = new_student[24][1] if new_student[24][1] != "nan" else None
+        #Might make studentType an enum
+        student.studentType = new_student[25][1] if new_student[25][1] != "nan" else None
+        student.status = True
+        new_sra = ProspectSRA(tNumber=new_student[0][1], term=parseCampaign(new_student)[1], year=parseCampaign(new_student)[0])
+        db.session.add(new_sra)
+        db.session.commit()
+        return
 
 @app.route('/message', methods=['GET'])
 @jwt_required()
@@ -40,16 +145,31 @@ def get_message():
 
     return jsonify(dictionary)
 
-
 @app.route("/api/uploadFile", methods=["POST"])
 @jwt_required()
 @cross_origin()
 def uploadFile():
     file = request.files["file"]
     
-    csv_data = pd.read_csv(file, index_col=0)
-    print(csv_data)
-    return jsonify({"msg":"success"}), 200
+    if allowed_files(file.filename):
+        data = pd.read_csv(file, index_col=0)
+        data = data.dropna(how = "all")  # Deletes rows that have NaN for all columns
+        
+        count = data.shape[0]
+        for i in range(count):
+            entry = data.iloc[i]
+            #print(entry)
+            
+            student = ProspectImportData.query.filter_by(tNumber=entry.name).first()
+            if student:
+                compareStudents(entry=entry, student=student)
+            else:
+                new_entry = ProspectImportData(entry)
+                db.session.add(new_entry)
+        db.session.commit()
+        return jsonify({"msg":"Successfully imported CSV file data"}), 200\
+
+    return jsonify({"msg":"Not in CSV format"}), 400
 
 @app.route("/api/updateRegistrationRequests", methods=["POST"])
 @jwt_required()

@@ -5,6 +5,79 @@ import enum, pandas as pd
 
 db = SQLAlchemy()
 
+def formatEntry(entry):
+    integerColumns = [
+        'Phone Area code',
+        'Phone Number',
+        'Phone Extension',
+        ]
+
+    """
+    Columns is a two-dimensional array, the first element per 
+    entry will have the column name found in the CSV and the 
+    second element will have the model.py column name
+    """
+
+    columns = [
+        ['Tnumber', 'tNumber'], 
+        ['First Name', 'name1'], 
+        ['Middle Name', 'name2'], 
+        ['Last Name', 'name3'], 
+        ['Term', 'term'], 
+        ['Level', 'level'], 
+        ['Primary Program', 'program'], 
+        ['Primary College', 'college'],
+        ['Primary Department', 'department'],
+        ['Decision', 'decision'],
+        ['Admit Date', 'admitDate'],
+        ['Street Address 1', 'address1'],
+        ['Street Address 2', 'address2'],
+        ['Street Address 3', 'address3'],
+        ['City', 'city'],
+        ['State', 'state'],
+        ['Zip Code', 'zip'],
+        ['Phone Area code', 'areaCode'],
+        ['Phone Number', 'phone'],
+        ['Phone Extension', 'phoneExt'],
+        ['Email Address', 'email'],
+        ['UALR Email', 'emailSchool'],
+        ['Ethnicity', 'ethnicity'],
+        ['Sex', 'sex'],
+        ['Admission Type', 'admissionType'],
+        ['Student Type', 'studentType'],
+    ]
+
+    new_data = []
+    for column in columns:
+        if column[0] == 'Tnumber':
+            new_data.append([column[1],str(entry.name)])
+            continue
+        
+        if column[0] in integerColumns:
+            if (str(entry[column[0]]) == 'nan'):
+                new_data.append([column[1], "nan"])
+                continue
+
+            new_data.append([column[1],str(int(entry[column[0]]))])
+            continue
+
+        new_data.append([column[1],str(entry[column[0]])])
+
+    return new_data
+
+def parseCampaign(formattedEntry):
+    termEnums = [
+        'FALL',
+        'SPRING',
+        'SUMMER',
+    ]
+    term_data = formattedEntry[4][1]
+    year = term_data.split(" ")[0]
+    term = term_data.split(" ")[1].upper()
+    if term not in termEnums:
+        return "Invalid Term"
+    return [year, term]
+
 class accessLevel(enum.Enum):
     caller = 1
     admin = 2
@@ -78,40 +151,41 @@ class RegistrationRequest(db.Model):
 
 #Prospect Information
 
-class ProspectList(db.Model):
-    __tablename__ = 'prospect_list'
-    id = db.Column(db.Integer, primary_key = True)
-    tNumber = db.Column(db.String(9), primary_key = True, unique = True)
-    campaignStatus = db.Column(db.Boolean)
-    numCampaigns = db.Column(db.Integer)
+# class ProspectList(db.Model):
+#     __tablename__ = 'prospect_list'
+#     id = db.Column(db.Integer, primary_key = True)
+#     tNumber = db.Column(db.String(9), db.ForeignKey('prospect_import_data.tNumber'), unique = True)
+#     campaignStatus = db.Column(db.Boolean)
+#     numCampaigns = db.Column(db.Integer)
 
-    def __init__(self, tNumber):
-        self.tNumber = tNumber
-        self.campaignStatus = True
-        self.numCampaigns = 0
+#     def __init__(self, tNumber):
+#         self.tNumber = tNumber
+#         self.campaignStatus = True
+#         self.numCampaigns = 0
 
-    def __repr__(self):
-        return "{}({!r})".format(self.__class__.__name__, self.__dict__)
+#     def __repr__(self):
+#         return "{}({!r})".format(self.__class__.__name__, self.__dict__)
 
-    def getId(self):
-        return f''
+#     def getId(self):
+#         return f''
 
 
 class ProspectImportData(db.Model):
     __tablename__ = 'prospect_import_data'
     id = db.Column(db.Integer, primary_key = True)
-    tNumber = db.Column(db.String(9), db.ForeignKey('prospect_list.tNumber'))
+    tNumber = db.Column(db.String(9), unique = True)
     #First, Middle, Last Names
     name1 = db.Column(db.String(30), nullable=False)
     name2 = db.Column(db.String(30))
     name3 = db.Column(db.String(30), nullable=False)
-    term = db.Column(db.Enum(term))
+    #term = db.Column(db.Text)
     #Might make enum for level
     level = db.Column(db.String(30))
-    program = db.Column(db.String(30), nullable=False)
-    college = db.Column(db.String(30), nullable=False)
+    program = db.Column(db.String(30))
+    college = db.Column(db.String(30))
     department = db.Column(db.String(30))
-    admitDate = db.Column(db.DateTime(timezone=True))
+    decision = db.Column(db.Text)
+    admitDate = db.Column(db.Text)
     address1 = db.Column(db.String(100), nullable=False)
     address2 = db.Column(db.String(100))
     address3 = db.Column(db.String(100))
@@ -123,33 +197,47 @@ class ProspectImportData(db.Model):
     phoneExt = db.Column(db.Integer)
     email = db.Column(db.String(100), nullable=False)
     emailSchool = db.Column(db.String(100), nullable=False)
+    ethnicity = db.Column(db.String(100))
+    sex = db.Column(db.String(1))
+    admissionType = db.Column(db.String(150))
     #Might make studentType an enum
-    studentType = db.Column(db.String(30))
+    studentType = db.Column(db.String(200))
+    status = db.Column(db.Boolean)
 
-    #Requires temp as pandas dataframe
-    def __init__(self, temp, tNumber):
-        self.tNumber=tNumber
-        self.name1 = temp[0]
-        self.name2 = temp[1]
-        self.name3 = temp[2]
-        self.term = temp[3]
-        self.level = temp[4]
-        self.program = temp[5]
-        self.college = temp[6]
-        self.department = temp[7]
-        self.admitDate = temp[8]
-        self.address1 = temp[9]
-        self.address2 = temp[10]
-        self.address3 = temp[11]
-        self.city = temp[12]
-        self.state = temp[13]
-        self.zip = temp[14]
-        self.areaCode = temp[15]
-        self.phone = temp[16]
-        self.phoneExt = temp[17]
-        self.email = temp[18]
-        self.emailSchool = temp[19]
-        self.studentType = temp[20]
+    #Requires entry as pandas dataframe
+    def __init__(self, entry):
+        formattedEntry = formatEntry(entry)
+        
+        self.tNumber = formattedEntry[0][1] if formattedEntry[0][1] != "nan" else None
+        self.name1 = formattedEntry[1][1] if formattedEntry[1][1] != "nan" else None
+        self.name2 = formattedEntry[2][1] if formattedEntry[2][1] != "nan" else None
+        self.name3 = formattedEntry[3][1] if formattedEntry[3][1] != "nan" else None
+        #self.term = formattedEntry[4][1] if formattedEntry[4][1] != "nan" else None
+        self.level = formattedEntry[5][1] if formattedEntry[5][1] != "nan" else None
+        self.program = formattedEntry[6][1] if formattedEntry[6][1] != "nan" else None
+        self.college = formattedEntry[7][1] if formattedEntry[7][1] != "nan" else None
+        self.department = formattedEntry[8][1] if formattedEntry[8][1] != "nan" else None
+        self.decision = formattedEntry[9][1] if formattedEntry[9][1] != "nan" else None
+        self.admitDate = formattedEntry[10][1] if formattedEntry[10][1] != "nan" else None
+        self.address1 = formattedEntry[11][1] if formattedEntry[11][1] != "nan" else None
+        self.address2 = formattedEntry[12][1] if formattedEntry[12][1] != "nan" else None
+        self.address3 = formattedEntry[13][1] if formattedEntry[13][1] != "nan" else None
+        self.city = formattedEntry[14][1] if formattedEntry[14][1] != "nan" else None
+        self.state = formattedEntry[15][1] if formattedEntry[15][1] != "nan" else None
+        self.zip = formattedEntry[16][1] if formattedEntry[16][1] != "nan" else None
+        self.areaCode = formattedEntry[17][1] if formattedEntry[17][1] != "nan" else None
+        self.phone = formattedEntry[18][1] if formattedEntry[18][1] != "nan" else None
+        self.phoneExt = formattedEntry[19][1] if formattedEntry[19][1] != "nan" else None
+        self.email = formattedEntry[20][1] if formattedEntry[20][1] != "nan" else None
+        self.emailSchool = formattedEntry[21][1] if formattedEntry[21][1] != "nan" else None
+        self.ethnicity = formattedEntry[22][1] if formattedEntry[22][1] != "nan" else None
+        self.sex = formattedEntry[23][1] if formattedEntry[23][1] != "nan" else None
+        self.admissionType = formattedEntry[24][1] if formattedEntry[24][1] != "nan" else None
+        #Might make studentType an enum
+        self.studentType = formattedEntry[25][1] if formattedEntry[25][1] != "nan" else None
+        self.status = True
+        new_sra = ProspectSRA(tNumber=self.tNumber, term=parseCampaign(formattedEntry)[1], year=parseCampaign(formattedEntry)[0])
+        db.session.add(new_sra)
 
     def __repr__(self):
         return "{}({!r})".format(self.__class__.__name__, self.__dict__)
@@ -157,26 +245,29 @@ class ProspectImportData(db.Model):
     def getId(self):
         return f''
 
+    def setStatus(self, bool):
+        self.status = bool
+
 #Only saves one campaign.  Must be passed year and term on initialization.
 #May need to add that information for current campaign to caller table.
 
 class ProspectSRA(db.Model):
     __tablename__ = 'prospect_sra'
     id = db.Column(db.Integer, primary_key=True)
-    tNumber = db.Column(db.String(9), db.ForeignKey('prospect_list.tNumber'))
+    tNumber = db.Column(db.String(9), db.ForeignKey('prospect_import_data.tNumber'))
     term = db.Column(db.Enum(term))
     year = db.Column(db.Integer, nullable=False)
     #Previous caller and date of call
     wasCalled = db.Column(db.Boolean)
     prevCaller = db.Column(db.String(100))
-    dateCalled = db.Column(db.DateTime(timezone=True))
+    dateCalled = db.Column(db.Text)
     numTimesCalled = db.Column(db.Integer, nullable=False)
     #Information about previous call
     callResponse = db.Column(db.Enum(response))
     callNotes = db.Column(db.String(500))
     #Information about email
     wasEmailed = db.Column(db.Boolean)
-    dateEmailed = db.Column(db.DateTime(timezone=True))
+    dateEmailed = db.Column(db.Text)
     emailText = db.Column(db.String(500))
 
     def __init__(self,tNumber,term,year):
@@ -189,6 +280,9 @@ class ProspectSRA(db.Model):
 
     def __repr__(self):
         return "{}({!r})".format(self.__class__.__name__, self.__dict__)
+
+    def getCampaign(self):
+        return [self.year, self.term]
 
     def getId(self):
         return f''
