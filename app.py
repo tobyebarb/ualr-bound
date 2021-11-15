@@ -150,7 +150,6 @@ def get_message():
 @cross_origin()
 def getStudents():
     user = ValidUser.query.filter_by(username=get_jwt_identity()).first()
-    print(user)
     if str(user.accessLevel) == "accessLevel.root" or str(user.accessLevel) == "accessLevel.admin":
         data = db.session.query(ProspectImportData).all()
         count = db.session.query(ProspectImportData).count()

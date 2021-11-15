@@ -2,13 +2,15 @@ import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Context } from "../../../../store/appContext";
 import Modal from "@material-ui/core/Modal";
+import "./StudentDetailsModal.css";
 import { makeStyles, createTheme } from "@material-ui/core/styles";
 import { Paper } from "@material-ui/core";
 
 const StudentDetailsModal = (props) => {
   const { store, actions } = useContext(Context);
+  const [buttonFocus, setButtonFocus] = useState(false);
   const [isVisible, setVisibility] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [studentData, setStudentData] = useState(null);
   const [tNumberInput, setTNumberInput] = useState("");
   const [firstNameInput, setFirstNameInput] = useState("");
   const [middleNameInput, setMiddleNameInput] = useState("");
@@ -60,23 +62,23 @@ const StudentDetailsModal = (props) => {
 
   const focusColor = "#4c212c";
 
-  // useEffect(() => {
-  //   if (props.selectedUID !== null) {
-  //     // Add inner async function
-  //     const fetchData = async () => {
-  //       try {
-  //         const data = await actions.getUserInfo(props.selectedUID);
-  //         setUserData(data);
-  //       } catch (err) {
-  //         console.log("Error", err);
-  //         setUserData(null);
-  //       }
-  //     };
+  useEffect(() => {
+    if (props.selectedTNumber !== null) {
+      // Add inner async function
+      const fetchData = async () => {
+        try {
+          const data = await actions.getFullStudentInfo(props.selectedTNumber);
+          setStudentData(data);
+        } catch (err) {
+          console.log("Error", err);
+          setStudentData(null);
+        }
+      };
 
-  //     // Call function immediately
-  //     fetchData();
-  //   }
-  // }, [props.selectedUID]);
+      // Call function immediately
+      fetchData();
+    }
+  }, [props.selectedTNumber]);
 
   useEffect(() => {
     if (store.ui.studentModalIsVisible !== undefined) {
@@ -100,17 +102,6 @@ const StudentDetailsModal = (props) => {
     actions.setStudentModalVisibility(false);
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: {
-        light: "#5e97ff",
-        main: "#367eff",
-        dark: "#2558b2",
-        contrastText: "#9d9d9d",
-      },
-    },
-  });
-
   const useStyles = makeStyles((theme) => {
     return {
       modal: {
@@ -126,6 +117,8 @@ const StudentDetailsModal = (props) => {
         marginBottom: "auto",
         width: "100%",
         background: focusColor,
+        overflowY: "scroll",
+        height: "80vh",
       },
       buttonContainer: {
         display: "flex",
@@ -140,36 +133,441 @@ const StudentDetailsModal = (props) => {
   let body = (
     <Paper elevation={3} className={classes.modal}>
       <div className={classes.form}>
-        <input
-          required
-          type="text"
-          className="register-input"
-          name="name"
-          id="name"
-          value={firstNameInput}
-          onChange={(e) => setFirstNameInput(e.target.value)}
-          content={focusColor}
-        />
-        <input
-          required
-          type="text"
-          className="register-input"
-          name="name"
-          id="name"
-          value={middleNameInput}
-          onChange={(e) => setMiddleNameInput(e.target.value)}
-          content={focusColor}
-        />
-        <input
-          required
-          type="text"
-          className="register-input"
-          name="name"
-          id="name"
-          value={lastNameInput}
-          onChange={(e) => setLastNameInput(e.target.value)}
-          content={focusColor}
-        />
+        <button className="submit-button">Confirm Changes</button>
+        <div className="input-container">
+          <p className="student-input-header">First Name:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.name1 !== null
+                ? studentData.name1
+                : "N/A"
+            }
+            value={firstNameInput}
+            onChange={(e) => setFirstNameInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Middle Name:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.name2 !== null
+                ? studentData.name2
+                : "N/A"
+            }
+            value={middleNameInput}
+            onChange={(e) => setMiddleNameInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Last Name:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.name3 !== null
+                ? studentData.name3
+                : "N/A"
+            }
+            value={lastNameInput}
+            onChange={(e) => setLastNameInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Level:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.level !== null
+                ? studentData.level
+                : "N/A"
+            }
+            value={levelInput}
+            onChange={(e) => setLevelInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Program:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.program !== null
+                ? studentData.program
+                : "N/A"
+            }
+            value={programInput}
+            onChange={(e) => setProgramInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">College:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.college !== null
+                ? studentData.college
+                : "N/A"
+            }
+            value={collegeInput}
+            onChange={(e) => setCollegeInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Department:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.department !== null
+                ? studentData.department
+                : "N/A"
+            }
+            value={departmentInput}
+            onChange={(e) => setDepartmentInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Decision:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.decision !== null
+                ? studentData.decision
+                : "N/A"
+            }
+            value={decisionInput}
+            onChange={(e) => setDecisionInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Admit Date:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.admitDate !== null
+                ? studentData.admitDate
+                : "N/A"
+            }
+            value={admitDateInput}
+            onChange={(e) => setAdmitDateInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Address 1:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="address1"
+            id="address1"
+            placeholder={
+              studentData !== null && studentData.address1 !== null
+                ? studentData.address1
+                : "N/A"
+            }
+            value={address1Input}
+            onChange={(e) => setAddress1Input(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Address 2:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.address2 !== null
+                ? studentData.address2
+                : "N/A"
+            }
+            value={address2Input}
+            onChange={(e) => setAddress2Input(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Address 3:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.address3 !== null
+                ? studentData.address3
+                : "N/A"
+            }
+            value={address3Input}
+            onChange={(e) => setAddress3Input(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">City:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.city !== null
+                ? studentData.city
+                : "N/A"
+            }
+            value={cityInput}
+            onChange={(e) => setCityInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">State:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.state !== null
+                ? studentData.state
+                : "N/A"
+            }
+            value={stateInput}
+            onChange={(e) => setStateInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Zip Code:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.zip !== null
+                ? studentData.zip
+                : "N/A"
+            }
+            value={zipInput}
+            onChange={(e) => setZipInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Area Code:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.areaCode !== null
+                ? studentData.areaCode
+                : "N/A"
+            }
+            value={areaCodeInput}
+            onChange={(e) => setAreaCodeInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Phone:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null &&
+              studentData.phone !== null &&
+              studentData.phone !== "0"
+                ? studentData.phone
+                : "N/A"
+            }
+            value={phoneInput}
+            onChange={(e) => setPhoneInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Phone Ext:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.phoneExt !== null
+                ? studentData.phoneExt
+                : "N/A"
+            }
+            value={phoneExtInput}
+            onChange={(e) => setPhoneExtInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Email:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.email !== null
+                ? studentData.email
+                : "N/A"
+            }
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">UALR Email:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.emailSchool !== null
+                ? studentData.emailSchool
+                : "N/A"
+            }
+            value={emailSchoolInput}
+            onChange={(e) => setEmailSchoolInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Ethnicity:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.ethnicity !== null
+                ? studentData.ethnicity
+                : "N/A"
+            }
+            value={ethnicityInput}
+            onChange={(e) => setEthnicityInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Sex:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.sex !== null
+                ? studentData.sex
+                : "N/A"
+            }
+            value={sexInput}
+            onChange={(e) => setSexInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container">
+          <p className="student-input-header">Admission Type:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.admissionType !== null
+                ? studentData.admissionType
+                : "N/A"
+            }
+            value={admissionTypeInput}
+            onChange={(e) => setAdmissionTypeInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
+        <div className="input-container" id="last-input-container">
+          <p className="student-input-header">Student Type:</p>
+          <input
+            required
+            type="text"
+            className="student-input"
+            name="name"
+            id="name"
+            placeholder={
+              studentData !== null && studentData.studentType !== null
+                ? studentData.studentType
+                : "N/A"
+            }
+            value={studentTypeInput}
+            onChange={(e) => setStudentTypeInput(e.target.value)}
+            content={focusColor}
+          />
+        </div>
       </div>
     </Paper>
   );

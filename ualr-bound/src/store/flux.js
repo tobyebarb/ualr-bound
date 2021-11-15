@@ -158,7 +158,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error", error);
         }
       },
-      getStudentInfo: async (tNumber) => {
+      getFullStudentInfo: async (tNumber) => {
         const store = getStore();
         const opts = {
           headers: {
@@ -177,34 +177,55 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         const data = await response.json();
 
-        // "tNumber",
-        // "name1",
-        // "name2",
-        // "name3",
-        // "level",
-        // "program",
-        // "college",
-        // "department",
-        // "decision",
-        // "admitDate",
-        // "address1",
-        // "address2",
-        // "address3",
-        // "city",
-        // "state",
-        // "zip",
-        // "areaCode",
-        // "phone",
-        // "phoneExt",
-        // "email",
-        // "emailSchool",
-        // "ethnicity",
-        // "sex",
-        // "admissionType",
-        // "studentType",
-        // "status",
+        var row_data = {
+          tNumber: data.tNumber,
+          name1: data.name1,
+          name2: data.name2,
+          name3: data.name3,
+          level: data.level,
+          program: data.program,
+          college: data.college,
+          department: data.department,
+          decision: data.decision,
+          admitDate: data.admitDate,
+          address1: data.address1,
+          address2: data.address2,
+          address3: data.address3,
+          city: data.city,
+          state: data.state,
+          zip: data.zip,
+          phone: data.phone,
+          phoneExt: data.phoneExt,
+          areaCode: data.areaCode,
+          email: data.email,
+          emailSchool: data.emailSchool,
+          ethnicity: data.ethnicity,
+          sex: data.sex,
+          admissionType: data.admissionType,
+          studentType: data.studentType,
+          status: data.status === "True" ? "ACTIVE" : "INACTIVE",
+        };
 
-        // console.log(data);
+        return row_data;
+      },
+      getStudentInfo: async (tNumber) => {
+        const store = getStore();
+        const opts = {
+          headers: {
+            Authorization: "Bearer " + store.token,
+          },
+          method: "GET",
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudentInfo/${tNumber}`;
+        // fetching data from the backend
+        const response = await fetch(endpoint, opts);
+
+        if (response.status !== 200) {
+          alert("There has been some error");
+          return false;
+        }
+
+        const data = await response.json();
 
         const formatPhone = (phoneNum) => {
           console.log(phoneNum);
