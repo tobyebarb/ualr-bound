@@ -56,7 +56,7 @@ const UserDetails = (props) => {
 
   const handleModify = async () => {
     if (userData !== null) {
-      console.log("Modifying ", userData);
+      //console.log("Modifying ", userData);
       actions.setModalVisibility(true);
     }
   };

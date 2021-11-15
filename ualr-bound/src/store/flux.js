@@ -12,9 +12,12 @@ const getState = ({ getStore, getActions, setStore }) => {
       modalIsVisible: false,
       ui: {
         modalIsVisible: false,
+        studentModalIsVisible: false,
         importIsVisible: false,
         selectedUserID: null,
         selectedUserData: null,
+        selectedStudent: null,
+        selectedStudentData: null,
       },
       decisionBtnHeight: null,
       token: null,
@@ -76,12 +79,53 @@ const getState = ({ getStore, getActions, setStore }) => {
         });
         return true;
       },
+      setStudentModalVisibility: (bool) => {
+        setStore({
+          ui: { studentModalIsVisible: bool },
+        });
+        return true;
+      },
       setModalVisibility: (bool) => {
         setStore({
           ui: { modalIsVisible: bool },
         });
         return true;
       },
+      modifyStudent: async (tNumber, newData) => {
+        const store = getStore();
+
+        const opts = {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + store.token,
+          },
+          body: JSON.stringify(newData),
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateStudentInfo/${tNumber}`;
+
+        try {
+          const response = await fetch(endpoint, opts);
+
+          if (response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+
+          return data;
+        } catch (error) {
+          console.error("Error", error);
+          console.log("Error", error);
+        }
+      },
+      /* var data = {
+        status: studentData.status === "ACTIVE" ? false : true,
+      };
+      const res = await actions.modifyStudent(studentData.tNumber, data);
+      */
       modifyUser: async (userID, newData) => {
         const store = getStore();
 
@@ -113,6 +157,115 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.error("Error", error);
           console.log("Error", error);
         }
+      },
+      getStudentInfo: async (tNumber) => {
+        const store = getStore();
+        const opts = {
+          headers: {
+            Authorization: "Bearer " + store.token,
+          },
+          method: "GET",
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudentInfo/${tNumber}`;
+        // fetching data from the backend
+        const response = await fetch(endpoint, opts);
+
+        if (response.status !== 200) {
+          alert("There has been some error");
+          return false;
+        }
+
+        const data = await response.json();
+
+        // "tNumber",
+        // "name1",
+        // "name2",
+        // "name3",
+        // "level",
+        // "program",
+        // "college",
+        // "department",
+        // "decision",
+        // "admitDate",
+        // "address1",
+        // "address2",
+        // "address3",
+        // "city",
+        // "state",
+        // "zip",
+        // "areaCode",
+        // "phone",
+        // "phoneExt",
+        // "email",
+        // "emailSchool",
+        // "ethnicity",
+        // "sex",
+        // "admissionType",
+        // "studentType",
+        // "status",
+
+        // console.log(data);
+
+        const formatPhone = (phoneNum) => {
+          console.log(phoneNum);
+          if (phoneNum === "0") {
+            return "No Phone Number";
+          } else {
+            let phoneStr = phoneNum.toString();
+            let firstThree = phoneStr.substring(0, 3);
+            let lastFour = phoneStr.substring(3);
+
+            return firstThree + "-" + lastFour;
+          }
+        };
+
+        var areaCode = data.areaCode ? "(" + data.areaCode + ")" : "";
+
+        var phone = data.phone ? formatPhone(data.phone) : "";
+
+        var ext = data.phoneExt !== "None" ? " +" + data.phoneExt : "";
+
+        var fullPhone = areaCode + phone + ext;
+        var row_data = {
+          tNumber: data.tNumber,
+          name:
+            data.name2 !== "None"
+              ? data.name1 + " " + data.name2 + " " + data.name3
+              : data.name1 + " " + data.name3,
+          level: data.level,
+          program: data.program,
+          college: data.college,
+          department: data.department,
+          decision: data.decision,
+          admitDate: data.admitDate,
+          address:
+            data.address3 !== "None"
+              ? data.address1 + " " + data.address2 + " " + data.address3
+              : data.address2 !== "None"
+              ? data.address1 + " " + data.address2
+              : data.address1,
+          city: data.city,
+          state: data.state,
+          zip: data.zip,
+          phone:
+            formatPhone(data.phone) === "No Phone Number"
+              ? "No Phone Number"
+              : fullPhone,
+          email: data.email,
+          emailSchool: data.emailSchool,
+          ethnicity: data.ethnicity,
+          sex: data.sex,
+          admissionType: data.admissionType,
+          studentType: data.studentType,
+          status: data.status === "True" ? "ACTIVE" : "INACTIVE",
+        };
+
+        console.log(row_data);
+
+        setStore({
+          ui: { selectedStudentData: row_data },
+        });
+        return row_data;
       },
       getUserInfo: async (userID) => {
         const store = getStore();
@@ -155,6 +308,12 @@ const getState = ({ getStore, getActions, setStore }) => {
           ui: { selectedUserData: row_data },
         });
         return row_data;
+      },
+      updateSelectedStudent: async (tNumber) => {
+        setStore({
+          ui: { selectedStudent: tNumber },
+        });
+        return true;
       },
       updateSelectedUserID: async (userID) => {
         setStore({
@@ -485,9 +644,10 @@ const getState = ({ getStore, getActions, setStore }) => {
             var row = data[0][i];
             var row_data = {
               tNumber: row.tNumber,
-              name: row.name2
-                ? row.name1 + " " + row.name2 + " " + row.name3
-                : row.name1 + " " + row.name3,
+              name:
+                row.name2 !== "None"
+                  ? row.name1 + " " + row.name2 + " " + row.name3
+                  : row.name1 + " " + row.name3,
               email: row.email,
               status: row.status === "True" ? "ACTIVE" : "INACTIVE",
             };

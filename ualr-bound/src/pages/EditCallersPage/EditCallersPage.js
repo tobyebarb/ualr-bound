@@ -117,6 +117,7 @@ const EditCallersPage = () => {
       <div className="table-components">
         <Table
           ref={tableRef}
+          option={"editCallers"}
           rowHeight={rowHeight}
           tableWidth={tableWidth}
           getData={getData}

@@ -182,7 +182,7 @@ def uploadFile():
                 new_entry = ProspectImportData(entry)
                 db.session.add(new_entry)
         db.session.commit()
-        return jsonify({"msg":"Successfully imported CSV file data"}), 200\
+        return jsonify({"msg":"Successfully imported CSV file data"}), 200
 
     return jsonify({"msg":"Not in CSV format"}), 400
 
@@ -294,6 +294,46 @@ def getUserInfo(userID):
         return jsonify(jsonData), 200
     return jsonify({"msg": "user doesn't exist"}), 404
 
+    
+@app.route("/api/getStudentInfo/<tNumber>", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getStudentInfo(tNumber):
+    columns = [
+        "tNumber", 
+        "name1", 
+        "name2",
+        "name3",
+        "level", 
+        "program", 
+        "college", 
+        "department", 
+        "decision",
+        "admitDate", 
+        "address1", 
+        "address2",
+        "address3",
+        "city", 
+        "state", 
+        "zip", 
+        "areaCode", 
+        "phone",
+        "phoneExt", 
+        "email", 
+        "emailSchool", 
+        "ethnicity",
+        "sex", 
+        "admissionType", 
+        "studentType", 
+        "status",
+        ]
+    student = ProspectImportData.query.filter_by(tNumber=tNumber).first()
+    if student:
+        jsonData = row2dict(student, wantedColumns=columns)
+        #print(jsonData)
+        return jsonify(jsonData), 200
+    return jsonify({"msg": "student doesn't exist"}), 404
+
 @app.route("/api/getCallers", methods=["GET"])
 @jwt_required()
 @cross_origin()
@@ -309,74 +349,120 @@ def getCallers():
         return jsonify(jsonData, 200)
     return jsonify({"msg":"fail"}), 401
 
-#@app.route("/api/getStudents", methods=["GET"])
-#@jwt_required()
-#@cross_origin()
-#def getStudents(): 
-#   
-#   data = db.session.query(ProspectImportData).all()
-#   count = db.session.query(ProspectImportData).count()
-#   jsonData = formatQuery(data, count, ["TNumber", "name", "email", "status"])
-#   return jsonify(jsonData, 200)
-
-#@app.route("/api/updateStudentInfo/<TNumber>", methods=["POST"])
-#@jwt_required()
-#@cross_origin()
-#def updateStudentInfo(TNumber):
-#   if request.method == 'POST': 
-#       TNumber = request.json.get("TNumber", None)
-#       firstName = request.json.get("firstName", None)
-#       middleName = request.json.get("middleName", None)
-#       lastName = request.json.get("lastName", None)
-#       term = request.json.get("term", None)
-#       level = request.json.get("level", None)
-#       primaryProgram = request.json.get("primaryProgram", None)
-#       primaryCollege = request.json.get("primaryCollege", None)
-#       primaryDepartment = request.json.get("primaryDepartment", None)
-#       admitDate = request.json.get("admitDate", None)
-#       streetAddress = request.json.get("streetAddress", None)
-#       streetAddressTwo = request.json.get("streetAddressTwo", None)
-#       streetAddressThree = request.json.get("streetAddressThree", None)
-#       city = request.json.get("city", None)
-#       state = request.json.get("state", None)
-#       zipcode = request.json.get("zipcode", None)
-#       phoneAreaCode = request.json.get("phoneAreaCode", None)
-#       phoneNumber = request.json.get("phoneNumber", None)
-#       phoneExtension = request.json.get("phoneExtension", None)
-#       email = request.json.get("email", None)
-#       ualrEmail = request.json.get("ualrEmail", None)
-#       ethnicity = request.json.get("ethnicity", None)
-#       sex = request.json.get("sex", None)
-#       admissionType = request.json.get("admissionType", None)
-#       studentType = request.json.get("studentType", None)
-#       status = request.json.get("activationStatus", None)
-#       data = [
-#           TNumber,
-#           firstName,
-#           middleName,
-#           lastName,
-#           term,
-#           level,
-#           primaryProgram,
-#           primaryCollege,
-#           primaryDepartment,
-#           admitDate,
-#           streetAddress,
-#           streetAddressTwo,
-#           streetAddressThree,
-#           city,
-#           state,
-#           zipcode,
-#           phoneAreaCode,
-#           phoneNumber,
-#           phoneExtension,
-#           email,
-#           ualrEmail,
-#           ethnicity,
-#           sex,
-#           admissionType,
-#           studentType,
-#           status]
+@app.route("/api/updateStudentInfo/<tNumber>", methods=["POST"])
+@jwt_required()
+@cross_origin()
+def updateStudentInfo(tNumber):
+    if request.method == 'POST': 
+        tNum = request.json.get("tNumber", None)
+        name1 = request.json.get("name1", None)
+        name2 = request.json.get("name2", None)
+        name3 = request.json.get("name3", None)
+        # term = request.json.get("term", None)
+        # level = request.json.get("level", None)
+        program = request.json.get("program", None)
+        college = request.json.get("college", None)
+        department = request.json.get("department", None)
+        decision = request.json.get("decision", None)
+        admitDate = request.json.get("admitDate", None)
+        address1 = request.json.get("address1", None)
+        address2 = request.json.get("address2", None)
+        address3 = request.json.get("address3", None)
+        city = request.json.get("city", None)
+        state = request.json.get("state", None)
+        zip = request.json.get("zip", None)
+        areaCode = request.json.get("areaCode", None)
+        phone = request.json.get("phone", None)
+        phoneExt = request.json.get("phoneExt", None)
+        email = request.json.get("email", None)
+        emailSchool = request.json.get("emailSchool", None)
+        ethnicity = request.json.get("ethnicity", None)
+        sex = request.json.get("sex", None)
+        admissionType = request.json.get("admissionType", None)
+        studentType = request.json.get("studentType", None)
+        status = request.json.get("status", None)
+      
+        student = ProspectImportData.query.filter_by(tNumber=tNumber).first()
+        if student:
+            if tNum is not None:
+                student.tNumber = tNum
+                print('Changing tNum to ' + tNum)
+            if name1 is not None:
+                student.name1 = name1
+                print('Changing name1 to ' + name1)
+            if name2 is not None:
+                student.name2 = name2
+                print('Changing name2 to ' + name2)
+            if name3 is not None:
+                student.name3 = name3
+                print('Changing name3 to ' + name3)
+            if program is not None:
+                student.program = program
+                print('Changing program to ' + program)
+            if college is not None:
+                student.college = college
+                print('Changing college to ' + college)
+            if department is not None:
+                student.department = department
+                print('Changing department to ' + department)
+            if decision is not None:
+                student.decision = decision
+                print('Changing decision to ' + decision)
+            if admitDate is not None:
+                student.admitDate = admitDate
+                print('Changing admitDate to ' + admitDate)
+            if address1 is not None:
+                student.address1 = address1
+                print('Changing address1 to ' + address1)
+            if address2 is not None:
+                student.address2 = address2
+                print('Changing address2 to ' + address2)
+            if address3 is not None:
+                student.address3 = address3
+                print('Changing address3 to ' + address3)
+            if city is not None:
+                student.city = city
+                print('Changing city to ' + city)
+            if state is not None:
+                student.state = state
+                print('Changing state to ' + state)
+            if zip is not None:
+                student.zip = zip
+                print('Changing zip to ' + zip)
+            if areaCode is not None:
+                student.areaCode = areaCode
+                print('Changing areaCode to ' + areaCode)
+            if phone is not None:
+                student.phone = phone
+                print('Changing phone to ' + phone)
+            if phoneExt is not None:
+                student.phoneExt = phoneExt
+                print('Changing phoneExt to ' + phoneExt)
+            if email is not None:
+                student.email = email
+                print('Changing email to ' + email)
+            if emailSchool is not None:
+                student.emailSchool = emailSchool
+                print('Changing emailSchool to ' + emailSchool)
+            if ethnicity is not None:
+                student.ethnicity = ethnicity
+                print('Changing ethnicity to ' + ethnicity)
+            if sex is not None:
+                student.sex = sex
+                print('Changing sex to ' + sex)
+            if admissionType is not None:
+                student.admissionType = admissionType
+                print('Changing admissionType to ' + admissionType)
+            if studentType is not None:
+                student.studentType = studentType
+                print('Changing studentType to ' + studentType)
+            if status is not None:
+                student.status = status
+                print('Changing status to ' + str(status))
+            db.session.commit()
+            return jsonify({"msg": "success"}), 200
+        return jsonify({"msg": "student doesn't exist"}), 404
+    return jsonify({"msg": "Request method not supported."}), 404
 
 def row2dict(row, wantedColumns):
     d = {}

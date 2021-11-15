@@ -245,9 +245,6 @@ class ProspectImportData(db.Model):
     def getId(self):
         return f''
 
-    def setStatus(self, bool):
-        self.status = bool
-
 #Only saves one campaign.  Must be passed year and term on initialization.
 #May need to add that information for current campaign to caller table.
 
