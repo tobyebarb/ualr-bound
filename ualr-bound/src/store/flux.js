@@ -91,7 +91,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         });
         return true;
       },
-      modifyStudent: async (tNumber, newData) => {
+      modifyStudent: async (tNumber, newData, updateFunc) => {
         const store = getStore();
 
         const opts = {
@@ -115,6 +115,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
           const data = await response.json();
 
+          updateFunc();
           return data;
         } catch (error) {
           console.error("Error", error);
@@ -126,7 +127,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       };
       const res = await actions.modifyStudent(studentData.tNumber, data);
       */
-      modifyUser: async (userID, newData) => {
+      modifyUser: async (userID, newData, updateFunc) => {
         const store = getStore();
 
         console.log(newData);
@@ -152,6 +153,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
           const data = await response.json();
 
+          updateFunc();
           return data;
         } catch (error) {
           console.error("Error", error);

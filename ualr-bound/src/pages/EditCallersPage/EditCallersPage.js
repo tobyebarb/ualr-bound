@@ -46,9 +46,14 @@ const EditCallersPage = () => {
   // let statusWidth = tableWidth * statusColMult;
 
   const tableRef = useRef();
+  const detailsRef = useRef();
 
   const updateData = async () => {
     tableRef.current.updateData();
+  };
+
+  const updateDetails = async () => {
+    detailsRef.current.fetchData();
   };
 
   var data = [];
@@ -126,9 +131,17 @@ const EditCallersPage = () => {
           rowSelectionCallback={rowSelectionCallback}
           defaultCol={"user_id"}
         />
-        <UserDetails updateData={updateData} selectedUID={selectedUID} />
+        <UserDetails
+          ref={detailsRef}
+          updateData={updateData}
+          selectedUID={selectedUID}
+        />
       </div>
-      <UserDetailsModal updateData={updateData} selectedUID={selectedUID} />
+      <UserDetailsModal
+        updateData={updateData}
+        updateFunc={updateDetails}
+        selectedUID={selectedUID}
+      />
       <NavigationBar />
       <FileUploader ref={fileRef} />
     </div>

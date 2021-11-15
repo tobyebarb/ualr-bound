@@ -37,44 +37,90 @@ const StudentDetailsModal = (props) => {
   const [admissionTypeInput, setAdmissionTypeInput] = useState("");
   const [studentTypeInput, setStudentTypeInput] = useState("");
 
-  // const handleSubmit = async () => {
-  //   var data = {
-  //     name: nameInput !== "" && nameInput !== null ? nameInput : null,
-  //     username:
-  //       usernameInput !== "" && usernameInput !== null ? usernameInput : null,
-  //     email: emailInput !== "" && emailInput !== null ? emailInput : null,
-  //     accessLevel:
-  //       accessLevelInput !== "" && accessLevelInput !== null
-  //         ? accessLevelInput
-  //         : null,
-  //   };
+  const handleSubmit = async () => {
+    var data = {
+      name1:
+        firstNameInput !== "" && firstNameInput !== null
+          ? firstNameInput
+          : null,
+      name2:
+        middleNameInput !== "" && middleNameInput !== null
+          ? middleNameInput
+          : null,
+      name3:
+        lastNameInput !== "" && lastNameInput !== null ? lastNameInput : null,
+      level: levelInput !== "" && levelInput !== null ? levelInput : null,
+      program:
+        programInput !== "" && programInput !== null ? programInput : null,
+      college:
+        collegeInput !== "" && collegeInput !== null ? collegeInput : null,
+      department:
+        departmentInput !== "" && departmentInput !== null
+          ? departmentInput
+          : null,
+      decision:
+        decisionInput !== "" && decisionInput !== null ? decisionInput : null,
+      admitDate:
+        admitDateInput !== "" && admitDateInput !== null
+          ? admitDateInput
+          : null,
+      address1:
+        address1Input !== "" && address1Input !== null ? address1Input : null,
+      address2:
+        address2Input !== "" && address2Input !== null ? address2Input : null,
+      address3:
+        address3Input !== "" && address3Input !== null ? address3Input : null,
+      city: cityInput !== "" && cityInput !== null ? cityInput : null,
+      state: stateInput !== "" && stateInput !== null ? stateInput : null,
+      zip: zipInput !== "" && zipInput !== null ? zipInput : null,
+      areaCode:
+        areaCodeInput !== "" && areaCodeInput !== null ? areaCodeInput : null,
+      phone: phoneInput !== "" && phoneInput !== null ? phoneInput : null,
+      phoneExt:
+        phoneExtInput !== "" && phoneExtInput !== null ? phoneExtInput : null,
+      email: emailInput !== "" && emailInput !== null ? emailInput : null,
+      emailSchool:
+        emailSchoolInput !== "" && emailSchoolInput !== null
+          ? emailSchoolInput
+          : null,
+      ethnicity:
+        ethnicityInput !== "" && ethnicityInput !== null
+          ? ethnicityInput
+          : null,
+      sex: sexInput !== "" && sexInput !== null ? sexInput : null,
+      admissionType:
+        admissionTypeInput !== "" && admissionTypeInput !== null
+          ? admissionTypeInput
+          : null,
+      studentType:
+        studentTypeInput !== "" && studentTypeInput !== null
+          ? studentTypeInput
+          : null,
+    };
 
-  //   const res = await actions.modifyUser(parseInt(userData.id), data);
-  //   handleClose();
-  // };
+    const res = await actions.modifyStudent(
+      studentData.tNumber,
+      data,
+      props.updateFunc
+    );
+    handleClose();
+  };
 
-  const svgContainerStyle = {
-    margin: "0.3rem",
-    marginRight: "1rem",
-    display: "flex",
-    float: "left",
+  // Add inner async function
+  const fetchData = async () => {
+    try {
+      const data = await actions.getFullStudentInfo(props.selectedTNumber);
+      setStudentData(data);
+    } catch (err) {
+      console.log("Error", err);
+      setStudentData(null);
+    }
   };
 
   const focusColor = "#4c212c";
 
   useEffect(() => {
     if (props.selectedTNumber !== null) {
-      // Add inner async function
-      const fetchData = async () => {
-        try {
-          const data = await actions.getFullStudentInfo(props.selectedTNumber);
-          setStudentData(data);
-        } catch (err) {
-          console.log("Error", err);
-          setStudentData(null);
-        }
-      };
-
       // Call function immediately
       fetchData();
     }
@@ -83,10 +129,6 @@ const StudentDetailsModal = (props) => {
   useEffect(() => {
     if (store.ui.studentModalIsVisible !== undefined) {
       setVisibility(store.ui.studentModalIsVisible);
-      console.log("VISIBILITY: ", isVisible);
-      if (store.ui.studentModalIsVisible) {
-        console.log("WE VISIBLE");
-      }
     }
   }, [store.ui.studentModalIsVisible]);
 
@@ -133,7 +175,9 @@ const StudentDetailsModal = (props) => {
   let body = (
     <Paper elevation={3} className={classes.modal}>
       <div className={classes.form}>
-        <button className="submit-button">Confirm Changes</button>
+        <button onClick={handleSubmit} className="submit-button">
+          Confirm Changes
+        </button>
         <div className="input-container">
           <p className="student-input-header">First Name:</p>
           <input

@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useImperativeHandle,
+} from "react";
 import styled from "styled-components";
 import { Context } from "../../../../store/appContext";
 import "./StudentDetails.css";
 
-const StudentDetails = (props) => {
+const StudentDetails = React.forwardRef((props, ref) => {
   const { store, actions } = useContext(Context);
   const [studentData, setStudentData] = useState(null);
 
@@ -19,6 +25,10 @@ const StudentDetails = (props) => {
     }
     props.updateData();
   };
+
+  useImperativeHandle(ref, () => ({
+    fetchData,
+  }));
 
   useEffect(() => {
     if (props.selectedTNumber !== null) {
@@ -38,55 +48,6 @@ const StudentDetails = (props) => {
     }
   }, [props.selectedTNumber]);
 
-  useEffect(() => {
-    console.log("data: ", studentData);
-  }, [studentData]);
-
-  //   const handleDeactivate = async () => {
-  //     if (studentData !== null) {
-  //       var data = {
-  //         activationStatus: studentData.status === "ACTIVE" ? false : true,
-  //       };
-  //       const res = await actions.modifyUser(parseInt(studentData.id), data);
-  //       fetchData();
-  //       return res;
-  //     }
-  //   };
-
-  //   const handleModify = async () => {
-  //     if (studentData !== null) {
-  //       console.log("Modifying ", studentData);
-  //       actions.setModalVisibility(true);
-  //     }
-  //   };
-
-  // useEffect (() => {
-  //     var studentData = {
-  //         "tnum": "T00032343",
-  //         "fullName": "Jonathan Alan Haskett",
-  //         "level": "Senior",
-  //         "primaryProgram": "Computer Science",
-  //         "primaryCollege": "EIT",
-  //         "primaryDepartment": "Computer Science",
-  //         "streetAddress1": "4710 Sam Peck Rd",
-  //         "streetAddress2": "Apt 6411",
-  //         "streetAddress3": null,
-  //         "city": "Little Rock",
-  //         "state": "Arkansas",
-  //         "zipCode": "72225",
-  //         "phoneAreaCode": "501",
-  //         "phoneNumber": "555-7777",
-  //         "phoneExtension": null,
-  //         "email": "jhaskett@gmail.com",
-  //         "ualrEmail": "jhaskett@ualr.edu",
-  //         "ethnicity": "white",
-  //         "sex": "male",
-  //         "admissionType": "Transfer",
-  //         "studentType": "Terrible"
-  //     }
-  //     setStudentData(studentData)
-  // }, [])
-
   const handleDeactivate = async () => {
     if (studentData !== null) {
       var data = {
@@ -100,7 +61,7 @@ const StudentDetails = (props) => {
 
   const handleModify = async () => {
     if (studentData !== null) {
-      console.log("Modifying ", studentData);
+      //console.log("Modifying ", studentData);
       actions.setStudentModalVisibility(true);
     }
   };
@@ -214,6 +175,6 @@ const StudentDetails = (props) => {
       </div>
     );
   }
-};
+});
 
 export default StudentDetails;

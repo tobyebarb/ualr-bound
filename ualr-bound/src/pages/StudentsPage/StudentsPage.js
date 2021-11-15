@@ -27,6 +27,7 @@ const StudentsPage = () => {
 
   /*using a table reference to utilize the functions inside the Table component*/
   const tableRef = useRef();
+  const detailsRef = useRef();
 
   const fileRef = useRef(null);
   useEffect(() => {
@@ -38,6 +39,10 @@ const StudentsPage = () => {
   /* Update changes made with the table */
   const updateData = async () => {
     tableRef.current.updateData();
+  };
+
+  const updateDetails = async () => {
+    detailsRef.current.fetchData();
   };
 
   var data = [];
@@ -111,12 +116,14 @@ const StudentsPage = () => {
           defaultCol={"tNumber"}
         />
         <StudentDetails
+          ref={detailsRef}
           updateData={updateData}
           selectedTNumber={selectStudentTNum}
         />
       </div>
       <StudentDetailsModal
         updateData={updateData}
+        updateFunc={updateDetails}
         selectedTNumber={selectStudentTNum}
       />
       <NavigationBar />

@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useImperativeHandle,
+} from "react";
 import styled from "styled-components";
 import { Context } from "../../../../store/appContext";
 import "./UserDetails.css";
 
-const UserDetails = (props) => {
+const UserDetails = React.forwardRef((props, ref) => {
   const { store, actions } = useContext(Context);
   const [userData, setUserData] = useState(null);
   const [selectedUID, setSelectedUID] = useState(null);
@@ -20,6 +26,10 @@ const UserDetails = (props) => {
     }
     props.updateData();
   };
+
+  useImperativeHandle(ref, () => ({
+    fetchData,
+  }));
 
   useEffect(() => {
     if (props.selectedUID !== null) {
@@ -118,6 +128,6 @@ const UserDetails = (props) => {
       </div>
     );
   }
-};
+});
 
 export default UserDetails;
