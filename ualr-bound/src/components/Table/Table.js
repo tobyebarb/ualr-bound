@@ -62,12 +62,21 @@ const Table = React.forwardRef((props, ref) => {
 
   const onSelectionChanged = async () => {
     var selectedRows = gridApi.getSelectedRows();
-    var uid = parseInt(selectedRows[0].user_id);
+    var res;
+    /* In the case of receiving for EditCallers */
+    if (props.option === "editCallers") {
+      var uid = parseInt(selectedRows[0].user_id);
+      res = await actions.updateSelectedUserID(uid);
+    } else if (props.option === "studentsPage") {
+      var tNumber = selectedRows[0].tNumber;
+      res = await actions.updateSelectedStudent(tNumber);
+    }
 
-    let res = await actions.updateSelectedUserID(uid);
     if (props.rowSelectionCallback !== null) {
       console.log(res);
-      props.rowSelectionCallback(uid);
+      props.option === "editCallers"
+        ? props.rowSelectionCallback(uid)
+        : props.rowSelectionCallback(tNumber);
     }
   };
 

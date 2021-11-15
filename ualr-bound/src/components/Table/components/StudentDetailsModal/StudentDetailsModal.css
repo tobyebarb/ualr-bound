@@ -1,0 +1,72 @@
+.input-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.submit-button {
+  background: #4c212c;
+  padding: 1rem;
+  border-radius: 10px;
+  position: fixed;
+  bottom: 10vh;
+  right: 10vw;
+  font-family: Montserrat;
+  font-style: normal;
+  font-size: 1.25rem;
+
+  color: #ffffff;
+  transition: all ease-in-out 0.3s;
+}
+
+.submit-button:hover {
+  background: rgb(124, 63, 76);
+}
+
+.student-input-header {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* number of lines to show */
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  margin-bottom: auto;
+  padding-left: 1rem;
+
+  font-family: Montserrat;
+  font-style: normal;
+  font-size: 1.25rem;
+
+  color: #ffffff;
+  border-bottom: solid 0 #fff;
+  transition: all 250ms ease-in-out;
+  /* transform-origin: 100% 50%; */
+}
+
+.student-input {
+  border: none;
+  background: transparent;
+  box-sizing: border-box;
+  width: 70%;
+
+  margin-right: 3rem;
+
+  font-family: Montserrat;
+  font-style: normal;
+  font-size: 1.25rem;
+
+  color: #ffffff;
+  border-bottom: solid 1px #fff;
+  transition: all 250ms ease-in-out;
+  /* transform-origin: 100% 50%; */
+}
+
+.student-input:focus {
+  background: transparent;
+  outline: none;
+  border-bottom: solid 3px attr(content);
+}
+
+#last-input-container {
+  margin-bottom: 3rem;
+}

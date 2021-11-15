@@ -68,8 +68,23 @@ const UserDetailsModal = (props) => {
           : null,
     };
 
-    const res = await actions.modifyUser(parseInt(userData.id), data);
+    const res = await actions.modifyUser(
+      parseInt(userData.id),
+      data,
+      props.updateFunc
+    );
     handleClose();
+  };
+
+  // Add inner async function
+  const fetchData = async () => {
+    try {
+      const data = await actions.getUserInfo(props.selectedUID);
+      setUserData(data);
+    } catch (err) {
+      console.log("Error", err);
+      setUserData(null);
+    }
   };
 
   const svgContainerStyle = {
@@ -83,17 +98,6 @@ const UserDetailsModal = (props) => {
 
   useEffect(() => {
     if (props.selectedUID !== null) {
-      // Add inner async function
-      const fetchData = async () => {
-        try {
-          const data = await actions.getUserInfo(props.selectedUID);
-          setUserData(data);
-        } catch (err) {
-          console.log("Error", err);
-          setUserData(null);
-        }
-      };
-
       // Call function immediately
       fetchData();
     }
@@ -102,10 +106,6 @@ const UserDetailsModal = (props) => {
   useEffect(() => {
     if (store.ui.modalIsVisible !== undefined) {
       setVisibility(store.ui.modalIsVisible);
-      console.log("VISIBILITY: ", isVisible);
-      if (store.ui.modalIsVisible) {
-        console.log("WE VISIBLE");
-      }
     }
   }, [store.ui.modalIsVisible]);
 
@@ -117,6 +117,7 @@ const UserDetailsModal = (props) => {
    */
   const handleClose = () => {
     props.updateData(); //update table with new modified info
+    fetchData();
     setVisibility(false);
     actions.setModalVisibility(false);
   };
@@ -302,7 +303,7 @@ const UserDetailsModal = (props) => {
             className="register-form-button"
             onClick={handleSubmit}
           >
-            Send Request
+            Edit Request
           </button>
           <button
             content={focusColor}

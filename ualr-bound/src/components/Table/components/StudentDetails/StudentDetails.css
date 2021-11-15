@@ -1,0 +1,92 @@
+.student-details-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 20%;
+    height: 85vh;
+    background: #4C202C;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+    padding: 2rem;
+    margin-left: 1rem;
+    margin-bottom: auto;
+}
+
+.student-details {
+    margin-left: auto;
+    margin-right: auto;
+    padding-right: 2rem;
+    overflow-y: scroll;
+
+    width: 100%;
+}
+
+div.student-details > p {
+    font-family: Montserrat;
+    font-style: normal;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    
+    color: #FFFFFF;
+}
+
+div.student-details > ul{
+    margin: 0;
+    padding: 0;
+}
+
+div.student-details > ul > li {
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+
+
+div.student-details > ul > li > p {
+    font-family: Montserrat;
+    font-style: normal;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    
+    color: #FFFFFF;
+}
+
+.student-details-header {
+    font-weight: bold;
+}
+
+.student-button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.student-button-container button {
+    background: #582633;
+    border: 5px solid #FFFFFF;
+    box-sizing: border-box;
+    border-radius: 10px;
+
+    
+    font-family: Montserrat;
+    font-style: normal;
+    font-size: 1rem;
+    padding: 0.825rem;
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    color: #FFFFFF;
+    transition: all ease-in-out 0.3s;
+}
+
+.student-button-container button:hover {
+    border: 5px solid #413f3f;
+}

@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useImperativeHandle,
+} from "react";
 import styled from "styled-components";
 import { Context } from "../../../../store/appContext";
 import "./StudentDetails.css";
 
-const StudentDetails = (props) => {
+const StudentDetails = React.forwardRef((props, ref) => {
   const { store, actions } = useContext(Context);
   const [studentData, setStudentData] = useState(null);
 
@@ -11,7 +17,7 @@ const StudentDetails = (props) => {
 
   const fetchData = async () => {
     try {
-      const data = await actions.getStudents(props.selectedUID);
+      const data = await actions.getStudentInfo(props.selectedTNumber);
       setStudentData(data);
     } catch (err) {
       console.log("Error", err);
@@ -20,12 +26,16 @@ const StudentDetails = (props) => {
     props.updateData();
   };
 
+  useImperativeHandle(ref, () => ({
+    fetchData,
+  }));
+
   useEffect(() => {
-    if (props.selectedUID !== null) {
+    if (props.selectedTNumber !== null) {
       // Add inner async function
       const fetchData = async () => {
         try {
-          const data = await actions.getStudents(props.selectedUID);
+          const data = await actions.getStudentInfo(props.selectedTNumber);
           setStudentData(data);
         } catch (err) {
           console.log("Error", err);
@@ -36,56 +46,25 @@ const StudentDetails = (props) => {
       // Call function immediately
       fetchData();
     }
-  }, [props.selectedUID]);
+  }, [props.selectedTNumber]);
 
-  useEffect(() => {
-    console.log("data: ", studentData);
-  }, [studentData]);
+  const handleDeactivate = async () => {
+    if (studentData !== null) {
+      var data = {
+        status: studentData.status === "ACTIVE" ? false : true,
+      };
+      const res = await actions.modifyStudent(studentData.tNumber, data);
+      fetchData();
+      return res;
+    }
+  };
 
-//   const handleDeactivate = async () => {
-//     if (studentData !== null) {
-//       var data = {
-//         activationStatus: studentData.status === "ACTIVE" ? false : true,
-//       };
-//       const res = await actions.modifyUser(parseInt(studentData.id), data);
-//       fetchData();
-//       return res;
-//     }
-//   };
-
-//   const handleModify = async () => {
-//     if (studentData !== null) {
-//       console.log("Modifying ", studentData);
-//       actions.setModalVisibility(true);
-//     }
-//   };
-
-// useEffect (() => {
-//     var studentData = {
-//         "tnum": "T00032343",
-//         "fullName": "Jonathan Alan Haskett",
-//         "level": "Senior",
-//         "primaryProgram": "Computer Science",
-//         "primaryCollege": "EIT",
-//         "primaryDepartment": "Computer Science",
-//         "streetAddress1": "4710 Sam Peck Rd",
-//         "streetAddress2": "Apt 6411",
-//         "streetAddress3": null,
-//         "city": "Little Rock",
-//         "state": "Arkansas",
-//         "zipCode": "72225",
-//         "phoneAreaCode": "501",
-//         "phoneNumber": "555-7777",
-//         "phoneExtension": null,
-//         "email": "jhaskett@gmail.com",
-//         "ualrEmail": "jhaskett@ualr.edu",
-//         "ethnicity": "white",
-//         "sex": "male",
-//         "admissionType": "Transfer",
-//         "studentType": "Terrible"
-//     }
-//     setStudentData(studentData)
-// }, [])
+  const handleModify = async () => {
+    if (studentData !== null) {
+      //console.log("Modifying ", studentData);
+      actions.setStudentModalVisibility(true);
+    }
+  };
 
   if (studentData === null) {
     return (
@@ -94,7 +73,7 @@ const StudentDetails = (props) => {
           className="student-details"
           style={{ display: "flex", justifyContent: "center" }}
         >
-          <p>No User Selected.</p>
+          <p>No Student Selected.</p>
         </div>
       </div>
     );
@@ -104,40 +83,40 @@ const StudentDetails = (props) => {
         <div className="student-details">
           <ul>
             <li>
-              <p className="student-details-header">TNumber:</p>
-              <p>{studentData.tnum}</p>
+              <p className="student-details-header">T Number:</p>
+              <p>{studentData.tNumber}</p>
             </li>
             <li>
-              <p className="student-details-header">FullName:</p>
-              <p>{studentData.fullName}</p>
+              <p className="student-details-header">Full Name:</p>
+              <p>{studentData.name}</p>
             </li>
             <li>
               <p className="student-details-header">Level:</p>
               <p>{studentData.level}</p>
             </li>
             <li>
-              <p className="student-details-header">PrimaryProgram:</p>
-              <p>{studentData.primaryProgram}</p>
+              <p className="student-details-header">Program:</p>
+              <p>{studentData.program}</p>
             </li>
             <li>
-              <p className="student-details-header">PrimaryCollege:</p>
-              <p>{studentData.primaryCollege}</p>
+              <p className="student-details-header">College:</p>
+              <p>{studentData.college}</p>
             </li>
             <li>
-              <p className="student-details-header">PrimaryDepartment:</p>
-              <p>{studentData.primaryDepartment}</p>
+              <p className="student-details-header">Primary Department:</p>
+              <p>{studentData.department}</p>
             </li>
             <li>
-              <p className="student-details-header">StreetAddress1:</p>
-              <p>{studentData.streetAddress1}</p>
+              <p className="student-details-header">Decision:</p>
+              <p>{studentData.decision}</p>
             </li>
             <li>
-              <p className="student-details-header">StreetAddress2:</p>
-              <p>{studentData.streetAddress2}</p>
+              <p className="student-details-header">Admit Date:</p>
+              <p>{studentData.admitDate}</p>
             </li>
             <li>
-              <p className="student-details-header">StreetAddress3:</p>
-              <p>{studentData.streetAddress3}</p>
+              <p className="student-details-header">Street Address:</p>
+              <p>{studentData.address}</p>
             </li>
             <li>
               <p className="student-details-header">City:</p>
@@ -148,28 +127,20 @@ const StudentDetails = (props) => {
               <p>{studentData.state}</p>
             </li>
             <li>
-              <p className="student-details-header">ZipCode:</p>
-              <p>{studentData.zipCode}</p>
+              <p className="student-details-header">Zip Code:</p>
+              <p>{studentData.zip}</p>
             </li>
             <li>
-              <p className="student-details-header">PhoneAreaCode:</p>
-              <p>{studentData.phoneAreaCode}</p>
-            </li>
-            <li>
-              <p className="student-details-header">PhoneNumber:</p>
-              <p>{studentData.phoneNumber}</p>
-            </li>
-            <li>
-              <p className="student-details-header">PhoneExtension:</p>
-              <p>{studentData.phoneExtension}</p>
+              <p className="student-details-header">Phone:</p>
+              <p>{studentData.phone}</p>
             </li>
             <li>
               <p className="student-details-header">Email:</p>
               <p>{studentData.email}</p>
             </li>
             <li>
-              <p className="student-details-header">UALREmail:</p>
-              <p>{studentData.ualrEmail}</p>
+              <p className="student-details-header">UALR Email:</p>
+              <p>{studentData.emailSchool}</p>
             </li>
             <li>
               <p className="student-details-header">Ethnicity:</p>
@@ -180,20 +151,30 @@ const StudentDetails = (props) => {
               <p>{studentData.sex}</p>
             </li>
             <li>
-              <p className="student-details-header">AdmissionType:</p>
+              <p className="student-details-header">Admission Type:</p>
               <p>{studentData.admissionType}</p>
             </li>
             <li>
-              <p className="student-details-header">StudentType:</p>
+              <p className="student-details-header">Student Type:</p>
               <p>{studentData.studentType}</p>
+            </li>
+            <li>
+              <p className="student-details-header">Status:</p>
+              <p>{studentData.status}</p>
             </li>
           </ul>
         </div>
-        <div className="button-container">
+        <div className="student-button-container">
+          {studentData.status === "ACTIVE" ? (
+            <button onClick={handleDeactivate}>Deactivate Student</button>
+          ) : (
+            <button onClick={handleDeactivate}>Activate Student</button>
+          )}
+          <button onClick={handleModify}>Modify Student</button>
         </div>
       </div>
     );
   }
-};
+});
 
 export default StudentDetails;

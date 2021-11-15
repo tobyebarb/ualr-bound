@@ -1,6 +1,8 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import { FileUploader } from "../../App";
 import NavigationBar from "../../components/NavigationBar/NavigationBar";
+import StudentDetails from "../../components/Table/components/StudentDetails/StudentDetails";
+import StudentDetailsModal from "../../components/Table/components/StudentDetailsModal/StudentDetailsModal";
 import Table from "../../components/Table/Table";
 import { Context } from "../../store/appContext";
 import { getScrollbarSize } from "../EditCallersPage/EditCallersPage";
@@ -25,6 +27,7 @@ const StudentsPage = () => {
 
   /*using a table reference to utilize the functions inside the Table component*/
   const tableRef = useRef();
+  const detailsRef = useRef();
 
   const fileRef = useRef(null);
   useEffect(() => {
@@ -38,14 +41,17 @@ const StudentsPage = () => {
     tableRef.current.updateData();
   };
 
+  const updateDetails = async () => {
+    detailsRef.current.fetchData();
+  };
+
   var data = [];
 
-  /*needed for the material UI overlay displaying the student information
-    const rowSelectionCallBack = (studentTNum) => {
-        setSelectStudentTNum(studentTNum);
-        return studentTNum;
-    };
-    */
+  //needed for the material UI overlay displaying the student information
+  const rowSelectionCallback = (studentTNum) => {
+    setSelectStudentTNum(studentTNum);
+    return studentTNum;
+  };
 
   async function getData() {
     data = await actions.getStudents();
@@ -100,13 +106,26 @@ const StudentsPage = () => {
       <div className="table-components">
         <Table
           ref={tableRef}
+          option={"studentsPage"}
           rowHeight={rowHeight}
           tableWidth={tableWidth}
           getData={getData}
           getColumnDefs={getColumnDefs}
           getFrameworkComponents={getFrameworkComponents}
+          rowSelectionCallback={rowSelectionCallback}
+          defaultCol={"tNumber"}
+        />
+        <StudentDetails
+          ref={detailsRef}
+          updateData={updateData}
+          selectedTNumber={selectStudentTNum}
         />
       </div>
+      <StudentDetailsModal
+        updateData={updateData}
+        updateFunc={updateDetails}
+        selectedTNumber={selectStudentTNum}
+      />
       <NavigationBar />
       <FileUploader ref={fileRef} />
     </div>
