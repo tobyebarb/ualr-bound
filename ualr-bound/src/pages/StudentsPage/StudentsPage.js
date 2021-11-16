@@ -119,6 +119,7 @@ const StudentsPage = () => {
           ref={detailsRef}
           updateData={updateData}
           selectedTNumber={selectStudentTNum}
+          buttonOption={true}
         />
       </div>
       <StudentDetailsModal
