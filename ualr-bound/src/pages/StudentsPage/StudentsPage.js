@@ -7,6 +7,7 @@ import Table from "../../components/Table/Table";
 import { Context } from "../../store/appContext";
 import { getScrollbarSize } from "../EditCallersPage/EditCallersPage";
 import "./StudentsPage.css";
+import { Redirect } from "react-router-dom";
 
 const StudentsPage = () => {
   const { store, actions } = useContext(Context);
@@ -101,35 +102,42 @@ const StudentsPage = () => {
     setScrollbarWidth(getScrollbarSize().width);
   }, []);
 
-  return (
-    <div className="students-container">
-      <div className="table-components">
-        <Table
-          ref={tableRef}
-          option={"studentsPage"}
-          rowHeight={rowHeight}
-          tableWidth={tableWidth}
-          getData={getData}
-          getColumnDefs={getColumnDefs}
-          getFrameworkComponents={getFrameworkComponents}
-          rowSelectionCallback={rowSelectionCallback}
-          defaultCol={"tNumber"}
-        />
-        <StudentDetails
-          ref={detailsRef}
+  if (store.user.access_level !== "Caller")
+  {
+    return (
+      <div className="students-container">
+        <div className="table-components">
+          <Table
+            ref={tableRef}
+            option={"studentsPage"}
+            rowHeight={rowHeight}
+            tableWidth={tableWidth}
+            getData={getData}
+            getColumnDefs={getColumnDefs}
+            getFrameworkComponents={getFrameworkComponents}
+            rowSelectionCallback={rowSelectionCallback}
+            defaultCol={"tNumber"}
+          />
+          <StudentDetails
+            ref={detailsRef}
+            updateData={updateData}
+            selectedTNumber={selectStudentTNum}
+          />
+        </div>
+        <StudentDetailsModal
           updateData={updateData}
+          updateFunc={updateDetails}
           selectedTNumber={selectStudentTNum}
         />
+        <NavigationBar />
+        <FileUploader ref={fileRef} />
       </div>
-      <StudentDetailsModal
-        updateData={updateData}
-        updateFunc={updateDetails}
-        selectedTNumber={selectStudentTNum}
-      />
-      <NavigationBar />
-      <FileUploader ref={fileRef} />
-    </div>
-  );
+    );
+  }
+  else
+  {
+    return <Redirect to = "/prospects"/>  
+  };
 };
 
 export default StudentsPage;

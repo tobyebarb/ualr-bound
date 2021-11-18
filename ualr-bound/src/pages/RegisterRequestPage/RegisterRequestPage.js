@@ -5,6 +5,7 @@ import DecisionButton from "../../components/Table/components/DecisionButton/Dec
 import { Context } from "../../store/appContext";
 import "./RegisterRequestPage.css";
 import { FileUploader } from "../../App";
+import { Redirect } from "react-router-dom";
 
 const RegisterRequestPage = () => {
   const { store, actions } = useContext(Context);
@@ -112,21 +113,28 @@ const RegisterRequestPage = () => {
     setScrollbarWidth(getScrollbarSize().width);
   }, []);
 
-  return (
-    <div className="register-request-container">
-      <Table
-        ref={tableRef}
-        rowHeight={rowHeight}
-        tableWidth={tableWidth}
-        getData={getData}
-        getColumnDefs={getColumnDefs}
-        getFrameworkComponents={getFrameworkComponents}
-        defaultCol={"request_id"}
-      />
-      <NavigationBar />
-      <FileUploader ref={fileRef} />
-    </div>
-  );
+  if (store.user.access_level !== "Caller")
+  {
+    return (
+      <div className="register-request-container">
+        <Table
+          ref={tableRef}
+          rowHeight={rowHeight}
+          tableWidth={tableWidth}
+          getData={getData}
+          getColumnDefs={getColumnDefs}
+          getFrameworkComponents={getFrameworkComponents}
+          defaultCol={"request_id"}
+        />
+        <NavigationBar />
+        <FileUploader ref={fileRef} />
+      </div>
+    );
+  }
+  else
+  {
+    return <Redirect to = "/prospects"/>  
+  };
 };
 
 export default RegisterRequestPage;

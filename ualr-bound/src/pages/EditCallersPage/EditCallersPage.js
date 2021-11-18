@@ -6,6 +6,7 @@ import { Context } from "../../store/appContext";
 import "./EditCallersPage.css";
 import UserDetailsModal from "../../components/Table/components/UserDetailsModal/UserDetailsModal";
 import { FileUploader } from "../../App";
+import { Redirect } from "react-router-dom";
 
 const EditCallersPage = () => {
   const { store, actions } = useContext(Context);
@@ -117,35 +118,42 @@ const EditCallersPage = () => {
     setScrollbarWidth(getScrollbarSize().width);
   }, []);
 
-  return (
-    <div className="edit-callers-container">
-      <div className="table-components">
-        <Table
-          ref={tableRef}
-          option={"editCallers"}
-          rowHeight={rowHeight}
-          tableWidth={tableWidth}
-          getData={getData}
-          getColumnDefs={getColumnDefs}
-          getFrameworkComponents={getFrameworkComponents}
-          rowSelectionCallback={rowSelectionCallback}
-          defaultCol={"user_id"}
-        />
-        <UserDetails
-          ref={detailsRef}
+  if (store.user.access_level !== "Caller")
+  {
+    return (
+      <div className="edit-callers-container">
+        <div className="table-components">
+          <Table
+            ref={tableRef}
+            option={"editCallers"}
+            rowHeight={rowHeight}
+            tableWidth={tableWidth}
+            getData={getData}
+            getColumnDefs={getColumnDefs}
+            getFrameworkComponents={getFrameworkComponents}
+            rowSelectionCallback={rowSelectionCallback}
+            defaultCol={"user_id"}
+          />
+          <UserDetails
+            ref={detailsRef}
+            updateData={updateData}
+            selectedUID={selectedUID}
+          />
+        </div>
+        <UserDetailsModal
           updateData={updateData}
+          updateFunc={updateDetails}
           selectedUID={selectedUID}
         />
+        <NavigationBar />
+        <FileUploader ref={fileRef} />
       </div>
-      <UserDetailsModal
-        updateData={updateData}
-        updateFunc={updateDetails}
-        selectedUID={selectedUID}
-      />
-      <NavigationBar />
-      <FileUploader ref={fileRef} />
-    </div>
-  );
+    );
+  }
+  else
+  {
+    return <Redirect to = "/prospects"/>  
+  };
 };
 
 export default EditCallersPage;
