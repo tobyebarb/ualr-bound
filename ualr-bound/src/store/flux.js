@@ -387,6 +387,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         return true;
       },
+      /*sendRegistrationEmail: async () =>{
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/registerSuccessful`;
+        const response = await fetch(endpoint);
+        if (response.status !== 200) {
+          alert("There has been some error");
+          return false;
+        }
+        return true;
+      },
+      sendRegistrationApprovedEmail: async () =>{
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/registrationApproved`;
+        const response = await fetch(endpoint);
+        if (response.status !== 200) {
+          alert("There has been some error");
+          return false;
+        }
+        return true;
+      },*/
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {
