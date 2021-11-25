@@ -387,24 +387,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         return true;
       },
-      /*sendRegistrationEmail: async () =>{
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/registerSuccessful`;
-        const response = await fetch(endpoint);
-        if (response.status !== 200) {
-          alert("There has been some error");
-          return false;
-        }
-        return true;
-      },
-      sendRegistrationApprovedEmail: async () =>{
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/registrationApproved`;
-        const response = await fetch(endpoint);
-        if (response.status !== 200) {
-          alert("There has been some error");
-          return false;
-        }
-        return true;
-      },*/
+
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {
@@ -429,8 +412,8 @@ const getState = ({ getStore, getActions, setStore }) => {
           });
 
           if (response.status !== 200) {
-            alert("There has been some error");
-            return false;
+            //alert("There has been some error");
+            return response.status;
           }
 
           const data = await response.json();
@@ -449,7 +432,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           //   window.location.href = "/";
         } catch (error) {
           console.error("There has been an error logging in.");
-          alert("There has been an error logging in.");
+          //alert("There has been an error logging in.");
         }
       },
 

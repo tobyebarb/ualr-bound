@@ -43,18 +43,58 @@ const LoginPage = () => {
     }
   };
 
+  //needed for the invalid input stylization (shaking input field)
+  var passElement = document.getElementById('pass');
+  var addPassError = function() { passElement.classList.add('error'); };
+  var removePassError = function() { passElement.classList.remove('error'); };
+
+  var userElement = document.getElementById('user');
+  var addUserError = function() { userElement.classList.add('error'); };
+  var removeUserError = function() { userElement.classList.remove('error'); };
+
+  //show error message
+  const showErrorMessage = () =>{
+   var element = document.getElementById('show-message').style.display = "block";
+  }
+
+  //hide error message
+  const hideErrorMessage = () =>{
+  var  element = document.getElementById('show-message').style.display = "none";
+  }
+
   const handleSubmit = () => {
-    actions.login(usernameInput, passwordInput);
-  };
+   let response = actions.login(usernameInput, passwordInput);
+    response.then((value) =>{
+
+      if(value !== 200){
+        console.log(value);
+        addPassError();
+        addUserError();
+        if(document.getElementById("show-message"))
+          showErrorMessage();
+      }
+      else{
+        actions.login(usernameInput, passwordInput);
+      }
+    });
+    };
 
   const updateUsername = (e) => {
     e.preventDefault();
     setUsernameInput(e.target.value);
+    removeUserError();
+    removePassError();
+    if(document.getElementById("show-message"))
+      hideErrorMessage();
   };
 
   const updatePassword = (e) => {
     e.preventDefault();
     setPasswordInput(e.target.value);
+    removePassError();
+    removeUserError();
+    if(document.getElementById("show-message"))
+      hideErrorMessage();
   };
 
   const onUserFocus = () => setUserFocused(true);
@@ -143,6 +183,9 @@ const LoginPage = () => {
                 onKeyPress={onKeyPressHandler}
               />
             </div>
+            <span className = "error-message" id="show-message">
+              Password or Username is incorrect!
+            </span>
             <div className="login-form-button-container">
               <button
                 content={focusColor}

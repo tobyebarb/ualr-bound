@@ -65,6 +65,24 @@
     transition: all 250ms ease-in-out;
 }
 
+.login-input-row .error {
+    animation: shake 0.2s ease-in-out 0s 2;
+    box-shadow: 0 0 0.5em red;
+}
+
+@keyframes shake{
+    0% { margin-left: 0rem; }
+    25% { margin-left: 0.5rem; }
+    75% { margin-left: -0.5rem; }
+    100% { margin-left: 0rem; }
+}
+
+.error-message{
+    display: none;
+    text-align: center;
+    color: #fff;
+}
+
 .icon path {
     transition: all 250ms ease-in-out;
 }

@@ -56,11 +56,10 @@ def registerSuccessEmail(email):
         msg = Message(
                 subject = 'Register Request for UALR BOUND',
                 recipients = [email],
-                body = """
-                Your registration request for UALR Bound was submitted successfully. 
-                A ROOT user of the system will review your request and an email notification
-                will be sent to you upon their decision.\nWe appriciate your wanting to join UALR Bound.
-                \n\n\n\nThank you,\n\n"""
+                body = """Your registration request for UALR Bound was submitted successfully. A ROOT user of the system will review your request and an email notification will be sent to you upon their decision.
+                \nWe appriciate your wanting to join UALR Bound.
+                \n\n\n\nThank you for your time.
+                """
                 )
         mail.send(msg)
         return jsonify({'msg': "Success"}), 200
@@ -72,7 +71,9 @@ def registrationApprovedEmail(email):
         msg = Message(
             subject = 'UALR Bound Registration Approval',
             recipients = [email],
-            body = """Your request to join UALR Bound has been approved"""
+            body = """Your request to join UALR Bound has been approved. You have been added to the current campaign and will now be able to login using the username and password that you provided.
+            \n\n\n\nThank you for your time.
+            """
         )
         mail.send(msg)
         return jsonify({'msg': 'Success'}), 200
@@ -84,7 +85,9 @@ def registrationDeniedEmail(email):
         msg = Message(
             subject = 'UALR Bound Registration Approval',
             recipients = [email],
-            body = """Your request to join UALR Bound has been denied"""
+            body = """Thank you for your submission to join UALR Bound. At this time, your request has been denied for the current campaign. You will still be eligible to register for future campaigns
+            \n\n\n\nThank you for your time.
+            """
         )
         mail.send(msg)
         return jsonify({'msg': 'Success'}), 200
