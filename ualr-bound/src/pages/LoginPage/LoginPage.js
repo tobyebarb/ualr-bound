@@ -38,7 +38,7 @@ const LoginPage = () => {
     if (e.key === "Enter") {
       // do something
       e.preventDefault();
-      console.log("Enter key pressed!")
+      console.log("Enter key pressed!");
       handleSubmit();
     }
   };
