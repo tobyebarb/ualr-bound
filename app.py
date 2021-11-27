@@ -1,4 +1,4 @@
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 import os
 from flask import Flask, request, jsonify
 from flask.helpers import send_from_directory
@@ -132,6 +132,28 @@ def compareStudents(entry, student):
         db.session.add(new_sra)
         db.session.commit()
         return
+
+#Requires user to not already have a prospect
+def getNextProspect():
+    activeStudentList = ProspectImportData.query.filter_by(timeLastAccessed <= datetime.utcnow() - timedelta(1800),status=True)
+    for student in activeStudentList:
+        tempTNum = student.tNumber
+        sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+        if sraData.numTimesCalled == 0:
+            student.timeLastAccessed = datetime.utcnow()
+            return sraData
+    for student in activeStudentList:
+        tempTNum = student.tNumber
+        sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+        if sraData.numTimesCalled == 1:
+            student.timeLastAccessed = datetime.utcnow()
+            return sraData
+    for student in activeStudentList:
+        tempTNum = student.tNumber
+        sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+        if sraData.numTimesCalled == 2:
+            student.timeLastAccessed = datetime.utcnow()
+            return sraData
 
 @app.route('/message', methods=['GET'])
 @jwt_required()

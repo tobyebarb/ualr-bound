@@ -203,6 +203,7 @@ class ProspectImportData(db.Model):
     #Might make studentType an enum
     studentType = db.Column(db.String(200))
     status = db.Column(db.Boolean)
+    timeLastAccessed = db.Column(db.DateTime)
 
     #Requires entry as pandas dataframe
     def __init__(self, entry):
