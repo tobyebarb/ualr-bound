@@ -144,14 +144,14 @@ def getNextProspect():
             return sraData
     for student in activeStudentList:
         tempTNum = student.tNumber
-        sraData = ProspectSRA.query.filter_by(timeLastCalled <= datetime.utcnow() - timedelta(172800), tNumber = tempTNum).last()
-        if sraData.numTimesCalled == 1:
+        sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+        if sraData.numTimesCalled == 1 and timeLastCalled <= datetime.utcnow()-timedelta(172800):
             student.timeLastAccessed = datetime.utcnow()
             return sraData
     for student in activeStudentList:
         tempTNum = student.tNumber
-        sraData = ProspectSRA.query.filter_by(timeLastCalled <= datetime.utcnow() - timedelta(172800), tNumber = tempTNum).last()
-        if sraData.numTimesCalled == 2:
+        sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+        if sraData.numTimesCalled == 2 and timeLastCalled <= datetime.utcnow()-timedelta(172800):
             student.timeLastAccessed = datetime.utcnow()
             return sraData
 
