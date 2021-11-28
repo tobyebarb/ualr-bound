@@ -137,7 +137,8 @@ def getNextProspect():
     if 'prospect' in session:
         session_tNumber = session['prospect']
         student = ProspectImportData.query.filter_by(tNumber = session_tNumber).first()
-        if student.timeLastAccessed > datetime.utcnow() - timedelta(1800):
+        studentData = ProspectSRA.query.filter_by(tNumber = session_tNumber).last()
+        if student.timeLastAccessed > datetime.utcnow() - timedelta(1800) or studentData.dateCalled > datetime.utcnow() - timedelta(172800):
             session.pop('prospect', None)
             return getNextProspect()
         student.timeLastAccessed = datetime.utcnow()
