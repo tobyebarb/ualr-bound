@@ -256,6 +256,7 @@ class ProspectSRA(db.Model):
     term = db.Column(db.Enum(term))
     year = db.Column(db.Integer, nullable=False)
     #Previous caller and date of call
+    #wasCalled may be unnecessary
     wasCalled = db.Column(db.Boolean)
     prevCaller = db.Column(db.String(100))
     dateCalled = db.Column(db.Text)
