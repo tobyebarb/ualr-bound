@@ -130,7 +130,7 @@ def compareStudents(entry, student):
         new_sra = ProspectSRA(tNumber=new_student[0][1], term=parseCampaign(new_student)[1], year=parseCampaign(new_student)[0])
         db.session.add(new_sra)
         db.session.commit()
-        return
++        return
 
 #Requires user to not already have a prospect
 def getNextProspect():
@@ -138,7 +138,7 @@ def getNextProspect():
         session_tNumber = session['prospect']
         student = ProspectImportData.query.filter_by(tNumber = session_tNumber).first()
         studentData = ProspectSRA.query.filter_by(tNumber = session_tNumber).last()
-        if student.timeLastAccessed > datetime.utcnow() - timedelta(1800) or studentData.dateCalled > datetime.utcnow() - timedelta(172800):
+        if studentData.dateCalled > datetime.utcnow() - timedelta(172800):
             session.pop('prospect', None)
             return getNextProspect()
         student.timeLastAccessed = datetime.utcnow()
