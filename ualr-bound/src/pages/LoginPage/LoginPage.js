@@ -7,6 +7,7 @@ import ualrLogo from "../../icons/UALR Logo.svg";
 import { Link, BrowserRouter, useHistory, Redirect } from "react-router-dom";
 import * as constants from "../../utils/Constants";
 import { Context } from "../../store/appContext";
+import { keyframes, css } from "styled-components";
 
 const LoginPage = () => {
   const { store, actions } = useContext(Context);
@@ -14,14 +15,24 @@ const LoginPage = () => {
   const [passwordInput, setPasswordInput] = useState("");
   const [userFocused, setUserFocused] = useState(false);
   const [passFocused, setPassFocused] = useState(false);
+  const [userInvalid, setUserInvalid] = useState(false);
+  const [passInvalid, setPassInvalid] = useState(false);
   const history = useHistory();
 
   console.log("Token: ", store.token);
+
+  var shake = keyframes`
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2rem); }
+    50% { transform: translateX(2rem); }
+    100% { transform: translateX(0); }
+`;
 
   const usernamePlaceholder = "Username";
   const passwordPlaceholder = "Password";
 
   const focusColor = "#4c212c";
+  const invalidFocusColor = "#ff0000";
 
   const loginBlockDuration = "1";
   const loginBlockImgDisplacement = "0.75rem";
@@ -38,23 +49,36 @@ const LoginPage = () => {
     if (e.key === "Enter") {
       // do something
       e.preventDefault();
-      console.log("Enter key pressed!")
       handleSubmit();
     }
   };
 
   const handleSubmit = () => {
-    actions.login(usernameInput, passwordInput);
+    let response = actions.login(usernameInput, passwordInput);
+    response.then((value) => {
+      if (value && value.status !== 200) {
+        value.msg === "User does not exist."
+          ? setUserInvalid(true)
+          : setUserInvalid(false);
+        value.msg === "Invalid password."
+          ? setPassInvalid(true)
+          : setPassInvalid(false);
+      }
+    });
   };
 
   const updateUsername = (e) => {
     e.preventDefault();
     setUsernameInput(e.target.value);
+    setUserInvalid(false);
+    setPassInvalid(false);
   };
 
   const updatePassword = (e) => {
     e.preventDefault();
     setPasswordInput(e.target.value);
+    setUserInvalid(false);
+    setPassInvalid(false);
   };
 
   const onUserFocus = () => setUserFocused(true);
@@ -89,16 +113,23 @@ const LoginPage = () => {
           <div className="login-form-container">
             <div
               style={{
-                border: userFocused
+                border: userInvalid
+                  ? `5px solid ${invalidFocusColor}`
+                  : userFocused
                   ? `5px solid ${focusColor}`
                   : "5px solid #FFFFFF",
               }}
-              className="login-input-row"
+              content={"Not existing user"}
+              className={
+                userInvalid ? "login-input-row invalid" : "login-input-row"
+              }
             >
               <UserIcon
                 style={svgContainerStyle}
+                invalid={userInvalid}
                 focused={userFocused}
                 focusedColor={focusColor}
+                invalidFocusColor={invalidFocusColor}
               />
               <input
                 required
@@ -117,16 +148,23 @@ const LoginPage = () => {
             </div>
             <div
               style={{
-                border: passFocused
+                border: passInvalid
+                  ? `5px solid ${invalidFocusColor}`
+                  : passFocused
                   ? `5px solid ${focusColor}`
                   : "5px solid #FFFFFF",
               }}
-              className="login-input-row"
+              content={"Password incorrect"}
+              className={
+                passInvalid ? "login-input-row invalid" : "login-input-row"
+              }
             >
               <PassIcon
                 style={svgContainerStyle}
+                invalid={passInvalid}
                 focused={passFocused}
                 focusedColor={focusColor}
+                invalidFocusColor={invalidFocusColor}
               />
               <input
                 required

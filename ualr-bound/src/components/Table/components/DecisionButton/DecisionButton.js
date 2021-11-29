@@ -17,6 +17,7 @@ const DecisionButton = (props) => {
   const onCheckClick = () => {
     console.log("yes", data);
     props.updateRows(data, true);
+    //actions.sendRegistrationApprovedEmail();
   };
 
   const onCrossClick = () => {

@@ -7,21 +7,38 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
+from flask_mail import Mail, Message
 from api.model import db, ValidUser, RegistrationRequest, ProspectImportData, ProspectSRA, formatEntry, parseCampaign
 from collections import defaultdict
 import pandas as pd
 
 
+
 app = Flask(__name__, static_folder='ualr-bound/build', static_url_path='')
 CORS(app)
 
+MAIL_USERNAME = 'ualrboundemailtest@gmail.com'
+MAIL_PASSWORD = 'WhiteTiger2'
+SENDER_NAME = 'Chewie'
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIIFICATIONS"] = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config['DEBUG'] = True
+app.config['TESTING'] =False
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+app.config['MAIL_DEFAULT_SENDER'] = (SENDER_NAME, MAIL_USERNAME)
+app.config['MAIL_MAX_EMAILS'] = None
+app.config['MAIL_ASCII_ATTACHMENTS'] = False
 app.permanent_session_lifetime = timedelta(minutes=30)
 jwt = JWTManager(app)
+mail = Mail(app)
 db.init_app(app)
 
 ALLOWED_EXTENSION = {'csv'}
@@ -32,6 +49,50 @@ with app.app_context():
 
 def allowed_files(filename) -> bool :
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
+
+def registerSuccessEmail(email):
+    try:
+        print('\nsending email')
+        msg = Message(
+                subject = 'Register Request for UALR BOUND',
+                recipients = [email],
+                body = """Your registration request for UALR Bound was submitted successfully. A ROOT user of the system will review your request and an email notification will be sent to you upon their decision.
+                \nWe appriciate your wanting to join UALR Bound.
+                \n\n\n\nThank you for your time.
+                """
+                )
+        mail.send(msg)
+        return jsonify({'msg': "Success"}), 200
+    except:
+        return jsonify({'msg': 'Failed to send email'}), 500
+
+def registrationApprovedEmail(email):
+    try:
+        msg = Message(
+            subject = 'UALR Bound Registration Approval',
+            recipients = [email],
+            body = """Your request to join UALR Bound has been approved. You have been added to the current campaign and will now be able to login using the username and password that you provided.
+            \n\n\n\nThank you for your time.
+            """
+        )
+        mail.send(msg)
+        return jsonify({'msg': 'Success'}), 200
+    except:
+        return jsonify({'msg': 'Failed to send email'}), 400
+
+def registrationDeniedEmail(email):
+    try:
+        msg = Message(
+            subject = 'UALR Bound Registration Approval',
+            recipients = [email],
+            body = """Thank you for your submission to join UALR Bound. At this time, your request has been denied for the current campaign. You will still be eligible to register for future campaigns
+            \n\n\n\nThank you for your time.
+            """
+        )
+        mail.send(msg)
+        return jsonify({'msg': 'Success'}), 200
+    except:
+        return jsonify({'msg': 'Failed to send email'}), 400
 
 def compareStudents(entry, student):
     new_student = formatEntry(entry)
@@ -213,11 +274,13 @@ def updateRegistrationRequests():
                         activationStatus=True,
                         )
                     db.session.add(user)
+                    registrationApprovedEmail(regRequest.email)
                     db.session.delete(regRequest) # Delete request
                     db.session.commit()
                     print('\nCreated new user.\n')
                 if decision == "deny":
                     print('\nDeleting request...\n')
+                    registrationDeniedEmail(regRequest.email)
                     db.session.delete(regRequest) # Delete request
                     db.session.commit()
                     print('\nDeleted.\n')
@@ -507,6 +570,8 @@ def register():
                 db.session.add(regRequest)
                 db.session.commit()
                 print('\nCreated new row.\n')
+                registerSuccessEmail(email)
+                
 
                 return jsonify({
                     "user": username,
