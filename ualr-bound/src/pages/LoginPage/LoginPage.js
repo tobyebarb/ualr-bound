@@ -7,6 +7,7 @@ import ualrLogo from "../../icons/UALR Logo.svg";
 import { Link, BrowserRouter, useHistory, Redirect } from "react-router-dom";
 import * as constants from "../../utils/Constants";
 import { Context } from "../../store/appContext";
+import { keyframes, css } from "styled-components";
 
 const LoginPage = () => {
   const { store, actions } = useContext(Context);
@@ -14,14 +15,24 @@ const LoginPage = () => {
   const [passwordInput, setPasswordInput] = useState("");
   const [userFocused, setUserFocused] = useState(false);
   const [passFocused, setPassFocused] = useState(false);
+  const [userInvalid, setUserInvalid] = useState(false);
+  const [passInvalid, setPassInvalid] = useState(false);
   const history = useHistory();
 
   console.log("Token: ", store.token);
+
+  var shake = keyframes`
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2rem); }
+    50% { transform: translateX(2rem); }
+    100% { transform: translateX(0); }
+`;
 
   const usernamePlaceholder = "Username";
   const passwordPlaceholder = "Password";
 
   const focusColor = "#4c212c";
+  const invalidFocusColor = "#ff0000";
 
   const loginBlockDuration = "1";
   const loginBlockImgDisplacement = "0.75rem";
@@ -38,63 +49,36 @@ const LoginPage = () => {
     if (e.key === "Enter") {
       // do something
       e.preventDefault();
-      console.log("Enter key pressed!")
       handleSubmit();
     }
   };
 
-  //needed for the invalid input stylization (shaking input field)
-  var passElement = document.getElementById('pass');
-  var addPassError = function() { passElement.classList.add('error'); };
-  var removePassError = function() { passElement.classList.remove('error'); };
-
-  var userElement = document.getElementById('user');
-  var addUserError = function() { userElement.classList.add('error'); };
-  var removeUserError = function() { userElement.classList.remove('error'); };
-
-  //show error message
-  const showErrorMessage = () =>{
-   var element = document.getElementById('show-message').style.display = "block";
-  }
-
-  //hide error message
-  const hideErrorMessage = () =>{
-  var  element = document.getElementById('show-message').style.display = "none";
-  }
-
   const handleSubmit = () => {
-   let response = actions.login(usernameInput, passwordInput);
-    response.then((value) =>{
-
-      if(value !== 200){
-        console.log(value);
-        addPassError();
-        addUserError();
-        if(document.getElementById("show-message"))
-          showErrorMessage();
-      }
-      else{
-        actions.login(usernameInput, passwordInput);
+    let response = actions.login(usernameInput, passwordInput);
+    response.then((value) => {
+      if (value && value.status !== 200) {
+        value.msg === "User does not exist."
+          ? setUserInvalid(true)
+          : setUserInvalid(false);
+        value.msg === "Invalid password."
+          ? setPassInvalid(true)
+          : setPassInvalid(false);
       }
     });
-    };
+  };
 
   const updateUsername = (e) => {
     e.preventDefault();
     setUsernameInput(e.target.value);
-    removeUserError();
-    removePassError();
-    if(document.getElementById("show-message"))
-      hideErrorMessage();
+    setUserInvalid(false);
+    setPassInvalid(false);
   };
 
   const updatePassword = (e) => {
     e.preventDefault();
     setPasswordInput(e.target.value);
-    removePassError();
-    removeUserError();
-    if(document.getElementById("show-message"))
-      hideErrorMessage();
+    setUserInvalid(false);
+    setPassInvalid(false);
   };
 
   const onUserFocus = () => setUserFocused(true);
@@ -129,16 +113,23 @@ const LoginPage = () => {
           <div className="login-form-container">
             <div
               style={{
-                border: userFocused
+                border: userInvalid
+                  ? `5px solid ${invalidFocusColor}`
+                  : userFocused
                   ? `5px solid ${focusColor}`
                   : "5px solid #FFFFFF",
               }}
-              className="login-input-row"
+              content={"Not existing user"}
+              className={
+                userInvalid ? "login-input-row invalid" : "login-input-row"
+              }
             >
               <UserIcon
                 style={svgContainerStyle}
+                invalid={userInvalid}
                 focused={userFocused}
                 focusedColor={focusColor}
+                invalidFocusColor={invalidFocusColor}
               />
               <input
                 required
@@ -157,16 +148,23 @@ const LoginPage = () => {
             </div>
             <div
               style={{
-                border: passFocused
+                border: passInvalid
+                  ? `5px solid ${invalidFocusColor}`
+                  : passFocused
                   ? `5px solid ${focusColor}`
                   : "5px solid #FFFFFF",
               }}
-              className="login-input-row"
+              content={"Password incorrect"}
+              className={
+                passInvalid ? "login-input-row invalid" : "login-input-row"
+              }
             >
               <PassIcon
                 style={svgContainerStyle}
+                invalid={passInvalid}
                 focused={passFocused}
                 focusedColor={focusColor}
+                invalidFocusColor={invalidFocusColor}
               />
               <input
                 required
@@ -183,9 +181,6 @@ const LoginPage = () => {
                 onKeyPress={onKeyPressHandler}
               />
             </div>
-            <span className = "error-message" id="show-message">
-              Password or Username is incorrect!
-            </span>
             <div className="login-form-button-container">
               <button
                 content={focusColor}
