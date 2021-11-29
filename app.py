@@ -34,7 +34,7 @@ def allowed_files(filename) -> bool :
 
 def compareStudents(entry, student):
     new_student = formatEntry(entry)
-    """
+    """ 
         CASES:
             - Student doesn't exist and is imported directly into prospect_import_data
             - Student does exist, but it is still the same term/year
@@ -94,7 +94,7 @@ def compareStudents(entry, student):
             db.session.commit()
             return
 
-        """
+        """ 
             We need to add a new entry with the same T Number to prospect_sra.
             Will also have to update their information in prospect_import_data (less easy case) make sure to activate campaignStatus
         """
@@ -134,23 +134,21 @@ def compareStudents(entry, student):
 
 #Requires user to not already have a prospect
 def getNextProspect():
-    if 'prospect' in session:
-        session_tNumber = session['prospect']
-        student = ProspectImportData.query.filter_by(tNumber = session_tNumber).first()
-        studentData = ProspectSRA.query.filter_by(tNumber = session_tNumber).last()
-        if studentData.dateCalled > datetime.utcnow() - timedelta(172800):
-            session.pop('prospect', None)
-            return getNextProspect()
+    assignedStudent = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity(),status=True).first()
+    if assignedStudent:
+        tempTNum = assignedStudent.tNumber
+        student = ProspectImportData.query.filter_by(tNumber = tempTNum).first()
+        studentData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
         student.timeLastAccessed = datetime.utcnow()
         db.session.commit()
-        return ProspectSRA.query.filter_by(tNumber = session_tNumber).last()
+        return studentData
     activeStudentList = ProspectImportData.query.filter_by(timeLastAccessed <= datetime.utcnow() - timedelta(1800),status=True)
     for student in activeStudentList:
         tempTNum = student.tNumber
         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
         if sraData.numTimesCalled == 0:
             student.timeLastAccessed = datetime.utcnow()
-            session['prospect'] = student.tNumber
+            student.assignedCaller=get_jwt_identity()
             db.session.commit()
             return sraData
     for student in activeStudentList:
@@ -158,7 +156,7 @@ def getNextProspect():
         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
         if sraData.numTimesCalled == 1 and dateCalled <= datetime.utcnow()-timedelta(172800):
             student.timeLastAccessed = datetime.utcnow()
-            session['prospect'] = student.tNumber
+            student.assignedCaller=get_jwt_identity()
             db.session.commit()
             return sraData
     for student in activeStudentList:
@@ -166,14 +164,15 @@ def getNextProspect():
         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
         if sraData.numTimesCalled == 2 and dateCalled <= datetime.utcnow()-timedelta(172800):
             student.timeLastAccessed = datetime.utcnow()
-            session['prospect'] = student.tNumber
+            student.assignedCaller=get_jwt_identity()
             db.session.commit()
             return sraData
     return jsonify({'msg':'No students currently available'}),404
 
 def updateProspectData():
     if request.method == 'POST':
-        s_tNumber = session['prospect']
+        s_details = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity()).first()
+        s_tNumber = s_details.tNumber
         s_data = ProspectSRA.query.filter_by(tNumber = s_tNumber).last()
         s_caller = ValidUser.query.filter_by(username=get_jwt_identity()).first()
         s_data.prevCaller = s_caller.name
@@ -185,8 +184,8 @@ def updateProspectData():
             s_data.wasEmailed = True
             s_data.dateEmailed = datetime.utcnow()
             s_data.emailText = request.json.get("emailText",None)
+        s_details.assignedCaller = None
         db.session.commit()
-        session.pop('prospect',None)
 
 @app.route('/message', methods=['GET'])
 @jwt_required()
