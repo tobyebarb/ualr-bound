@@ -130,7 +130,7 @@ def compareStudents(entry, student):
         new_sra = ProspectSRA(tNumber=new_student[0][1], term=parseCampaign(new_student)[1], year=parseCampaign(new_student)[0])
         db.session.add(new_sra)
         db.session.commit()
-+        return
+        return
 
 #Requires user to not already have a prospect
 def getNextProspect():
