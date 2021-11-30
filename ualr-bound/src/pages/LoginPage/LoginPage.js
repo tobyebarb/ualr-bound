@@ -21,12 +21,13 @@ const LoginPage = () => {
 
   console.log("Token: ", store.token);
 
-  var shake = keyframes`
+ /* var shake = keyframes`
     0% { transform: translateX(0); }
     25% { transform: translateX(-2rem); }
     50% { transform: translateX(2rem); }
     100% { transform: translateX(0); }
 `;
+*/
 
   const usernamePlaceholder = "Username";
   const passwordPlaceholder = "Password";

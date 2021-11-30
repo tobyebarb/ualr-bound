@@ -28,6 +28,16 @@ const RegisterPage = () => {
   const [checkPassFocused, setCheckPassFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [accessLevelFocused, setAccessLevelFocused] = useState(false);
+  const [emailInvalid, setEmailInvalid] = useState(false);
+  const [passInvalid, setPassInvalid] = useState(false);
+
+ /* var shake = keyframes`
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2rem); }
+    50% { transform: translateX(2rem); }
+    100% { transform: translateX(0); }
+`;
+*/
 
   const namePlaceholder = "Name";
   const usernamePlaceholder = "Username";
@@ -37,6 +47,7 @@ const RegisterPage = () => {
   const accessLevelPlaceholder = "Choose one...";
 
   const focusColor = "#4c212c";
+  const invalidFocusColor = "#ff0000";
 
   const RegisterBlockDuration = "1";
   const RegisterBlockImgDisplacement = "0.75rem";
@@ -84,13 +95,12 @@ const RegisterPage = () => {
           );
         } 
         else {
-          //alert("Passwords Don't Match! Please re-enter passwords!")
-          if(document.getElementById("checkedPass")) addPassError();
+          setPassInvalid(true);
           console.log("Passwords don't match"); //TODO: User feedback when password not matching
         }
       }
       else{
-        if(document.getElementById("email")) addEmailError();
+        setEmailInvalid(true);
       }
   
   };
@@ -113,13 +123,13 @@ const RegisterPage = () => {
   const updateValidatePassword = (e) => {
     e.preventDefault();
     setCheckPasswordInput(e.target.value);
-    if(document.getElementById("checkedPass")) removePassError();
+    setPassInvalid(false);
   };
 
   const updateEmail = (e) => {
     e.preventDefault();
     setEmailInput(e.target.value);
-    if(document.getElementById("email")) removeEmailError();
+    setEmailInvalid(false);
   };
 
   const updateAccessLevel = (e) => {
@@ -220,16 +230,22 @@ const RegisterPage = () => {
 
               <div
                 style={{
-                  border: emailFocused
+                  border: emailInvalid
+                    ? `5px solid ${invalidFocusColor}`
+                    : userFocused
                     ? `5px solid ${focusColor}`
                     : "5px solid #FFFFFF",
                 }}
-                className="register-input-row"
+                className={
+                  emailInvalid ? "register-input-row invalid" : "register-input-row"
+                }
               >
                 <EmailIcon
                   style={svgContainerStyle}
+                  invalid={emailInvalid}
                   focused={emailFocused}
                   focusedColor={focusColor}
+                  invalidFocusColor={invalidFocusColor}
                 />
                 <input
                   required
@@ -286,16 +302,22 @@ const RegisterPage = () => {
 
               <div
                 style={{
-                  border: passFocused
+                  border: passInvalid
+                    ? `5px solid ${invalidFocusColor}`
+                    : passFocused
                     ? `5px solid ${focusColor}`
                     : "5px solid #FFFFFF",
                 }}
-                className="register-input-row"
+                className={
+                  passInvalid ? "register-input-row invalid" : "register-input-row"
+                }
               >
                 <PassIcon
                   style={svgContainerStyle}
+                  invalid={passInvalid}
                   focused={checkPassFocused}
                   focusedColor={focusColor}
+                  invalidFocusColor={invalidFocusColor}
                 />
                 <input
                   required
