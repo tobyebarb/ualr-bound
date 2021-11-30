@@ -54,6 +54,8 @@ const LoginPage = () => {
   };
 
   const handleSubmit = () => {
+    setUserInvalid(false);
+    setPassInvalid(false);
     let response = actions.login(usernameInput, passwordInput);
     response.then((value) => {
       if (value && value.status !== 200) {
