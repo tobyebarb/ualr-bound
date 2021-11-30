@@ -133,6 +133,9 @@ def compareStudents(entry, student):
         return
 
 #Requires user to not already have a prospect
+@app.route('/nextProspect', methods=['GET'])
+@jwt_required()
+@cross_origin()
 def getNextProspect():
     assignedStudent = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity(),status=True).first()
     if assignedStudent:
@@ -169,6 +172,9 @@ def getNextProspect():
             return sraData
     return jsonify({'msg':'No students currently available'}),404
 
+@app.route('/updateProspect')
+@jwt_required()
+@cross_origin()
 def updateProspectData():
     if request.method == 'POST':
         s_details = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity()).first()
