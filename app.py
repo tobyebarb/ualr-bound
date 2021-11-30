@@ -132,9 +132,29 @@ def compareStudents(entry, student):
         db.session.commit()
         return
 
+
+@app.route("/api/debugAccessTime", methods=["GET"])
+@cross_origin()
+def debugAccessTime():
+    #activeStudentList = ProspectImportData.query.filter((ProspectImportData.timeLastAccessed <= datetime.utcnow() - timedelta(1800)) & (ProspectImportData.status == True))
+    #print(activeStudentList)
+    data = ProspectImportData.query.filter((ProspectImportData.timeLastAccessed != None))[0]
+    current_time = datetime.utcnow()
+
+    print(str(data))
+
+    data_time = data.timeLastAccessed
+
+    delta_time = current_time - timedelta(minutes=30)
+
+    print("DATA_TIME", data_time)
+    print("DELTA_TIME", delta_time)
+    print("isDataLessThanDelta", data_time < delta_time)
+    return jsonify({'data': str(data)}), 200
+
 #Requires user to not already have a prospect
 def getNextProspect():
-    assignedStudent = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity(),status=True).first()
+    assignedStudent = ProspectImportData.query.filter((ProspectImportData.assignedCaller == get_jwt_identity()) & (ProspectImportData.status ==  True)).first()
     if assignedStudent:
         tempTNum = assignedStudent.tNumber
         student = ProspectImportData.query.filter_by(tNumber = tempTNum).first()
@@ -142,7 +162,8 @@ def getNextProspect():
         student.timeLastAccessed = datetime.utcnow()
         db.session.commit()
         return studentData
-    activeStudentList = ProspectImportData.query.filter_by(timeLastAccessed <= datetime.utcnow() - timedelta(1800),status=True)
+    activeStudentList = ProspectImportData.query.filter((ProspectImportData.timeLastAccessed <= datetime.utcnow() - timedelta(1800)) & (ProspectImportData.status == True))
+    print(activeStudentList)
     for student in activeStudentList:
         tempTNum = student.tNumber
         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
