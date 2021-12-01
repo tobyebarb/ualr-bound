@@ -19,7 +19,7 @@ CORS(app)
 
 MAIL_USERNAME = 'ualrboundemailtest@gmail.com'
 MAIL_PASSWORD = 'WhiteTiger2'
-SENDER_NAME = 'Chewie'
+SENDER_NAME = 'UALRBound'
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_DATABASE_URL')
@@ -326,10 +326,28 @@ def updateProspectData():
         sra_data.callNotes = callNotes
 
         if newNumTimesCalled == 2:
-            sra_data.emailText = emailText
-            sra_data.wasEmailed = True
-            sra_data.dateEmailed = current_time
+            emailSubject = "UALR BOUND - Caller Message"
+            if emailText:
+                emailBody = emailText
+            else:
+                emailBody = "We hope you choose to enroll with us at UA - Little Rock.\n\n\n\nThank you for your time."
+            emailArray = [import_data.email, emailSubject, emailBody]
+            emailSent = sendEmail(emailArray)
+
+            if emailSent:
+                sra_data.emailText = emailText
+                sra_data.wasEmailed = True
+                sra_data.dateEmailed = current_time
+                db.session.commit()
+                return jsonify({'msg': 'Successfully updated prospect.', 'email_status': True}), 200
+
+            db.session.commit()
+            return jsonify({'msg': 'Successfully updated prospect.', 'email_status': False}), 200
+        
         db.session.commit()
+        return jsonify({'msg': 'Successfully updated prospect.', 'email_status': None}), 200
+    return jsonify({'msg': 'Request method not supported.'}), 400
+            
 
 @app.route('/message', methods=['GET'])
 @jwt_required()
