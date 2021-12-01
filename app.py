@@ -298,47 +298,6 @@ def getNextProspect():
         return jsonify({'msg': 'Unexpected error: Reached end of method'}), 400
     return jsonify({'msg': 'Request method not supported.'}), 404
 
-#Requires user to not already have a prospect
-# @app.route('/nextProspect', methods=['GET'])
-# @jwt_required()
-# @cross_origin()
-# def getNextProspect():
-#     assignedStudent = ProspectImportData.query.filter((ProspectImportData.assignedCaller == get_jwt_identity()) & (ProspectImportData.status ==  True)).first()
-#     if assignedStudent:
-#         tempTNum = assignedStudent.tNumber
-#         student = ProspectImportData.query.filter_by(tNumber = tempTNum).first()
-#         studentData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-#         student.timeLastAccessed = datetime.utcnow()
-#         db.session.commit()
-#         return studentData
-#     activeStudentList = ProspectImportData.query.filter((ProspectImportData.timeLastAccessed <= datetime.utcnow() - timedelta(1800)) & (ProspectImportData.status == True))
-#     print(activeStudentList)
-#     for student in activeStudentList:
-#         tempTNum = student.tNumber
-#         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-#         if sraData.numTimesCalled == 0:
-#             student.timeLastAccessed = datetime.utcnow()
-#             student.assignedCaller=get_jwt_identity()
-#             db.session.commit()
-#             return sraData
-#     for student in activeStudentList:
-#         tempTNum = student.tNumber
-#         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-#         if sraData.numTimesCalled == 1 and dateCalled <= datetime.utcnow()-timedelta(172800):
-#             student.timeLastAccessed = datetime.utcnow()
-#             student.assignedCaller=get_jwt_identity()
-#             db.session.commit()
-#             return sraData
-#     for student in activeStudentList:
-#         tempTNum = student.tNumber
-#         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-#         if sraData.numTimesCalled == 2 and dateCalled <= datetime.utcnow()-timedelta(172800):
-#             student.timeLastAccessed = datetime.utcnow()
-#             student.assignedCaller=get_jwt_identity()
-#             db.session.commit()
-#             return sraData
-#     return jsonify({'msg':'No students currently available'}),404
-
 @app.route('/api/updateProspect', methods=['POST'])
 @jwt_required()
 @cross_origin()
