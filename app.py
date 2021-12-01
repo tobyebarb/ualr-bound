@@ -305,20 +305,32 @@ def getNextProspect():
 @cross_origin()
 def updateProspectData():
     if request.method == 'POST':
-        s_details = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity()).first()
-        s_tNumber = s_details.tNumber
-        s_data = ProspectSRA.query.filter_by(tNumber = s_tNumber).last()
-        s_caller = ValidUser.query.filter_by(username=get_jwt_identity()).first()
-        s_data.prevCaller = s_caller.name
-        s_data.dateCalled = datetime.utcnow()
-        s_data.numTimesCalled = s_data.numTimesCalled + 1
         callResponse = request.json.get("callResponse", None)
-        callNotes = request.json.get("callNotes",None)
-        if s_data.numTimesCalled == 3:
-            s_data.wasEmailed = True
-            s_data.dateEmailed = datetime.utcnow()
-            s_data.emailText = request.json.get("emailText",None)
-        s_details.assignedCaller = None
+        callNotes = request.json.get("callNotes", None)
+        emailText = request.json.get("emailText", None)
+
+        current_time = datetime.utcnow()
+        
+        import_data = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity()).first()
+        sra_data = ProspectSRA.query.filter_by(tNumber = import_data.tNumber).last()
+        caller = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+
+        newNumTimesCalled = sra_data.numTimesCalled + 1
+
+        import_data.timeLastAccessed = current_time
+        import_data.assignedCaller = None
+        import_data.wasCalled = True
+        sra_data.prevCaller = caller.username
+        sra_data.dateCalled = current_time
+        sra_data.numTimesCalled = newNumTimesCalled
+
+        sra_data.callResponse = callResponse # Frontend should limit responses to enum type
+        sra_data.callNotes = callNotes
+
+        if newNumTimesCalled == 2:
+            sra_data.emailText = emailText
+            sra_data.wasEmailed = True
+            sra_data.dateEmailed = current_time
         db.session.commit()
 
 @app.route('/message', methods=['GET'])
