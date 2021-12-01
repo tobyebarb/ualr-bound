@@ -133,90 +133,174 @@ def compareStudents(entry, student):
         return
 
 
-@app.route("/api/debugAccessTime", methods=["GET"])
-@cross_origin()
-def debugAccessTime():
-    current_time = datetime.utcnow()
-    delta_time = current_time - timedelta(minutes=30)
-
-    expired_prospects = ProspectImportData.query.filter(
-        (ProspectImportData.timeLastAccessed != None)  
-        & (ProspectImportData.assignedCaller != None)
-        & (ProspectImportData.timeLastAccessed < delta_time)
-        )
-
-    prospect_list = ProspectSRA.query.join(ProspectImportData).add_columns(
-        ProspectSRA.id, 
-        ProspectImportData.tNumber, 
-        ProspectImportData.status, 
-        ProspectImportData.timeLastAccessed, 
-        ProspectImportData.assignedCaller,
-        ProspectSRA.wasCalled,
-        ProspectSRA.numTimesCalled,
-        ).filter(
-            (ProspectImportData.status == True) 
-            & (ProspectImportData.assignedCaller == None) 
-            & (ProspectImportData.assignedCaller == None)
-        ).order_by(
-            ProspectSRA.numTimesCalled.desc(), # Number of time called has top priority
-            ProspectImportData.timeLastAccessed.desc()).all() # Time last accessed as secondary priority
-    
-
-    current_time = datetime.utcnow()
-
-    print("Expired Prospect Count:", expired_prospects.count())
-    print("Prospect Count:", len(prospect_list))
-
-    for prospect in prospect_list:
-        print("TNUMBER:", prospect.tNumber)
-
-    for prospect in expired_prospects:
-        print("EXPIRED TNUMBER:", prospect.tNumber)
-
-    return jsonify({'data': 'yo'}), 200
-
-#Requires user to not already have a prospect
-@app.route('/nextProspect', methods=['GET'])
-@jwt_required()
+@app.route("/api/getNextProspect", methods=["POST"])
 @cross_origin()
 def getNextProspect():
-    assignedStudent = ProspectImportData.query.filter((ProspectImportData.assignedCaller == get_jwt_identity()) & (ProspectImportData.status ==  True)).first()
-    if assignedStudent:
-        tempTNum = assignedStudent.tNumber
-        student = ProspectImportData.query.filter_by(tNumber = tempTNum).first()
-        studentData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-        student.timeLastAccessed = datetime.utcnow()
-        db.session.commit()
-        return studentData
-    activeStudentList = ProspectImportData.query.filter((ProspectImportData.timeLastAccessed <= datetime.utcnow() - timedelta(1800)) & (ProspectImportData.status == True))
-    print(activeStudentList)
-    for student in activeStudentList:
-        tempTNum = student.tNumber
-        sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-        if sraData.numTimesCalled == 0:
-            student.timeLastAccessed = datetime.utcnow()
-            student.assignedCaller=get_jwt_identity()
-            db.session.commit()
-            return sraData
-    for student in activeStudentList:
-        tempTNum = student.tNumber
-        sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-        if sraData.numTimesCalled == 1 and dateCalled <= datetime.utcnow()-timedelta(172800):
-            student.timeLastAccessed = datetime.utcnow()
-            student.assignedCaller=get_jwt_identity()
-            db.session.commit()
-            return sraData
-    for student in activeStudentList:
-        tempTNum = student.tNumber
-        sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
-        if sraData.numTimesCalled == 2 and dateCalled <= datetime.utcnow()-timedelta(172800):
-            student.timeLastAccessed = datetime.utcnow()
-            student.assignedCaller=get_jwt_identity()
-            db.session.commit()
-            return sraData
-    return jsonify({'msg':'No students currently available'}),404
+    if request.method == 'POST':
+        callerUsername = request.json.get("username", None) # Check for POST body, if username was provided (DEBUG PURPOSES ONLY)
 
-@app.route('/updateProspect')
+        current_time = datetime.utcnow() # Get current_time
+        expiration_interval_delta_time = current_time - timedelta(minutes=30) # Get expired token DateTime object from 30 minutes ago
+        call_interval_delta_time = current_time - timedelta(days=2) # Get CALL_INTERVAL token DateTime object from 2 days ago
+
+        caller = ValidUser.query.filter_by(username=callerUsername).first() # Check for caller if username given in POST body (DEBUG PURPOSES ONLY)
+
+        if callerUsername == None: # POST body doesn't provide 'username' and caller is found via JWT identity
+            caller = ValidUser.query.filter_by(username=get_jwt_identity()).first() # Caller object assigned via JWT
+
+        if caller == None: # If POST body username not given or JWT token's username not matching any users in ValidUser
+            return jsonify({'msg': 'Caller not found in database'}), 404
+
+        temp_prospect = ProspectImportData.query.filter_by(assignedCaller=caller.username).first() # Check if current caller already has prospect assigned to them.
+
+        if temp_prospect: # If current caller already has prospect assigned to them, return that prospect's T# and update timeLastAccessed
+            print("Caller " + caller.username + " already assigned to prospect with T#: " + temp_prospect.tNumber)
+            temp_prospect.timeLastAccessed = current_time
+            print(
+                "Prospect " + temp_prospect.tNumber + 
+                "\nNew timeLastAccessed: " + str(current_time)
+                )
+            db.session.commit()
+            print("Returning already assigned prospect...")
+            jsonData = row2dict(temp_prospect, ["tNumber"])
+            print("Returning data:", jsonData)
+            return jsonify(jsonData), 200
+
+        expired_prospects = ProspectImportData.query.filter(
+            (ProspectImportData.timeLastAccessed != None)  
+            & (ProspectImportData.assignedCaller != None)
+            & (ProspectImportData.timeLastAccessed < expiration_interval_delta_time)
+            & (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
+            )
+
+        prospect_list = ProspectSRA.query.join(ProspectImportData).add_columns(
+            ProspectSRA.id, 
+            ProspectImportData.tNumber, 
+            ProspectImportData.status, 
+            ProspectImportData.timeLastAccessed, 
+            ProspectImportData.assignedCaller,
+            ProspectSRA.wasCalled,
+            ProspectSRA.numTimesCalled,
+            ).filter(
+                (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
+                & (ProspectImportData.assignedCaller == None) # Make sure the prospects don't have a currently assigned caller
+                & (ProspectSRA.numTimesCalled <= 1) # Make sure the prospects haven't been called more than two times
+                & ( # Make sure the prospect haven't been called in the past two days or they haven't been called at all
+                    (ProspectImportData.timeLastAccessed < call_interval_delta_time)
+                    | (ProspectImportData.timeLastAccessed == None)
+                    )
+            ).order_by(
+                ProspectSRA.numTimesCalled.desc(), # Number of time called has top priority
+                ProspectImportData.timeLastAccessed.desc()).all() # Time last accessed as secondary priority
+
+        print("Expired Prospect Count:", expired_prospects.count())
+        print("Prospect Count:", len(prospect_list))
+
+        for prospect in prospect_list:
+            print("TNUMBER:", prospect.tNumber)
+
+        for prospect in expired_prospects:
+            print("EXPIRED TNUMBER:", prospect.tNumber)
+                
+        if len(prospect_list) == 0 and expired_prospects.count() == 0:
+            return jsonify({'msg': 'No prospects avaliable'}), 400
+        
+        if expired_prospects.count() > 0:
+            """
+            If there is a student assigned to a caller who hasn't been updated for 30 minutes,
+                1. Update expired student's SRA data to assign to new caller
+                2. Update expired students's SRA data to new timeLastAccessed to "current_time"
+            """
+            prospect = ProspectImportData.query.filter_by(tNumber=expired_prospects[0].tNumber).first()
+            if prospect:
+                print("Updating expired prospect's assigned caller and time last accessed...")
+                prospect.assignedCaller = caller.username
+                prospect.timeLastAccessed = current_time
+                print(
+                    "Prospect " + prospect.tNumber + 
+                    "\nNew assignedCaller: " + caller.username + 
+                    "\nNew timeLastAccessed: " + str(current_time)
+                    )
+                db.session.commit()
+                print("Returning expired prospect...")
+                jsonData = row2dict(prospect, ["tNumber"])
+                print("Returning data:", jsonData)
+                return jsonify(jsonData), 200
+            else:
+                return jsonify({'msg': 'Unexpected error: Expired prospect not found.'}), 404
+        
+        elif len(prospect_list) > 0:
+            """
+            Happy path (no expired students): Provide student who has least calls and latest timeLastAccessed,
+                1. Update student's SRA data to assign to new caller
+                2. Update students's SRA data to new timeLastAccessed to "current_time"
+            """
+            prospect = ProspectImportData.query.filter_by(tNumber=prospect_list[0].tNumber).first()
+            if prospect:
+                print("Updating prospect's assigned caller and time last accessed...")
+                prospect.assignedCaller = caller.username
+                prospect.timeLastAccessed = current_time
+                print(
+                    "Prospect " + prospect.tNumber + 
+                    "\nNew assignedCaller: " + caller.username + 
+                    "\nNew timeLastAccessed: " + str(current_time)
+                    )
+                db.session.commit()
+                print("Returning prospect...")
+                jsonData = row2dict(prospect, ["tNumber"])
+                print("Returning data:", jsonData)
+                return jsonify(jsonData), 200
+            else:
+                return jsonify({'msg': 'Unexpected error: Prospect not found.'}), 404
+
+        if len(prospect_list) == 0:
+            return jsonify({'msg': 'No prospects avaliable'}), 404
+
+        return jsonify({'msg': 'Unexpected error: Reached end of method'}), 400
+    return jsonify({'msg': 'Request method not supported.'}), 404
+
+#Requires user to not already have a prospect
+# @app.route('/nextProspect', methods=['GET'])
+# @jwt_required()
+# @cross_origin()
+# def getNextProspect():
+#     assignedStudent = ProspectImportData.query.filter((ProspectImportData.assignedCaller == get_jwt_identity()) & (ProspectImportData.status ==  True)).first()
+#     if assignedStudent:
+#         tempTNum = assignedStudent.tNumber
+#         student = ProspectImportData.query.filter_by(tNumber = tempTNum).first()
+#         studentData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+#         student.timeLastAccessed = datetime.utcnow()
+#         db.session.commit()
+#         return studentData
+#     activeStudentList = ProspectImportData.query.filter((ProspectImportData.timeLastAccessed <= datetime.utcnow() - timedelta(1800)) & (ProspectImportData.status == True))
+#     print(activeStudentList)
+#     for student in activeStudentList:
+#         tempTNum = student.tNumber
+#         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+#         if sraData.numTimesCalled == 0:
+#             student.timeLastAccessed = datetime.utcnow()
+#             student.assignedCaller=get_jwt_identity()
+#             db.session.commit()
+#             return sraData
+#     for student in activeStudentList:
+#         tempTNum = student.tNumber
+#         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+#         if sraData.numTimesCalled == 1 and dateCalled <= datetime.utcnow()-timedelta(172800):
+#             student.timeLastAccessed = datetime.utcnow()
+#             student.assignedCaller=get_jwt_identity()
+#             db.session.commit()
+#             return sraData
+#     for student in activeStudentList:
+#         tempTNum = student.tNumber
+#         sraData = ProspectSRA.query.filter_by(tNumber = tempTNum).last()
+#         if sraData.numTimesCalled == 2 and dateCalled <= datetime.utcnow()-timedelta(172800):
+#             student.timeLastAccessed = datetime.utcnow()
+#             student.assignedCaller=get_jwt_identity()
+#             db.session.commit()
+#             return sraData
+#     return jsonify({'msg':'No students currently available'}),404
+
+@app.route('/api/updateProspect', methods=['POST'])
 @jwt_required()
 @cross_origin()
 def updateProspectData():
