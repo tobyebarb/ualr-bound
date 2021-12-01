@@ -171,7 +171,6 @@ def compareStudents(entry, student):
         db.session.commit()
         return
 
-
 @app.route("/api/getNextProspect", methods=["POST"])
 @cross_origin()
 def getNextProspect():
@@ -348,7 +347,6 @@ def updateProspectData():
         return jsonify({'msg': 'Successfully updated prospect.', 'email_status': None}), 200
     return jsonify({'msg': 'Request method not supported.'}), 400
             
-
 @app.route('/message', methods=['GET'])
 @jwt_required()
 @cross_origin()
@@ -524,7 +522,6 @@ def getUserInfo(userID):
         return jsonify(jsonData), 200
     return jsonify({"msg": "user doesn't exist"}), 404
 
-    
 @app.route("/api/getStudentInfo/<tNumber>", methods=["GET"])
 @jwt_required()
 @cross_origin()
