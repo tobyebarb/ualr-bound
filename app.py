@@ -50,53 +50,31 @@ with app.app_context():
 def allowed_files(filename) -> bool :
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
 
-def registerSuccessEmail(email):
+""" 
+    ~~~Function sendEmail~~~
+
+    Params: emailArray - Array with the following format: [emailRecipient, subjectText, bodyText]
+
+    Desc: Sends emails... I don't know what else to tell you. :>
+"""
+def sendEmail(emailArray): 
     try:
-        print('\nsending email')
+        print('\nSending email...')
         msg = Message(
-                subject = 'Register Request for UALR BOUND',
-                recipients = [email],
-                body = """Your registration request for UALR Bound was submitted successfully. A ROOT user of the system will review your request and an email notification will be sent to you upon their decision.
-                \nWe appriciate your wanting to join UALR Bound.
-                \n\n\n\nThank you for your time.
-                """
+                subject = emailArray[1],
+                recipients = [emailArray[0]],
+                body = emailArray[2]
                 )
         mail.send(msg)
-        return jsonify({'msg': "Success"}), 200
+        print('\nEmail sent!')
+        return True
     except:
-        return jsonify({'msg': 'Failed to send email'}), 500
-
-def registrationApprovedEmail(email):
-    try:
-        msg = Message(
-            subject = 'UALR Bound Registration Approval',
-            recipients = [email],
-            body = """Your request to join UALR Bound has been approved. You have been added to the current campaign and will now be able to login using the username and password that you provided.
-            \n\n\n\nThank you for your time.
-            """
-        )
-        mail.send(msg)
-        return jsonify({'msg': 'Success'}), 200
-    except:
-        return jsonify({'msg': 'Failed to send email'}), 400
-
-def registrationDeniedEmail(email):
-    try:
-        msg = Message(
-            subject = 'UALR Bound Registration Approval',
-            recipients = [email],
-            body = """Thank you for your submission to join UALR Bound. At this time, your request has been denied for the current campaign. You will still be eligible to register for future campaigns
-            \n\n\n\nThank you for your time.
-            """
-        )
-        mail.send(msg)
-        return jsonify({'msg': 'Success'}), 200
-    except:
-        return jsonify({'msg': 'Failed to send email'}), 400
+        print('\nEmail not sent... :(')
+        return False
 
 def compareStudents(entry, student):
     new_student = formatEntry(entry)
-    """
+    """ 
         CASES:
             - Student doesn't exist and is imported directly into prospect_import_data
             - Student does exist, but it is still the same term/year
@@ -274,18 +252,31 @@ def updateRegistrationRequests():
                         activationStatus=True,
                         )
                     db.session.add(user)
-                    registrationApprovedEmail(regRequest.email)
+                    emailSubject = "UALR Bound Registration Approval"
+                    emailBody = "Your request to join UALR Bound has been approved. You have been added to the current campaign and will now be able to login using the username and password that you provided.\n\n\n\nThank you for your time."
+                    emailArray = [regRequest.email, emailSubject, emailBody]
+                    emailSent = sendEmail(emailArray)
+
                     db.session.delete(regRequest) # Delete request
                     db.session.commit()
                     print('\nCreated new user.\n')
+
+                    if not emailSent:
+                        return jsonify({"msg":"success", "email_status": False}), 200
                 if decision == "deny":
                     print('\nDeleting request...\n')
-                    registrationDeniedEmail(regRequest.email)
+                    emailSubject = "UALR Bound Registration Denial"
+                    emailBody = "Thank you for your submission to join UALR Bound. At this time, your request has been denied for the current campaign. You will still be eligible to register for future campaigns\n\n\n\nThank you for your time."
+                    emailArray = [regRequest.email, emailSubject, emailBody]
+                    emailSent = sendEmail(emailArray)
+
                     db.session.delete(regRequest) # Delete request
                     db.session.commit()
                     print('\nDeleted.\n')
+                    if not emailSent:
+                        return jsonify({"msg":"success", "email_status": False}), 200
 
-                return jsonify({"msg":"success"}), 200
+                return jsonify({"msg":"success", "email_status": True}), 200
             print("Registration request not found.")
             return jsonify({"msg":"fail"}), 400
     print("Not POST method.")
@@ -570,14 +561,26 @@ def register():
                 db.session.add(regRequest)
                 db.session.commit()
                 print('\nCreated new row.\n')
-                registerSuccessEmail(email)
+                emailSubject = "Register Request for UALR BOUND"
+                emailBody = "Your registration request for UALR Bound was submitted successfully. A ROOT user of the system will review your request and an email notification will be sent to you upon their decision.\nWe appriciate your wanting to join UALR Bound.\n\n\n\nThank you for your time."
+                emailArray = [email, emailSubject, emailBody]
+                emailSent = sendEmail(emailArray)
                 
+                if not emailSent:
+                    return jsonify({
+                    "user": username,
+                    "pass": password,
+                    "email": email,
+                    "access_level": access_level,
+                    "email_status": False
+                    }), 200
 
                 return jsonify({
                     "user": username,
                     "pass": password,
                     "email": email,
                     "access_level": access_level,
+                    "email_status": True
                     }), 200
             elif userMatch:
                 print('\nA user with that information already exists!')
