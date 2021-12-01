@@ -136,21 +136,44 @@ def compareStudents(entry, student):
 @app.route("/api/debugAccessTime", methods=["GET"])
 @cross_origin()
 def debugAccessTime():
-    #activeStudentList = ProspectImportData.query.filter((ProspectImportData.timeLastAccessed <= datetime.utcnow() - timedelta(1800)) & (ProspectImportData.status == True))
-    #print(activeStudentList)
-    data = ProspectImportData.query.filter((ProspectImportData.timeLastAccessed != None))[0]
     current_time = datetime.utcnow()
-
-    print(str(data))
-
-    data_time = data.timeLastAccessed
-
     delta_time = current_time - timedelta(minutes=30)
 
-    print("DATA_TIME", data_time)
-    print("DELTA_TIME", delta_time)
-    print("isDataLessThanDelta", data_time < delta_time)
-    return jsonify({'data': str(data)}), 200
+    expired_prospects = ProspectImportData.query.filter(
+        (ProspectImportData.timeLastAccessed != None)  
+        & (ProspectImportData.assignedCaller != None)
+        & (ProspectImportData.timeLastAccessed < delta_time)
+        )
+
+    prospect_list = ProspectSRA.query.join(ProspectImportData).add_columns(
+        ProspectSRA.id, 
+        ProspectImportData.tNumber, 
+        ProspectImportData.status, 
+        ProspectImportData.timeLastAccessed, 
+        ProspectImportData.assignedCaller,
+        ProspectSRA.wasCalled,
+        ProspectSRA.numTimesCalled,
+        ).filter(
+            (ProspectImportData.status == True) 
+            & (ProspectImportData.assignedCaller == None) 
+            & (ProspectImportData.assignedCaller == None)
+        ).order_by(
+            ProspectSRA.numTimesCalled.desc(), # Number of time called has top priority
+            ProspectImportData.timeLastAccessed.desc()).all() # Time last accessed as secondary priority
+    
+
+    current_time = datetime.utcnow()
+
+    print("Expired Prospect Count:", expired_prospects.count())
+    print("Prospect Count:", len(prospect_list))
+
+    for prospect in prospect_list:
+        print("TNUMBER:", prospect.tNumber)
+
+    for prospect in expired_prospects:
+        print("EXPIRED TNUMBER:", prospect.tNumber)
+
+    return jsonify({'data': 'yo'}), 200
 
 #Requires user to not already have a prospect
 @app.route('/nextProspect', methods=['GET'])
