@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import {useHistory} from "react-router-dom"
 
 const StudentsIcon = (props) => {
-  const history = useHistory();
 
+const history = useHistory();
 const redirect = () => {
   history.push("/students");
 }
