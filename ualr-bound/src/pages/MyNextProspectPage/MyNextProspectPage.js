@@ -58,9 +58,11 @@ const MyNextProspectPage = () => {
     }
   `;
 
-  const getNextProspect = () => {
+  const getNextProspect = async () => {
     if (!isInitialized) setIsInitialized(true);
 
+    const res = actions.getNextProspect(); // res is tNumber of next prospect
+    console.log(res);
     // Logic to get next prospect (get new selectedTNumber based on who hasn't been called/other factors)
   };
 
