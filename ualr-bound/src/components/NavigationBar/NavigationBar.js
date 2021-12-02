@@ -204,7 +204,7 @@ const NavigationBar = () => {
     ...outerIconStyle,
   };
 
-  if (isVisible)
+  if ((isVisible) && (store.user.access_level === "Root"))
   {
     return (
       <div
@@ -353,6 +353,137 @@ const NavigationBar = () => {
       </div>
     );
   }
+  else if (store.user.access_level === "Admin")
+  {
+    return (
+      <div
+        className="navigation-container"
+        ref={navWidthRef}
+        style={{
+          transform: isCollapsed
+            ? `translateX(calc(-${collapseOffset}px + 3rem ))`
+            : "translateX(0)",
+        }}
+      >
+        {/* ---------------------------------- */}
+        <UserDetailsContainer>
+          <UserDetailsSection>
+            <NavBarUserIcon id="user-detail-user" />
+            <TextContainer> : {username}</TextContainer>
+          </UserDetailsSection>
+          <UserDetailsSection>
+            <NavBarAccessLevelIcon id="user-detail-level" />
+            <TextContainer> : {access_level}</TextContainer>
+          </UserDetailsSection>
+        </UserDetailsContainer>
+        {/* ---------------------------------- */}
+        <TaskBarContainer>
+          <div
+            onMouseEnter={() => setEditCallersFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={firstIconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={editCallersFocused}
+              text="Edit Callers"
+            />
+            <EditCallersIcon
+              style={svgContainerStyle}
+              focused={editCallersFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setRequestsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={requestsFocused}
+              text="Requests"
+            />
+            <RequestsIcon
+              style={svgContainerStyle}
+              focused={requestsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setStudentsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={studentsFocused}
+              text="Students"
+            />
+            <StudentsIcon
+              style={svgContainerStyle}
+              focused={studentsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setAnalyticsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={analyticsFocused}
+              text="Analytics"
+            />
+            <AnalyticsIcon
+              style={svgContainerStyle}
+              focused={analyticsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setLogoutFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={logoutFocused}
+              text="Logout"
+            />
+            <LogoutIcon
+              style={svgContainerStyle}
+              focused={logoutFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider ref={dividerWidthRef} />
+          <ArrowContainer ref={arrowWidthRef}>
+            <ArrowIcon
+              onClick={() => {
+                setIsCollapsed(!isCollapsed);
+                console.log(isCollapsed);
+              }}
+              style={{
+                transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
+              }}
+            />
+          </ArrowContainer>
+        </TaskBarContainer>
+        {/* ---------------------------------- */}
+      </div>
+  );
+}
   else
   {
     return <div></div>
