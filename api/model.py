@@ -283,6 +283,8 @@ class ProspectSRA(db.Model):
         self.wasCalled = False
         self.numTimesCalled = 0
         self.wasEmailed = False
+        self.callDate0 = None
+        self.callDate1 = None
 
     def __repr__(self):
         return "{}({!r})".format(self.__class__.__name__, self.__dict__)
