@@ -315,6 +315,15 @@ def updateProspectData():
 
         newNumTimesCalled = sra_data.numTimesCalled + 1
 
+        #Analytic Data storage
+
+        if newNumTimesCalled == 1:
+            sra_data.response0 = callResponse
+            sra_data.callDate0 = current_time
+        elif newNumTimesCalled == 2:
+            sra_data.response1 = callResponse
+            sra_data.callDate1 = current_time
+
         import_data.timeLastAccessed = current_time
         import_data.assignedCaller = None
         import_data.wasCalled = True

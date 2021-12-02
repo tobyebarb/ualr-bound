@@ -266,6 +266,11 @@ class ProspectSRA(db.Model):
     #Information about previous call
     callResponse = db.Column(db.Enum(response))
     callNotes = db.Column(db.String(500))
+    #Analytics Information
+    response0 = db.Column(db.Enum(response))
+    callDate0 = db.Column(db.Text)
+    response1 = db.Column(db.Enum(response))
+    callDate1 = db.Column(db.Text)
     #Information about email
     wasEmailed = db.Column(db.Boolean)
     dateEmailed = db.Column(db.Text)
