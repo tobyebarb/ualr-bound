@@ -57,21 +57,42 @@ const RegisterPage = () => {
     }
   };
 
+  //Needed for password validation stylization (shakes the input field)
+  if(document.getElementById("checkedPass")){
+    var passElement = document.getElementById("checkedPass")
+    var addPassError = function() { passElement.classList.add("error"); };
+    var removePassError = function() { passElement.classList.remove("error"); };
+  }
+
+  if(document.getElementById("email")){
+    var emailElement = document.getElementById("email")
+    var addEmailError = function() { emailElement.classList.add("error"); };
+    var removeEmailError = function() { emailElement.classList.remove("error") }
+  }
+
+
   const handleSubmit = () => {
     //TODO: Handle invalid emails
     if (validator.isEmail(emailInput)) {
       if (passwordInput === checkPasswordInput) {
-        actions.register(
-          nameInput,
-          usernameInput,
-          emailInput,
-          passwordInput,
-          accessLevelInput
-        );
-      } else {
-        console.log("Passwords don't match"); //TODO: User feedback when password not matching
+           actions.register(
+            nameInput,
+            usernameInput,
+            emailInput,
+            passwordInput,
+            accessLevelInput
+          );
+        } 
+        else {
+          //alert("Passwords Don't Match! Please re-enter passwords!")
+          if(document.getElementById("checkedPass")) addPassError();
+          console.log("Passwords don't match"); //TODO: User feedback when password not matching
+        }
       }
-    }
+      else{
+        if(document.getElementById("email")) addEmailError();
+      }
+  
   };
 
   const updateName = (e) => {
@@ -92,11 +113,13 @@ const RegisterPage = () => {
   const updateValidatePassword = (e) => {
     e.preventDefault();
     setCheckPasswordInput(e.target.value);
+    if(document.getElementById("checkedPass")) removePassError();
   };
 
   const updateEmail = (e) => {
     e.preventDefault();
     setEmailInput(e.target.value);
+    if(document.getElementById("email")) removeEmailError();
   };
 
   const updateAccessLevel = (e) => {
@@ -211,7 +234,7 @@ const RegisterPage = () => {
                 <input
                   required
                   type="email"
-                  className="register-input register-input-error"
+                  className="register-input"
                   onFocus={onEmailFocus}
                   onBlur={onEmailBlur}
                   placeholder={emailPlaceholder}
@@ -277,12 +300,12 @@ const RegisterPage = () => {
                 <input
                   required
                   type="password"
-                  className="register-input register-input-error"
+                  className="register-input"
                   onFocus={onCheckPassFocus}
                   onBlur={onCheckPassBlur}
                   placeholder={checkPasswordPlaceholder}
                   name="password"
-                  id="pass"
+                  id="checkedPass"
                   value={checkPasswordInput}
                   onChange={updateValidatePassword}
                   content={focusColor}

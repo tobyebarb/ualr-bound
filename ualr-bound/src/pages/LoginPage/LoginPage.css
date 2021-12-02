@@ -60,10 +60,40 @@
     border-radius: 15px;
     background: rgba(81, 81, 81, 0.4);
 
+    
     margin-left: 5rem;
     margin-right: 5rem;
     transition: all 250ms ease-in-out;
 }
+
+.invalid {
+    display: inline-block;
+    animation: wiggle 0.75s linear;
+    position: relative;
+}
+
+.invalid::after {
+    content: attr(content);
+    position: absolute;
+    left: 0;
+    bottom: -2rem;
+    margin-left: 1rem;
+
+    width:100%;
+    
+    font-family: Montserrat;
+    font-style: bold;
+    font-size: 1rem;
+
+    color: #FFFFFF;
+}
+
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+   20%, 60% { transform: rotate(2.5deg); }
+   40%, 80% { transform: rotate(-2.5deg); }
+  }
 
 .icon path {
     transition: all 250ms ease-in-out;

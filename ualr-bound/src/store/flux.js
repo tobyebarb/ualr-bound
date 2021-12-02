@@ -408,16 +408,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         return true;
       },
+
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {
           Accept: "application/json",
           "Content-Type": "application/json",
         };
-        if (!usernameInput || !passwordInput) {
-          alert("Please fill out required fields.");
-          return 0;
-        }
 
         var userData = {
           username: usernameInput,
@@ -431,12 +428,11 @@ const getState = ({ getStore, getActions, setStore }) => {
             body: JSON.stringify(userData),
           });
 
-          if (response.status !== 200) {
-            alert("There has been some error");
-            return false;
-          }
-
           const data = await response.json();
+
+          if (response.status !== 200) {
+            return { status: data.status, msg: data.msg };
+          }
           sessionStorage.setItem("token", data.access_token);
           sessionStorage.setItem("username", data.username);
           sessionStorage.setItem("email", data.email);
@@ -451,8 +447,8 @@ const getState = ({ getStore, getActions, setStore }) => {
           });
           //   window.location.href = "/";
         } catch (error) {
-          console.error("There has been an error logging in.");
-          alert("There has been an error logging in.");
+          return error;
+          //alert("There has been an error logging in.");
         }
       },
 
