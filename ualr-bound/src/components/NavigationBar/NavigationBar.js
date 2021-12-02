@@ -32,6 +32,7 @@ const NavigationBar = () => {
     width: window.innerWidth,
   });
   const [importFocused, setImportFocused] = useState(false);
+  const [isVisible, setIsVisible] = useState(false)
 
   const setIconsFocus = (boolean) => {
     setEditCallersFocused(boolean);
@@ -70,6 +71,10 @@ const NavigationBar = () => {
     };
   }
   useEffect(() => {
+    if (store.user.access_level === "Root")
+    {
+      setIsVisible(true)
+    }
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({
         height: window.innerHeight,
@@ -115,21 +120,8 @@ const NavigationBar = () => {
     // marginTop: "-65px",
   };
 
-  const parseAccessLevelStr = (string) => {
-    const capitalize = (str) => {
-      if (typeof str === "string") {
-        return str.replace(/^\w/, (c) => c.toUpperCase());
-      } else {
-        return "";
-      }
-    };
-    return capitalize(string.split(".")[1]);
-  };
-
   const username = store.user.username;
-  const access_level = store.user.access_level
-    ? parseAccessLevelStr(store.user.access_level)
-    : "";
+  const access_level = store.user.access_level;
 
   const focusColor = "#FFFFFF";
 
@@ -220,6 +212,7 @@ const NavigationBar = () => {
     position: "relative",
     ...outerIconStyle,
   };
+
 
   return (
     <div
@@ -386,6 +379,7 @@ const NavigationBar = () => {
     </div>
   );
 };
+
 
 NavigationBar.propTypes = {
   editCallersFunc: PropTypes.func,

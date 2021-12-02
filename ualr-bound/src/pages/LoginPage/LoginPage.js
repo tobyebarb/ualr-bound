@@ -215,7 +215,11 @@ const LoginPage = () => {
         </div>
       </div>
     );
-  } else {
+  }
+  else if((store.token && store.token !== "" && store.token !== null) && (store.user.access_level === "Caller")) {
+    return <Redirect to = "/prospects"/>  
+  }
+  else {
     console.log("Redirecting to dashboard.");
     return <Redirect to="/" />;
   }

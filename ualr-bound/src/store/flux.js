@@ -433,16 +433,29 @@ const getState = ({ getStore, getActions, setStore }) => {
           if (response.status !== 200) {
             return { status: data.status, msg: data.msg };
           }
+          const parseAccessLevelStr = (string) => {
+            const capitalize = (str) => {
+              if (typeof str === "string") {
+                return str.replace(/^\w/, (c) => c.toUpperCase());
+              } else {
+                return "";
+              }
+            };
+            return capitalize(string.split(".")[1]); //accessLevel.caller
+          };
+
+          const data = await response.json();
+          let formattedAccessLevel = parseAccessLevelStr(data.access_level);
           sessionStorage.setItem("token", data.access_token);
           sessionStorage.setItem("username", data.username);
           sessionStorage.setItem("email", data.email);
-          sessionStorage.setItem("access_level", data.access_level);
+          sessionStorage.setItem("access_level", formattedAccessLevel);
           setStore({
             token: data.access_token,
             user: {
               username: data.username,
               email: data.email,
-              access_level: data.access_level,
+              access_level: formattedAccessLevel,
             },
           });
           //   window.location.href = "/";

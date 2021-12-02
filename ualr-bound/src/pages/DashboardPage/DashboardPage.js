@@ -26,7 +26,7 @@ const DashboardPage = () => {
       actions.getMessage();
   }, [store.token]);
 
-  if (store.token && store.token !== "" && store.token !== undefined) {
+  if ((store.token && store.token !== "" && store.token !== undefined) && (store.user.access_level !== "Caller")) {
     return (
       <div className="dashboard-container">
         <h1>UALR Bound Dashboard :)</h1>
@@ -37,7 +37,12 @@ const DashboardPage = () => {
         <FileUploader ref={fileRef} />
       </div>
     );
-  } else {
+  }
+  else if((store.token && store.token !== "" && store.token !== undefined) && (store.user.access_level === "Caller"))
+  {
+    return <Redirect to="/prospects" />
+  }
+  else {
     return <Redirect to="/login" />;
   }
 };
