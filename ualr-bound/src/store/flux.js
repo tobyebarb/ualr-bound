@@ -30,12 +30,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       requests: null,
     },
     actions: {
-      setFile: async (file) => {
+      getNextProspect: async () => {
         const store = getStore();
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/uploadFile`; //http://127.0.0.1:5000/api/uploadFile
-
-        const data = new FormData();
-        data.append("file", file);
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getNextProspect`;
 
         const opts = {
           method: "POST",
@@ -43,8 +40,40 @@ const getState = ({ getStore, getActions, setStore }) => {
             Accept: "*",
             Authorization: "Bearer " + store.token,
           },
-          body: data,
         };
+
+        try {
+          const response = await fetch(endpoint, opts);
+
+          if (response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+
+          setStore({
+            prospect: data.tNumber,
+          });
+
+          return data;
+          //   window.location.href = "/";
+        } catch (error) {
+          console.error("Error getting prospect...");
+        }
+      },
+      setFile: async (file) => {
+        const store = getStore();
+
+        const opts = {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + store.token,
+          },
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateStudentInfo/`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -129,8 +158,6 @@ const getState = ({ getStore, getActions, setStore }) => {
       */
       modifyUser: async (userID, newData, updateFunc) => {
         const store = getStore();
-
-        console.log(newData);
 
         const opts = {
           method: "POST",
@@ -230,7 +257,6 @@ const getState = ({ getStore, getActions, setStore }) => {
         const data = await response.json();
 
         const formatPhone = (phoneNum) => {
-          console.log(phoneNum);
           if (phoneNum === "0") {
             return "No Phone Number";
           } else {
@@ -283,8 +309,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           status: data.status === "True" ? "ACTIVE" : "INACTIVE",
         };
 
-        console.log(row_data);
-
         setStore({
           ui: { selectedStudentData: row_data },
         });
@@ -324,8 +348,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           time_created: data.time_created.split(" ")[0],
           status: data.activationStatus === "True" ? "ACTIVE" : "INACTIVE",
         };
-
-        console.log(row_data);
 
         setStore({
           ui: { selectedUserData: row_data },
@@ -375,7 +397,6 @@ const getState = ({ getStore, getActions, setStore }) => {
             return response.json();
           })
           .then((data) => {
-            console.log(data);
             window.location.assign("/");
           })
           .catch((error) => {
@@ -387,16 +408,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         return true;
       },
+
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {
           Accept: "application/json",
           "Content-Type": "application/json",
         };
-        if (!usernameInput || !passwordInput) {
-          alert("Please fill out required fields.");
-          return 0;
-        }
 
         var userData = {
           username: usernameInput,
@@ -410,11 +428,11 @@ const getState = ({ getStore, getActions, setStore }) => {
             body: JSON.stringify(userData),
           });
 
-          if (response.status !== 200) {
-            alert("There has been some error");
-            return false;
-          }
+          const data = await response.json();
 
+          if (response.status !== 200) {
+            return { status: data.status, msg: data.msg };
+          }
           const parseAccessLevelStr = (string) => {
             const capitalize = (str) => {
               if (typeof str === "string") {
@@ -442,8 +460,8 @@ const getState = ({ getStore, getActions, setStore }) => {
           });
           //   window.location.href = "/";
         } catch (error) {
-          console.error("There has been an error logging in.");
-          alert("There has been an error logging in.");
+          return error;
+          //alert("There has been an error logging in.");
         }
       },
 
@@ -478,7 +496,6 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
 
       setDecisionBtnHeight: (size) => {
-        console.log("Setting decision button height to " + size);
         setStore({
           decisionBtnHeight: size,
         });
@@ -508,7 +525,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           username: data.username,
           decision: isApproved ? "approve" : "deny",
         };
-        console.log("newData:", newData);
         const opts = {
           method: "POST",
           headers: {
@@ -636,11 +652,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             new_data.push(row_data);
           }
 
-          console.log("DATA: ", new_data);
-
           setStore({ requests: new_data });
-          // updateRowsFunc(new_data);
-          console.log("Updated rows.", store.requests);
           return new_data;
         } catch (error) {
           console.error("Error", error);

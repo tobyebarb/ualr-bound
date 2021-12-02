@@ -203,6 +203,8 @@ class ProspectImportData(db.Model):
     #Might make studentType an enum
     studentType = db.Column(db.String(200))
     status = db.Column(db.Boolean)
+    timeLastAccessed = db.Column(db.DateTime)
+    assignedCaller = db.Column(db.String(40), db.ForeignKey('valid_user_set.username'), nullable=True)
 
     #Requires entry as pandas dataframe
     def __init__(self, entry):
@@ -236,6 +238,7 @@ class ProspectImportData(db.Model):
         #Might make studentType an enum
         self.studentType = formattedEntry[25][1] if formattedEntry[25][1] != "nan" else None
         self.status = True
+        self.assignedCaller = None
         new_sra = ProspectSRA(tNumber=self.tNumber, term=parseCampaign(formattedEntry)[1], year=parseCampaign(formattedEntry)[0])
         db.session.add(new_sra)
 
@@ -255,6 +258,7 @@ class ProspectSRA(db.Model):
     term = db.Column(db.Enum(term))
     year = db.Column(db.Integer, nullable=False)
     #Previous caller and date of call
+    #wasCalled may be unnecessary
     wasCalled = db.Column(db.Boolean)
     prevCaller = db.Column(db.String(100))
     dateCalled = db.Column(db.Text)

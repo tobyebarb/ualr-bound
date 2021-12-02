@@ -128,6 +128,7 @@ const StudentsPage = () => {
           updateData={updateData}
           updateFunc={updateDetails}
           selectedTNumber={selectStudentTNum}
+          buttonOption={true}
         />
         <NavigationBar />
         <FileUploader ref={fileRef} />

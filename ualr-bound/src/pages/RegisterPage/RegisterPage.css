@@ -74,6 +74,18 @@
     transition: all 250ms ease-in-out;
 }
 
+.register-input-row .error{
+    animation: shake 0.2s ease-in-out 0s 2;
+    box-shadow: 0 0 .5em red;
+}
+
+@keyframes shake{
+    0% { margin-left: 0rem; }
+    25% { margin-left: 1rem; }
+    75% { margin-left: -1rem; }
+    100% { margin-left: 0rem; }
+}
+
 .icon path {
     transition: all 250ms ease-in-out;
 }
@@ -160,11 +172,13 @@
     font-style: normal;
     font-size: 3rem;
 
-    color: #FFFFFF;
+    background-color: lightgray;
+    color: black;
     border-bottom: solid 0 #fff;  
     transition: all 250ms ease-in-out;
 
 }
+
 
 .register-content {
     display: flex;
