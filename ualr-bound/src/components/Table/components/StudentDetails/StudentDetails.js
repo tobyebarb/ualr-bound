@@ -23,7 +23,7 @@ const StudentDetails = React.forwardRef((props, ref) => {
       console.log("Error", err);
       setStudentData(null);
     }
-    props.updateData();
+    if (props.updateData) props.updateData();
   };
 
   useImperativeHandle(ref, () => ({
@@ -164,14 +164,18 @@ const StudentDetails = React.forwardRef((props, ref) => {
             </li>
           </ul>
         </div>
-        <div className="student-button-container">
-          {studentData.status === "ACTIVE" ? (
-            <button onClick={handleDeactivate}>Deactivate Student</button>
-          ) : (
-            <button onClick={handleDeactivate}>Activate Student</button>
-          )}
-          <button onClick={handleModify}>Modify Student</button>
-        </div>
+        {props.buttonOption ? (
+          <div className="student-button-container">
+            {studentData.status === "ACTIVE" ? (
+              <button onClick={handleDeactivate}>Deactivate Student</button>
+            ) : (
+              <button onClick={handleDeactivate}>Activate Student</button>
+            )}
+            <button onClick={handleModify}>Modify Student</button>
+          </div>
+        ) : (
+          <div></div>
+        )}
       </div>
     );
   }

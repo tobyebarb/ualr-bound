@@ -104,8 +104,6 @@ const Table = React.forwardRef((props, ref) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
 
-    console.log(params.columnApi);
-
     let data = await props.getData();
     if (props.defaultCol) sortGrid(params, props.defaultCol, "asc");
     setRowData(data);

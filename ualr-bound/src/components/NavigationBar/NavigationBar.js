@@ -15,11 +15,13 @@ import ArrowIcon from "../../icons/ArrowIcon";
 import NavBarUserIcon from "../../icons/NavBarUserIcon";
 import NavBarAccessLevelIcon from "../../icons/NavBarAccessLevelIcon";
 import NavBarLabelIcon from "../../icons/NavBarLabelIcon";
+import PhoneIcon from "../../icons/PhoneIcon";
 
 const NavigationBar = () => {
   const { store, actions } = useContext(Context);
   const [collapseOffset, setCollapseOffset] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [prospectFocused, setProspectFocused] = useState(false);
   const [editCallersFocused, setEditCallersFocused] = useState(false);
   const [requestsFocused, setRequestsFocused] = useState(false);
   const [studentsFocused, setStudentsFocused] = useState(false);
@@ -38,6 +40,7 @@ const NavigationBar = () => {
     setAnalyticsFocused(boolean);
     setLogoutFocused(boolean);
     setImportFocused(boolean);
+    setProspectFocused(boolean);
   };
 
   const svgContainerStyle = {
@@ -82,6 +85,15 @@ const NavigationBar = () => {
       window.removeEventListener("resize", debouncedHandleResize);
     };
   });
+
+  useEffect(() => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth,
+    });
+
+    actions.setDimensions(window.innerWidth, window.innerHeight);
+  }, []); // resize handler?
 
   useEffect(() => {
     setCollapseOffset(
@@ -233,9 +245,27 @@ const NavigationBar = () => {
       {/* ---------------------------------- */}
       <TaskBarContainer>
         <div
-          onMouseEnter={() => setImportFocused(true)}
+          onMouseEnter={() => setProspectFocused(true)}
           onMouseLeave={() => setIconsFocus(false)}
           style={firstIconStyle}
+        >
+          <NavBarLabelIcon
+            style={navBarLabelStyle}
+            id="icon-div"
+            isFocused={prospectFocused}
+            text="MyNextProspect"
+          />
+          <PhoneIcon
+            style={svgContainerStyle}
+            focused={prospectFocused}
+            focusedColor={focusColor}
+          />
+        </div>
+        <Divider />
+        <div
+          onMouseEnter={() => setImportFocused(true)}
+          onMouseLeave={() => setIconsFocus(false)}
+          style={iconStyle}
         >
           <NavBarLabelIcon
             style={navBarLabelStyle}
