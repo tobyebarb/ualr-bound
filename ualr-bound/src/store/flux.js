@@ -433,6 +433,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           if (response.status !== 200) {
             return { status: data.status, msg: data.msg };
           }
+
           const parseAccessLevelStr = (string) => {
             const capitalize = (str) => {
               if (typeof str === "string") {
@@ -444,7 +445,6 @@ const getState = ({ getStore, getActions, setStore }) => {
             return capitalize(string.split(".")[1]); //accessLevel.caller
           };
 
-          const data = await response.json();
           let formattedAccessLevel = parseAccessLevelStr(data.access_level);
           sessionStorage.setItem("token", data.access_token);
           sessionStorage.setItem("username", data.username);
