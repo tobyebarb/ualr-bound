@@ -4,6 +4,11 @@ import * as constants from "../utils/Constants";
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      isProspectUpdated: false,
+      selectedProspectSRAData: null,
+      callResponse: null,
+      callNotes: null,
+      prospect: null,
       file: null,
       window: {
         width: window.innerWidth,
@@ -13,6 +18,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       ui: {
         modalIsVisible: false,
         studentModalIsVisible: false,
+        prospectModalIsVisible: false,
         importIsVisible: false,
         selectedUserID: null,
         selectedUserData: null,
@@ -30,6 +36,110 @@ const getState = ({ getStore, getActions, setStore }) => {
       requests: null,
     },
     actions: {
+      setIsProspectUpdated: (bool) => {
+        setStore({
+          isProspectUpdated: bool,
+        });
+        return 1;
+      },
+      updateCallResponse: (callResponse) => {
+        setStore({
+          callResponse: callResponse,
+        });
+        return 1;
+      },
+      updateCallNotes: (callNotes) => {
+        setStore({
+          callNotes: callNotes,
+        });
+        return 1;
+      },
+      updateProspectSRAData: async (callResponse, callNotes) => {
+        const store = getStore();
+
+        var newData = {
+          callResponse: callResponse,
+          callNotes: callNotes,
+        };
+
+        if (
+          callResponse === "" ||
+          callResponse === undefined ||
+          callResponse === null ||
+          callNotes === "" ||
+          callNotes === undefined ||
+          callNotes === null
+        ) {
+          console.log("Error");
+          return { msg: "Please fill out response and notes.", status: 400 };
+        }
+        const headers = {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + store.token,
+        };
+
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateProspectData`;
+
+        fetch(endpoint, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(newData),
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error(
+              "There was an error with your request. Try again.\nError: " +
+                error
+            );
+          });
+
+        return true;
+      },
+      getStudentSRAInfo: async (tNumber) => {
+        const store = getStore();
+        const opts = {
+          headers: {
+            Authorization: "Bearer " + store.token,
+          },
+          method: "GET",
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudentSRAInfo/${tNumber}`;
+        // fetching data from the backend
+        const response = await fetch(endpoint, opts);
+
+        if (response.status !== 200) {
+          alert("There has been some error");
+          return false;
+        }
+
+        const data = await response.json();
+
+        var row_data = {
+          tNumber: data.tNumber,
+          term: data.term.split(".")[1],
+          year: data.year,
+          wasCalled: data.wasCalled === "None" ? null : data.wasCalled,
+          prevCaller: data.prevCaller === "None" ? null : data.prevCaller,
+          dateCalled: data.dateCalled === "None" ? null : data.dateCalled,
+          numTimesCalled: data.numTimesCalled,
+          callResponse: data.callResponse === "None" ? null : data.callResponse,
+          callNotes: data.callNotes === "None" ? null : data.callNotes,
+          wasEmailed: data.wasEmailed === "None" ? null : data.wasEmailed,
+          dateEmailed: data.dateEmailed === "None" ? null : data.dateEmailed,
+          emailText: data.emailText === "None" ? null : data.emailText,
+        };
+
+        setStore({
+          selectedProspectSRAData: row_data,
+        });
+        return row_data;
+      },
       getNextProspect: async () => {
         const store = getStore();
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getNextProspect`;
@@ -52,8 +162,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 
           const data = await response.json();
 
+          console.log(data);
           setStore({
             prospect: data.tNumber,
+            callResponse: null,
+            callNotes: null,
           });
 
           return data;
@@ -64,16 +177,19 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       setFile: async (file) => {
         const store = getStore();
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/uploadFile`; //http://127.0.0.1:5000/api/uploadFile
+
+        const data = new FormData();
+        data.append("file", file);
 
         const opts = {
           method: "POST",
           headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
+            Accept: "*",
             Authorization: "Bearer " + store.token,
           },
+          body: data,
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateStudentInfo/`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -105,6 +221,12 @@ const getState = ({ getStore, getActions, setStore }) => {
         console.log("Height", height);
         setStore({
           window: { width: width, height: height },
+        });
+        return true;
+      },
+      setProspectModalVisibility: (bool) => {
+        setStore({
+          ui: { prospectModalIsVisible: bool },
         });
         return true;
       },
@@ -444,7 +566,6 @@ const getState = ({ getStore, getActions, setStore }) => {
             return capitalize(string.split(".")[1]); //accessLevel.caller
           };
 
-          const data = await response.json();
           let formattedAccessLevel = parseAccessLevelStr(data.access_level);
           sessionStorage.setItem("token", data.access_token);
           sessionStorage.setItem("username", data.username);

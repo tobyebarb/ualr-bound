@@ -4,27 +4,40 @@ import ualrLogo from "../../icons/UALR Logo.svg";
 import { Redirect } from "react-router-dom";
 import { Context } from "../../store/appContext";
 import StudentDetails from "../../components/Table/components/StudentDetails/StudentDetails";
+import { Modal } from "@material-ui/core";
+import SRAProspectModal from "./components/SRAProspectModal/SRAProspectModal";
 
 const MyNextProspectTable = (props) => {
   const { store, actions } = useContext(Context);
 
   const [studentSRAData, setStudentSRAData] = useState(null);
+  const [studentData, setStudentData] = useState(null);
 
-  var data = {
-    name: "Toby Ebarb",
-    phone: "(501)410-3655",
-    term: "SPRING 2022",
-    numTimesCalled: "1",
-    dateCalled: "2021-10-11",
-    prevCaller: "Aaron Murtishaw",
-    callResponse: "RESPONDED?",
-    callNotes:
-      "Toby was very mean and didn't respond to any questions. What an asshole.",
+  const handleUpdate = async () => {
+    if (studentSRAData !== null) {
+      actions.setProspectModalVisibility(true);
+    }
   };
 
   useEffect(() => {
-    setStudentSRAData(data);
-  }, []);
+    let initialize = async () => {
+      if (props.selectedTNumber) {
+        try {
+          const data = await actions.getStudentInfo(props.selectedTNumber);
+          setStudentData(data);
+          const sra = await actions.getStudentSRAInfo(props.selectedTNumber);
+          setStudentSRAData(sra);
+        } catch (err) {
+          console.log("Error", err);
+          setStudentData(null);
+          setStudentSRAData(null);
+        }
+      }
+      return 1;
+    };
+
+    initialize();
+  }, [props.selectedTNumber]);
 
   if (props.initialized) {
     return (
@@ -32,48 +45,73 @@ const MyNextProspectTable = (props) => {
         <div id="top-section" className="prospect-section">
           <div className="prospect-text-container">
             <p>Next Prospect:</p>
-            <p>{studentSRAData.name}</p>
+            <p>{studentData ? studentData.name : "Loading..."}</p>
           </div>
           <div className="prospect-text-container">
             <p>Phone Number:</p>
-            <p>{studentSRAData.phone}</p>
+            <p>{studentData ? studentData.phone : "Loading..."}</p>
           </div>
         </div>
         <div id="mid-section" className="prospect-section">
           <div className="prospect-text-container">
             <p>Term:</p>
-            <p>{studentSRAData.term}</p>
+            <p>{studentSRAData ? studentSRAData.term : "Loading..."}</p>
           </div>
           <div className="prospect-text-container">
             <p>Number of Times Called:</p>
-            <p>{studentSRAData.numTimesCalled}</p>
+            <p>
+              {studentSRAData ? studentSRAData.numTimesCalled : "Loading..."}
+            </p>
           </div>
           <div className="prospect-text-container">
             <p>Last Called On:</p>
             <p>
-              {studentSRAData.dateCalled ? studentSRAData.dateCalled : "N/A"}
+              {studentSRAData
+                ? studentSRAData.dateCalled
+                  ? studentSRAData.dateCalled
+                  : "N/A"
+                : "Loading"}
             </p>
           </div>
           <div className="prospect-text-container">
             <p>Previous Caller:</p>
             <p>
-              {studentSRAData.prevCaller ? studentSRAData.prevCaller : "N/A"}
+              {studentSRAData
+                ? studentSRAData.prevCaller
+                  ? studentSRAData.prevCaller
+                  : "N/A"
+                : "Loading"}
             </p>
           </div>
         </div>
         <div id="bot-section" className="prospect-section">
           <div className="prospect-text-container">
             <p>Previous Caller Response:</p>
-            <p>{studentSRAData.callResponse}</p>
+            <p>
+              {studentSRAData
+                ? studentSRAData.callResponse
+                  ? studentSRAData.callResponse
+                  : "N/A"
+                : "Loading"}
+            </p>
           </div>
           <div className="prospect-text-container">
             <p>Previous Caller Notes:</p>
-            <p>{studentSRAData.callNotes}</p>
+            <p>
+              {studentSRAData
+                ? studentSRAData.callNotes
+                  ? studentSRAData.callNotes
+                  : "N/A"
+                : "Loading"}
+            </p>
           </div>
         </div>
         <div className="prospect-update-button-container">
-          <button className="prospect-update-button">Update Call Info</button>
+          <button onClick={handleUpdate} className="prospect-update-button">
+            Update Call Info
+          </button>
         </div>
+        <SRAProspectModal selectedTNumber={props.selectedTNumber} />
       </div>
     );
   } else {

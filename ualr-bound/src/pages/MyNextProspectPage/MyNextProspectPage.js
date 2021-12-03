@@ -59,11 +59,21 @@ const MyNextProspectPage = () => {
   `;
 
   const getNextProspect = async () => {
-    if (!isInitialized) setIsInitialized(true);
+    if (isInitialized) {
+      if (store.isProspectUpdated) {
+        const res = await actions.getNextProspect(); // res is tNumber of next prospect
 
-    const res = actions.getNextProspect(); // res is tNumber of next prospect
-    console.log(res);
-    // Logic to get next prospect (get new selectedTNumber based on who hasn't been called/other factors)
+        setSelectedTNumber(res.tNumber);
+      } else {
+        alert("Update student call data before getting next prospect.");
+      }
+      //Logic to get next prospect (get new selectedTNumber based on who hasn't been called/other factors)
+    } else {
+      setIsInitialized(true);
+
+      const res = await actions.getNextProspect(); // res is tNumber of next prospect
+      setSelectedTNumber(res.tNumber);
+    }
   };
 
   const fileRef = useRef(null);

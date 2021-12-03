@@ -171,25 +171,55 @@ def compareStudents(entry, student):
         db.session.commit()
         return
 
+@app.route("/api/getStudentSRAInfo/<tNumber>", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getStudentSRAInfo(tNumber):
+    student = ProspectSRA.query.filter_by(tNumber=tNumber).first()
+    if student:
+        jsonData = row2dict(student, [
+            "tNumber", 
+            "term", 
+            "year", 
+            "wasCalled", 
+            "prevCaller", 
+            "dateCalled", 
+            "numTimesCalled",
+            "callResponse0",
+            "callResponse1",
+            "callNotes0", 
+            "callNotes1", 
+            "wasEmailed", 
+            "dateEmailed", 
+            "emailText",])
+        return jsonify(jsonData), 200
+    return jsonify({"msg": "student doesn't exist"}), 404
+    
 @app.route("/api/getNextProspect", methods=["POST"])
+@jwt_required()
 @cross_origin()
 def getNextProspect():
     if request.method == 'POST':
-        callerUsername = request.json.get("username", None) # Check for POST body, if username was provided (DEBUG PURPOSES ONLY)
 
         current_time = datetime.utcnow() # Get current_time
         expiration_interval_delta_time = current_time - timedelta(minutes=30) # Get expired token DateTime object from 30 minutes ago
         call_interval_delta_time = current_time - timedelta(days=2) # Get CALL_INTERVAL token DateTime object from 2 days ago
 
-        caller = ValidUser.query.filter_by(username=callerUsername).first() # Check for caller if username given in POST body (DEBUG PURPOSES ONLY)
+        #caller = ValidUser.query.filter_by(username=callerUsername).first() # Check for caller if username given in POST body (DEBUG PURPOSES ONLY)
 
-        if callerUsername == None: # POST body doesn't provide 'username' and caller is found via JWT identity
-            caller = ValidUser.query.filter_by(username=get_jwt_identity()).first() # Caller object assigned via JWT
+        #if callerUsername == None: # POST body doesn't provide 'username' and caller is found via JWT identity
+        caller = ValidUser.query.filter_by(username=get_jwt_identity()).first() # Caller object assigned via JWT
 
         if caller == None: # If POST body username not given or JWT token's username not matching any users in ValidUser
             return jsonify({'msg': 'Caller not found in database'}), 404
 
         temp_prospect = ProspectImportData.query.filter_by(assignedCaller=caller.username).first() # Check if current caller already has prospect assigned to them.
+        
+        print(temp_prospect)
+        if temp_prospect:
+            temp_sra = ProspectSRA.query.filter_by(tNumber = temp_prospect.tNumber).first()
+            print(temp_sra)
+
 
         if temp_prospect: # If current caller already has prospect assigned to them, return that prospect's T# and update timeLastAccessed
             print("Caller " + caller.username + " already assigned to prospect with T#: " + temp_prospect.tNumber)
@@ -297,20 +327,29 @@ def getNextProspect():
         return jsonify({'msg': 'Unexpected error: Reached end of method'}), 400
     return jsonify({'msg': 'Request method not supported.'}), 404
 
-@app.route('/api/updateProspect', methods=['POST'])
+@app.route('/api/updateProspectData', methods=["POST"])
 @jwt_required()
 @cross_origin()
 def updateProspectData():
     if request.method == 'POST':
         callResponse = request.json.get("callResponse", None)
         callNotes = request.json.get("callNotes", None)
-        emailText = request.json.get("emailText", None)
+        #emailText = request.json.get("emailText", None)
 
         current_time = datetime.utcnow()
         
         import_data = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity()).first()
-        sra_data = ProspectSRA.query.filter_by(tNumber = import_data.tNumber).last()
+        sra_data = ProspectSRA.query.filter_by(tNumber = import_data.tNumber).first()
         caller = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+
+        print("Caller " + caller.username + " just called student " + import_data.tNumber)
+
+        if sra_data.numTimesCalled == 0:
+            sra_data.callResponse0 = callResponse
+            sra_data.callNotes0 = callNotes
+        else:
+            sra_data.callResponse1 = callResponse
+            sra_data.callNotes1 = callNotes
 
         newNumTimesCalled = sra_data.numTimesCalled + 1
 
@@ -320,9 +359,6 @@ def updateProspectData():
         sra_data.prevCaller = caller.username
         sra_data.dateCalled = current_time
         sra_data.numTimesCalled = newNumTimesCalled
-
-        sra_data.callResponse = callResponse # Frontend should limit responses to enum type
-        sra_data.callNotes = callNotes
 
         if newNumTimesCalled == 2:
             emailSubject = "UALR BOUND - Caller Message"
@@ -373,7 +409,7 @@ def getStudents():
         
     return jsonify({"msg":"fail"}), 401
 
-@app.route("/api/uploadFile", methods=["POST"])
+@app.route("/api/uploadFile", methods=["OPTIONS", "POST"])
 @jwt_required()
 @cross_origin()
 def uploadFile():
