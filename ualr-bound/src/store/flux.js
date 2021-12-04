@@ -19,6 +19,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         modalIsVisible: false,
         studentModalIsVisible: false,
         prospectModalIsVisible: false,
+        analyticsModalIsVisible: false,
         importIsVisible: false,
         selectedUserID: null,
         selectedUserData: null,

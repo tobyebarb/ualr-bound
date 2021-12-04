@@ -429,18 +429,6 @@ def getNumberOfCallsMade():
         # db.session.commit()
 
         res = {}
-
-        # expired_prospects = ProspectImportData.query.filter(
-        #     (ProspectImportData.timeLastAccessed != None)  
-        #     & (ProspectImportData.assignedCaller != None)
-        #     & (ProspectImportData.timeLastAccessed < expiration_interval_delta_time)
-        #     & (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
-        #     )
-    
-        # prospect_list = ProspectSRA.query.all()
-
-        # print(prospect_list[1].tNumber)
-        # print(prospect_list[1].dateCalled0 >= date0)
         
         filtered_list = ProspectSRA.query.filter(
             (
@@ -490,8 +478,8 @@ def getNumberOfCallsMade():
                     else:
                         res[key] = 1
 
-        # print(res)
-        # print(sorted(res))
+        print(res)
+        print(sorted(res))
         print("AMOUNT:",filtered_list.count())
 
         return jsonify(res), 200
