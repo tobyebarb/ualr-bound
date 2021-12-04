@@ -13,6 +13,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       ui: {
         modalIsVisible: false,
         studentModalIsVisible: false,
+        analyticsModalIsVisible: false,
         importIsVisible: false,
         selectedUserID: null,
         selectedUserData: null,
@@ -88,6 +89,12 @@ const getState = ({ getStore, getActions, setStore }) => {
       setModalVisibility: (bool) => {
         setStore({
           ui: { modalIsVisible: bool },
+        });
+        return true;
+      },
+      setAnalyticModalVisibility: (bool) => {
+        setStore({
+          ui: { analyticsModalIsVisible: bool },
         });
         return true;
       },

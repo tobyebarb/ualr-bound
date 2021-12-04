@@ -7,6 +7,7 @@ import {
     ThemeProvider
 } from "@material-ui/core/styles";
 import { Paper } from "@material-ui/core";
+import PieChart from "../../../PieChart/PieChart";
 
 const AnalyticsModal = () => {
 
@@ -14,14 +15,14 @@ const AnalyticsModal = () => {
     const [isVisible, setVisibility] = useState(false);
 
     useEffect(() => {
-        if(store.ui.modalIsVisible !== undefined){
-            setVisibility(store.ui.modalIsVisible);
+        if(store.ui.analyticsModalIsVisible !== undefined){
+            setVisibility(store.ui.analyticsModalIsVisible);
         }
-    }, [store.ui.modalIsVisible]);
+    }, [store.ui.analyticsModalIsVisible]);
 
     const handleClose = () => {
         setVisibility(false);
-        actions.setModalVisibility(false);
+        actions.setAnalyticModalVisibility(false);
     }
 
     const theme = createTheme({
@@ -60,14 +61,33 @@ const AnalyticsModal = () => {
       });
     
       const classes = useStyles();
+      let data = [
+        {
+          value: 10
+        },
+        {
+         value: 20
+        },
+        {
+          value: 73
+        },
+        {
+          value: 30
+        }
+      ]
+     
       
 
       let body = (
           <Paper elevation={3} className={classes.modal}>
               <div className={classes.form}>
-                  <span>
-                      Modal Opened
-                  </span>
+                 <PieChart
+                     data={data}
+                     width={200}
+                     height={200}
+                     innerRadius={60}
+                     outerRadius={100}
+                  />
                   <button
                   onClick={handleClose}
                   >

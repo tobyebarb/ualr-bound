@@ -153,13 +153,8 @@ const AnalyticsPage = () => {
     }, []);
 
     const openModal = () => {
-        return(
-            <div>
-                <AnalyticsModal/>
-            </div>
-        )
+        actions.setAnalyticModalVisibility(true);
     }
-
 
     return (
         <div className="analytics-table-container">
@@ -175,11 +170,14 @@ const AnalyticsPage = () => {
                 />
             </div>
             <button
+                className="analytics-button"
                 onClick={openModal}
             >
                 More Analytics
             </button>
-            <NavigationBar/>
+            <AnalyticsModal/>
+            <NavigationBar />
+            
         </div>
     );
 
