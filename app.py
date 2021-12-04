@@ -1,6 +1,6 @@
 from datetime import timedelta, date, datetime
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask.helpers import send_from_directory
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import create_access_token
@@ -19,7 +19,7 @@ CORS(app)
 
 MAIL_USERNAME = 'ualrboundemailtest@gmail.com'
 MAIL_PASSWORD = 'WhiteTiger2'
-SENDER_NAME = 'Chewie'
+SENDER_NAME = 'UALRBound'
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_DATABASE_URL')
@@ -43,60 +43,37 @@ db.init_app(app)
 
 ALLOWED_EXTENSION = {'csv'}
 
-
 with app.app_context():
     db.create_all()
 
 def allowed_files(filename) -> bool :
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
 
-def registerSuccessEmail(email):
+""" 
+    ~~~Function sendEmail~~~
+
+    Params: emailArray - Array with the following format: [emailRecipient, subjectText, bodyText]
+
+    Desc: Sends emails... I don't know what else to tell you. :>
+"""
+def sendEmail(emailArray): 
     try:
-        print('\nsending email')
+        print('\nSending email...')
         msg = Message(
-                subject = 'Register Request for UALR BOUND',
-                recipients = [email],
-                body = """Your registration request for UALR Bound was submitted successfully. A ROOT user of the system will review your request and an email notification will be sent to you upon their decision.
-                \nWe appriciate your wanting to join UALR Bound.
-                \n\n\n\nThank you for your time.
-                """
+                subject = emailArray[1],
+                recipients = [emailArray[0]],
+                body = emailArray[2]
                 )
         mail.send(msg)
-        return jsonify({'msg': "Success"}), 200
+        print('\nEmail sent!')
+        return True
     except:
-        return jsonify({'msg': 'Failed to send email'}), 500
-
-def registrationApprovedEmail(email):
-    try:
-        msg = Message(
-            subject = 'UALR Bound Registration Approval',
-            recipients = [email],
-            body = """Your request to join UALR Bound has been approved. You have been added to the current campaign and will now be able to login using the username and password that you provided.
-            \n\n\n\nThank you for your time.
-            """
-        )
-        mail.send(msg)
-        return jsonify({'msg': 'Success'}), 200
-    except:
-        return jsonify({'msg': 'Failed to send email'}), 400
-
-def registrationDeniedEmail(email):
-    try:
-        msg = Message(
-            subject = 'UALR Bound Registration Approval',
-            recipients = [email],
-            body = """Thank you for your submission to join UALR Bound. At this time, your request has been denied for the current campaign. You will still be eligible to register for future campaigns
-            \n\n\n\nThank you for your time.
-            """
-        )
-        mail.send(msg)
-        return jsonify({'msg': 'Success'}), 200
-    except:
-        return jsonify({'msg': 'Failed to send email'}), 400
+        print('\nEmail not sent... :(')
+        return False
 
 def compareStudents(entry, student):
     new_student = formatEntry(entry)
-    """
+    """ 
         CASES:
             - Student doesn't exist and is imported directly into prospect_import_data
             - Student does exist, but it is still the same term/year
@@ -156,7 +133,7 @@ def compareStudents(entry, student):
             db.session.commit()
             return
 
-        """
+        """ 
             We need to add a new entry with the same T Number to prospect_sra.
             Will also have to update their information in prospect_import_data (less easy case) make sure to activate campaignStatus
         """
@@ -194,6 +171,218 @@ def compareStudents(entry, student):
         db.session.commit()
         return
 
+@app.route("/api/getStudentSRAInfo/<tNumber>", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getStudentSRAInfo(tNumber):
+    student = ProspectSRA.query.filter_by(tNumber=tNumber).first()
+    if student:
+        jsonData = row2dict(student, [
+            "tNumber", 
+            "term", 
+            "year", 
+            "wasCalled", 
+            "prevCaller", 
+            "dateCalled", 
+            "numTimesCalled",
+            "callResponse0",
+            "callResponse1",
+            "callNotes0", 
+            "callNotes1", 
+            "wasEmailed", 
+            "dateEmailed", 
+            "emailText",])
+        return jsonify(jsonData), 200
+    return jsonify({"msg": "student doesn't exist"}), 404
+    
+@app.route("/api/getNextProspect", methods=["POST"])
+@jwt_required()
+@cross_origin()
+def getNextProspect():
+    if request.method == 'POST':
+
+        current_time = datetime.utcnow() # Get current_time
+        expiration_interval_delta_time = current_time - timedelta(minutes=30) # Get expired token DateTime object from 30 minutes ago
+        call_interval_delta_time = current_time - timedelta(days=2) # Get CALL_INTERVAL token DateTime object from 2 days ago
+
+        #caller = ValidUser.query.filter_by(username=callerUsername).first() # Check for caller if username given in POST body (DEBUG PURPOSES ONLY)
+
+        #if callerUsername == None: # POST body doesn't provide 'username' and caller is found via JWT identity
+        caller = ValidUser.query.filter_by(username=get_jwt_identity()).first() # Caller object assigned via JWT
+
+        if caller == None: # If POST body username not given or JWT token's username not matching any users in ValidUser
+            return jsonify({'msg': 'Caller not found in database'}), 404
+
+        temp_prospect = ProspectImportData.query.filter_by(assignedCaller=caller.username).first() # Check if current caller already has prospect assigned to them.
+        
+        print(temp_prospect)
+        if temp_prospect:
+            temp_sra = ProspectSRA.query.filter_by(tNumber = temp_prospect.tNumber).first()
+            print(temp_sra)
+
+
+        if temp_prospect: # If current caller already has prospect assigned to them, return that prospect's T# and update timeLastAccessed
+            print("Caller " + caller.username + " already assigned to prospect with T#: " + temp_prospect.tNumber)
+            temp_prospect.timeLastAccessed = current_time
+            print(
+                "Prospect " + temp_prospect.tNumber + 
+                "\nNew timeLastAccessed: " + str(current_time)
+                )
+            db.session.commit()
+            print("Returning already assigned prospect...")
+            jsonData = row2dict(temp_prospect, ["tNumber"])
+            print("Returning data:", jsonData)
+            return jsonify(jsonData), 200
+
+        expired_prospects = ProspectImportData.query.filter(
+            (ProspectImportData.timeLastAccessed != None)  
+            & (ProspectImportData.assignedCaller != None)
+            & (ProspectImportData.timeLastAccessed < expiration_interval_delta_time)
+            & (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
+            )
+
+        prospect_list = ProspectSRA.query.join(ProspectImportData).add_columns(
+            ProspectSRA.id, 
+            ProspectImportData.tNumber, 
+            ProspectImportData.status, 
+            ProspectImportData.timeLastAccessed, 
+            ProspectImportData.assignedCaller,
+            ProspectSRA.wasCalled,
+            ProspectSRA.numTimesCalled,
+            ).filter(
+                (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
+                & (ProspectImportData.assignedCaller == None) # Make sure the prospects don't have a currently assigned caller
+                & (ProspectSRA.numTimesCalled <= 1) # Make sure the prospects haven't been called more than two times
+                & ( # Make sure the prospect haven't been called in the past two days or they haven't been called at all
+                    (ProspectImportData.timeLastAccessed < call_interval_delta_time)
+                    | (ProspectImportData.timeLastAccessed == None)
+                    )
+            ).order_by(
+                ProspectSRA.numTimesCalled.desc(), # Number of time called has top priority
+                ProspectImportData.timeLastAccessed.desc()).all() # Time last accessed as secondary priority
+
+        print("Expired Prospect Count:", expired_prospects.count())
+        print("Prospect Count:", len(prospect_list))
+
+        for prospect in prospect_list:
+            print("TNUMBER:", prospect.tNumber)
+
+        for prospect in expired_prospects:
+            print("EXPIRED TNUMBER:", prospect.tNumber)
+                
+        if len(prospect_list) == 0 and expired_prospects.count() == 0:
+            return jsonify({'msg': 'No prospects avaliable'}), 400
+        
+        if expired_prospects.count() > 0:
+            """
+            If there is a student assigned to a caller who hasn't been updated for 30 minutes,
+                1. Update expired student's SRA data to assign to new caller
+                2. Update expired students's SRA data to new timeLastAccessed to "current_time"
+            """
+            prospect = ProspectImportData.query.filter_by(tNumber=expired_prospects[0].tNumber).first()
+            if prospect:
+                print("Updating expired prospect's assigned caller and time last accessed...")
+                prospect.assignedCaller = caller.username
+                prospect.timeLastAccessed = current_time
+                print(
+                    "Prospect " + prospect.tNumber + 
+                    "\nNew assignedCaller: " + caller.username + 
+                    "\nNew timeLastAccessed: " + str(current_time)
+                    )
+                db.session.commit()
+                print("Returning expired prospect...")
+                jsonData = row2dict(prospect, ["tNumber"])
+                print("Returning data:", jsonData)
+                return jsonify(jsonData), 200
+            else:
+                return jsonify({'msg': 'Unexpected error: Expired prospect not found.'}), 404
+        
+        elif len(prospect_list) > 0:
+            """
+            Happy path (no expired students): Provide student who has least calls and latest timeLastAccessed,
+                1. Update student's SRA data to assign to new caller
+                2. Update students's SRA data to new timeLastAccessed to "current_time"
+            """
+            prospect = ProspectImportData.query.filter_by(tNumber=prospect_list[0].tNumber).first()
+            if prospect:
+                print("Updating prospect's assigned caller and time last accessed...")
+                prospect.assignedCaller = caller.username
+                prospect.timeLastAccessed = current_time
+                print(
+                    "Prospect " + prospect.tNumber + 
+                    "\nNew assignedCaller: " + caller.username + 
+                    "\nNew timeLastAccessed: " + str(current_time)
+                    )
+                db.session.commit()
+                print("Returning prospect...")
+                jsonData = row2dict(prospect, ["tNumber"])
+                print("Returning data:", jsonData)
+                return jsonify(jsonData), 200
+            else:
+                return jsonify({'msg': 'Unexpected error: Prospect not found.'}), 404
+
+        if len(prospect_list) == 0:
+            return jsonify({'msg': 'No prospects avaliable'}), 404
+
+        return jsonify({'msg': 'Unexpected error: Reached end of method'}), 400
+    return jsonify({'msg': 'Request method not supported.'}), 404
+
+@app.route('/api/updateProspectData', methods=["POST"])
+@jwt_required()
+@cross_origin()
+def updateProspectData():
+    if request.method == 'POST':
+        callResponse = request.json.get("callResponse", None)
+        callNotes = request.json.get("callNotes", None)
+        #emailText = request.json.get("emailText", None)
+
+        current_time = datetime.utcnow()
+        
+        import_data = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity()).first()
+        sra_data = ProspectSRA.query.filter_by(tNumber = import_data.tNumber).first()
+        caller = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+
+        print("Caller " + caller.username + " just called student " + import_data.tNumber)
+
+        if sra_data.numTimesCalled == 0:
+            sra_data.callResponse0 = callResponse
+            sra_data.callNotes0 = callNotes
+        else:
+            sra_data.callResponse1 = callResponse
+            sra_data.callNotes1 = callNotes
+
+        newNumTimesCalled = sra_data.numTimesCalled + 1
+
+        import_data.timeLastAccessed = current_time
+        import_data.assignedCaller = None
+        import_data.wasCalled = True
+        sra_data.prevCaller = caller.username
+        sra_data.dateCalled = current_time
+        sra_data.numTimesCalled = newNumTimesCalled
+
+        if newNumTimesCalled == 2:
+            emailSubject = "UALR BOUND - Caller Message"
+            if emailText:
+                emailBody = emailText
+            else:
+                emailBody = "We hope you choose to enroll with us at UA - Little Rock.\n\n\n\nThank you for your time."
+            emailArray = [import_data.email, emailSubject, emailBody]
+            emailSent = sendEmail(emailArray)
+
+            if emailSent:
+                sra_data.emailText = emailText
+                sra_data.wasEmailed = True
+                sra_data.dateEmailed = current_time
+                db.session.commit()
+                return jsonify({'msg': 'Successfully updated prospect.', 'email_status': True}), 200
+
+            db.session.commit()
+            return jsonify({'msg': 'Successfully updated prospect.', 'email_status': False}), 200
+        
+        db.session.commit()
+        return jsonify({'msg': 'Successfully updated prospect.', 'email_status': None}), 200
+    return jsonify({'msg': 'Request method not supported.'}), 400
+            
 @app.route('/message', methods=['GET'])
 @jwt_required()
 @cross_origin()
@@ -409,7 +598,7 @@ def getStudents():
         
     return jsonify({"msg":"fail"}), 401
 
-@app.route("/api/uploadFile", methods=["POST"])
+@app.route("/api/uploadFile", methods=["OPTIONS", "POST"])
 @jwt_required()
 @cross_origin()
 def uploadFile():
@@ -463,18 +652,31 @@ def updateRegistrationRequests():
                         activationStatus=True,
                         )
                     db.session.add(user)
-                    registrationApprovedEmail(regRequest.email)
+                    emailSubject = "UALR Bound Registration Approval"
+                    emailBody = "Your request to join UALR Bound has been approved. You have been added to the current campaign and will now be able to login using the username and password that you provided.\n\n\n\nThank you for your time."
+                    emailArray = [regRequest.email, emailSubject, emailBody]
+                    emailSent = sendEmail(emailArray)
+
                     db.session.delete(regRequest) # Delete request
                     db.session.commit()
                     print('\nCreated new user.\n')
+
+                    if not emailSent:
+                        return jsonify({"msg":"success", "email_status": False}), 200
                 if decision == "deny":
                     print('\nDeleting request...\n')
-                    registrationDeniedEmail(regRequest.email)
+                    emailSubject = "UALR Bound Registration Denial"
+                    emailBody = "Thank you for your submission to join UALR Bound. At this time, your request has been denied for the current campaign. You will still be eligible to register for future campaigns\n\n\n\nThank you for your time."
+                    emailArray = [regRequest.email, emailSubject, emailBody]
+                    emailSent = sendEmail(emailArray)
+
                     db.session.delete(regRequest) # Delete request
                     db.session.commit()
                     print('\nDeleted.\n')
+                    if not emailSent:
+                        return jsonify({"msg":"success", "email_status": False}), 200
 
-                return jsonify({"msg":"success"}), 200
+                return jsonify({"msg":"success", "email_status": True}), 200
             print("Registration request not found.")
             return jsonify({"msg":"fail"}), 400
     print("Not POST method.")
@@ -545,7 +747,6 @@ def getUserInfo(userID):
         return jsonify(jsonData), 200
     return jsonify({"msg": "user doesn't exist"}), 404
 
-    
 @app.route("/api/getStudentInfo/<tNumber>", methods=["GET"])
 @jwt_required()
 @cross_origin()
@@ -732,6 +933,11 @@ def formatQuery(data, rowCount, wantedColumns):
 @cross_origin()
 def register():
     if request.method == 'POST':
+        tard = RegistrationRequest(name = "Aaron Murtishaw", username = "tardcarter", password ="donuts", email="tard@gmail.com", accessLevel="root")
+        validTard = ValidUser(name = tard.name, username = tard.username, password = tard.hashedPassword, email = tard.email, accessLevel = tard.accessLevel, activationStatus = True);
+        db.session.add(validTard)
+        db.session.commit()
+
         name = request.json.get("name", None)
         username = request.json.get("username", None)
         password = request.json.get("password", None)
@@ -759,14 +965,26 @@ def register():
                 db.session.add(regRequest)
                 db.session.commit()
                 print('\nCreated new row.\n')
-                registerSuccessEmail(email)
+                emailSubject = "Register Request for UALR BOUND"
+                emailBody = "Your registration request for UALR Bound was submitted successfully. A ROOT user of the system will review your request and an email notification will be sent to you upon their decision.\nWe appriciate your wanting to join UALR Bound.\n\n\n\nThank you for your time."
+                emailArray = [email, emailSubject, emailBody]
+                emailSent = sendEmail(emailArray)
                 
+                if not emailSent:
+                    return jsonify({
+                    "user": username,
+                    "pass": password,
+                    "email": email,
+                    "access_level": access_level,
+                    "email_status": False
+                    }), 200
 
                 return jsonify({
                     "user": username,
                     "pass": password,
                     "email": email,
                     "access_level": access_level,
+                    "email_status": True
                     }), 200
             elif userMatch:
                 print('\nA user with that information already exists!')
@@ -782,6 +1000,7 @@ def register():
 @app.route("/token", methods=["POST"]) 
 @cross_origin()
 def login():
+
     username = request.json.get("username", None)
     password = request.json.get("password", None)
 

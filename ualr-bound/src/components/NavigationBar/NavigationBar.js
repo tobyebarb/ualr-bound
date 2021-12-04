@@ -15,11 +15,13 @@ import ArrowIcon from "../../icons/ArrowIcon";
 import NavBarUserIcon from "../../icons/NavBarUserIcon";
 import NavBarAccessLevelIcon from "../../icons/NavBarAccessLevelIcon";
 import NavBarLabelIcon from "../../icons/NavBarLabelIcon";
+import PhoneIcon from "../../icons/PhoneIcon";
 
 const NavigationBar = () => {
   const { store, actions } = useContext(Context);
   const [collapseOffset, setCollapseOffset] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [prospectFocused, setProspectFocused] = useState(false);
   const [editCallersFocused, setEditCallersFocused] = useState(false);
   const [requestsFocused, setRequestsFocused] = useState(false);
   const [studentsFocused, setStudentsFocused] = useState(false);
@@ -30,6 +32,7 @@ const NavigationBar = () => {
     width: window.innerWidth,
   });
   const [importFocused, setImportFocused] = useState(false);
+  const [isVisible, setIsVisible] = useState(false)
 
   const setIconsFocus = (boolean) => {
     setEditCallersFocused(boolean);
@@ -38,6 +41,7 @@ const NavigationBar = () => {
     setAnalyticsFocused(boolean);
     setLogoutFocused(boolean);
     setImportFocused(boolean);
+    setProspectFocused(boolean);
   };
 
   const svgContainerStyle = {
@@ -67,6 +71,10 @@ const NavigationBar = () => {
     };
   }
   useEffect(() => {
+    if (store.user.access_level === "Root")
+    {
+      setIsVisible(true)
+    }
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({
         height: window.innerHeight,
@@ -82,6 +90,15 @@ const NavigationBar = () => {
       window.removeEventListener("resize", debouncedHandleResize);
     };
   });
+
+  useEffect(() => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth,
+    });
+
+    actions.setDimensions(window.innerWidth, window.innerHeight);
+  }, []); // resize handler?
 
   useEffect(() => {
     setCollapseOffset(
@@ -103,21 +120,8 @@ const NavigationBar = () => {
     // marginTop: "-65px",
   };
 
-  const parseAccessLevelStr = (string) => {
-    const capitalize = (str) => {
-      if (typeof str === "string") {
-        return str.replace(/^\w/, (c) => c.toUpperCase());
-      } else {
-        return "";
-      }
-    };
-    return capitalize(string.split(".")[1]);
-  };
-
   const username = store.user.username;
-  const access_level = store.user.access_level
-    ? parseAccessLevelStr(store.user.access_level)
-    : "";
+  const access_level = store.user.access_level;
 
   const focusColor = "#FFFFFF";
 
@@ -209,6 +213,7 @@ const NavigationBar = () => {
     ...outerIconStyle,
   };
 
+
   return (
     <div
       className="navigation-container"
@@ -233,9 +238,27 @@ const NavigationBar = () => {
       {/* ---------------------------------- */}
       <TaskBarContainer>
         <div
-          onMouseEnter={() => setImportFocused(true)}
+          onMouseEnter={() => setProspectFocused(true)}
           onMouseLeave={() => setIconsFocus(false)}
           style={firstIconStyle}
+        >
+          <NavBarLabelIcon
+            style={navBarLabelStyle}
+            id="icon-div"
+            isFocused={prospectFocused}
+            text="MyNextProspect"
+          />
+          <PhoneIcon
+            style={svgContainerStyle}
+            focused={prospectFocused}
+            focusedColor={focusColor}
+          />
+        </div>
+        <Divider />
+        <div
+          onMouseEnter={() => setImportFocused(true)}
+          onMouseLeave={() => setIconsFocus(false)}
+          style={iconStyle}
         >
           <NavBarLabelIcon
             style={navBarLabelStyle}
@@ -356,6 +379,7 @@ const NavigationBar = () => {
     </div>
   );
 };
+
 
 NavigationBar.propTypes = {
   editCallersFunc: PropTypes.func,

@@ -17,6 +17,7 @@ import EditCallersPage from "./pages/EditCallersPage/EditCallersPage";
 import StudentsPage from "./pages/StudentsPage/StudentsPage";
 import AnalyticsPage from "./pages/AnalyticsPage/AnalyticsPage";
 import TestAnalytics from "./pages/TestAnalytics"
+import MyNextProspectPage from "./pages/MyNextProspectPage/MyNextProspectPage";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
         <Route exact path="/students" component={StudentsPage} />
         <Route exact path="/analytics" component={AnalyticsPage}/>
         <Route exact path="/test" component={TestAnalytics}/>
+        <Route exact path="/prospects" component={MyNextProspectPage} />
       </div>
     </Router>
   );
