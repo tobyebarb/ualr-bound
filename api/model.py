@@ -240,7 +240,8 @@ class ProspectSRA(db.Model):
     #wasCalled may be unnecessary
     wasCalled = db.Column(db.Boolean)
     prevCaller = db.Column(db.String(100))
-    dateCalled = db.Column(db.Text)
+    dateCalled0 = db.Column(db.DateTime)
+    dateCalled1 = db.Column(db.DateTime)
     numTimesCalled = db.Column(db.Integer, nullable=False)
     #Information about previous call
     callResponse0 = db.Column(db.Enum(response))

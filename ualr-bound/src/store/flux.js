@@ -242,6 +242,12 @@ const getState = ({ getStore, getActions, setStore }) => {
         });
         return true;
       },
+      setAnalyticModalVisibility: (bool) => {
+        setStore({
+          ui: { analyticsModalIsVisible: bool },
+        });
+        return true;
+      },
       modifyStudent: async (tNumber, newData, updateFunc) => {
         const store = getStore();
 
