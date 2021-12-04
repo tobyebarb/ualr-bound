@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import * as constants from "../../../../../utils/Constants";
 import "./LineChart.css";
 import * as d3 from "d3";
 
@@ -12,14 +13,16 @@ const LineChart = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    d3.csv("http://127.0.0.1:5000/api/getNumberOfCallsMade/").then((d) => {
-      const parseDate = d3.timeParse("%Y%m%d");
-      d.forEach((i) => {
-        i.date = parseDate(i.date);
-        i.data = Number(i.data);
-      });
-      setData(d);
-    });
+    d3.csv(`${constants.ENDPOINT_URL.LOCAL}/api/getNumberOfCallsMade/`).then(
+      (d) => {
+        const parseDate = d3.timeParse("%Y%m%d");
+        d.forEach((i) => {
+          i.date = parseDate(i.date);
+          i.data = Number(i.data);
+        });
+        setData(d);
+      }
+    );
     return () => undefined;
   }, []);
 

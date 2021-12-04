@@ -494,6 +494,70 @@ def getNumberOfCallsMade():
         return resp
     return jsonify({"msg": "Request method not supported."}), 404
 
+@app.route("/api/getFullStudentsRatio/", methods=["POST"])
+@cross_origin()
+def getFullStudentsRatio():
+    if request.method == 'POST': 
+        column_name = request.json.get("column_name", None)
+
+        prospect_list = ProspectSRA.query.join(ProspectImportData)
+        res = {}
+
+        if column_name == "sex":
+            query = ProspectImportData.query.with_entities(ProspectImportData.sex).distinct()
+            titles = [row.sex for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(sex = title).count()
+                res[title]=count
+        elif column_name == "ethnicity":
+            query = ProspectImportData.query.with_entities(ProspectImportData.ethnicity).distinct()
+            titles = [row.ethnicity for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(ethnicity = title).count()
+                res[title]=count
+        elif column_name == "admissionType":
+            query = ProspectImportData.query.with_entities(ProspectImportData.admissionType).distinct()
+            titles = [row.admissionType for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(admissionType = title).count()
+                res[title]=count
+        elif column_name == "program":
+            query = ProspectImportData.query.with_entities(ProspectImportData.program).distinct()
+            titles = [row.program for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(program = title).count()
+                res[title]=count
+        elif column_name == "college":
+            query = ProspectImportData.query.with_entities(ProspectImportData.college).distinct()
+            titles = [row.college for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(college = title).count()
+                res[title]=count
+        elif column_name == "department":
+            query = ProspectImportData.query.with_entities(ProspectImportData.department).distinct()
+            titles = [row.department for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(department = title).count()
+                res[title]=count
+        elif column_name == "decision":
+            query = ProspectImportData.query.with_entities(ProspectImportData.decision).distinct()
+            titles = [row.decision for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(decision = title).count()
+                res[title]=count
+        else:
+            print('Column name not supported.')
+
+        return jsonify(res), 200
+    return jsonify({"msg": "Request method not supported."}), 404
+
 """ 
     ~~~Function getStudentsRatio~~~
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -55,6 +55,52 @@ const getState = ({ getStore, getActions, setStore }) => {
         });
         return 1;
       },
+      getPieChartData: async (pieChartInput) => {
+        const store = getStore();
+
+        const newData = {
+          column_name: pieChartInput,
+        };
+
+        const opts = {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + store.token,
+          },
+          body: JSON.stringify(newData),
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getFullStudentsRatio/`;
+
+        try {
+          const response = await fetch(endpoint, opts);
+
+          if (response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+
+          var row_data = [Object.keys(data).length];
+
+          for (let i = 0; i < Object.keys(data).length; i++) {
+            var new_data = {
+              label: Object.keys(data)[i],
+              value: data[Object.keys(data)[i]],
+            };
+            row_data[i] = new_data;
+          }
+
+          console.log(row_data);
+
+          return row_data;
+        } catch (error) {
+          console.error("Error", error);
+          console.log("Error", error);
+        }
+      },
       updateProspectSRAData: async (callResponse, callNotes) => {
         const store = getStore();
 
