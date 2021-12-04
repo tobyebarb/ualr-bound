@@ -1,6 +1,6 @@
 from datetime import timedelta, date, datetime
 import os
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, make_response
 from flask.helpers import send_from_directory
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import create_access_token
@@ -395,10 +395,10 @@ def get_message():
 
     return jsonify(dictionary)
 
-@app.route("/api/getNumberOfCallsMade/", methods=["POST"])
+@app.route("/api/getNumberOfCallsMade/", methods=["GET"])
 @cross_origin()
 def getNumberOfCallsMade():
-    if request.method == 'POST': 
+    if request.method == 'GET': 
         #date0 = request.json.get("date0", None)
         #date1 = request.json.get("date1", None)
 
@@ -446,7 +446,16 @@ def getNumberOfCallsMade():
 
         #print(str(filtered_list))
 
-        
+        d = {'date': ['20211130', '20211201', '20211202', '20211203', '20211204', '20211205'],'data': [0, 1, 2, 3, 3, 1] }
+        dataFrame = pd.DataFrame(d)
+        dataFrame=dataFrame.set_index('date')
+        resp = make_response(dataFrame.to_csv())
+        resp.headers["Content-Disposition"] = "attachment; filename=export.csv"
+        resp.headers["Content-Type"] = "text/csv"
+
+
+        #print(d[''])
+
         print("\nFinding range between " + str(date0) + " and " + str(date1) + "\n")
         for i in range(filtered_list.count()):
             print("T#: " + filtered_list[i].tNumber + " date0: " + str(filtered_list[i].dateCalled0) + " date1: " + str(filtered_list[i].dateCalled1))
@@ -482,7 +491,7 @@ def getNumberOfCallsMade():
         print(sorted(res))
         print("AMOUNT:",filtered_list.count())
 
-        return jsonify(res), 200
+        return resp
     return jsonify({"msg": "Request method not supported."}), 404
 
 """ 
