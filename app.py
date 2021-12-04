@@ -19,7 +19,7 @@ CORS(app)
 
 MAIL_USERNAME = 'ualrboundemailtest@gmail.com'
 MAIL_PASSWORD = 'WhiteTiger2'
-SENDER_NAME = 'UALRBound'
+SENDER_NAME = 'Team Inc. LLC'
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_DATABASE_URL')

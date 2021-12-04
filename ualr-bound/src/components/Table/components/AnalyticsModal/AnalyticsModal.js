@@ -63,6 +63,7 @@ const AnalyticsModal = () => {
     };
   });
 
+<<<<<<< Updated upstream
   const classes = useStyles();
   let data = [
     {
@@ -94,6 +95,80 @@ const AnalyticsModal = () => {
       </div>
     </Paper>
   );
+=======
+    const theme = createTheme({
+        palette: {
+          primary: {
+            light: "#5e97ff",
+            main: "#367eff",
+            dark: "#2558b2",
+            contrastText: "#9d9d9d",
+          },
+        },
+      });
+    
+      const useStyles = makeStyles((theme) => {
+        return {
+          modal: {
+            boxShadow: theme.shadows[5],
+            marginLeft: "auto",
+            marginRight: "auto",
+            display: "flex",
+            justifyContent: "center",
+            borderRadius: "15px",
+          },
+          form: {
+            marginTop: "auto",
+            marginBottom: "auto",
+            width: "100%",
+            background: "#4c212c",
+          },
+          buttonContainer: {
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-around",
+          },
+        };
+      });
+    
+      const classes = useStyles();
+      
+      let data = [
+        {
+          label: "Asian",
+          value: 10
+        },
+        {
+          label: "Hispanic",
+         value: 20
+        },
+        {
+          label: "White",
+          value: 73
+        },
+        {
+          label: "Black",
+          value: 30
+        }
+      ]
+     
+      let body = (
+          <Paper elevation={3} className={classes.modal}>
+              <div className={classes.form}>
+                 <PieChart
+                     data={data}
+                     innerRadius={0}
+                     outerRadius={150}
+                  />
+                  <button
+                  onClick={handleClose}
+                  >
+                      Close Modal
+                  </button>
+              </div>
+          </Paper>
+      )
+>>>>>>> Stashed changes
 
   return (
     <Modal
