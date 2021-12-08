@@ -63,15 +63,25 @@ const MyNextProspectPage = () => {
       if (store.isProspectUpdated) {
         const res = await actions.getNextProspect(); // res is tNumber of next prospect
 
+        if (res.msg === "No prospects avaliable") {
+          alert("No prospects avaliable");
+          return;
+        }
+
         setSelectedTNumber(res.tNumber);
       } else {
         alert("Update student call data before getting next prospect.");
       }
       //Logic to get next prospect (get new selectedTNumber based on who hasn't been called/other factors)
     } else {
-      setIsInitialized(true);
+      const res = await actions.getNextProspect(); // res is JSON with next prospect's tnum
 
-      const res = await actions.getNextProspect(); // res is tNumber of next prospect
+      if (res.msg === "No prospects avaliable") {
+        alert("No prospects avaliable");
+        return;
+      }
+
+      setIsInitialized(true);
       setSelectedTNumber(res.tNumber);
     }
   };
