@@ -541,6 +541,7 @@ def convertDict2DataFrame(dict):
     return pd.DataFrame(d)
 
 @app.route("/api/getFullStudentsRatio/", methods=["POST"])
+@jwt_required()
 @cross_origin()
 def getFullStudentsRatio():
     if request.method == 'POST': 
