@@ -6,15 +6,20 @@ import {
   createTheme,
   ThemeProvider,
 } from "@material-ui/core/styles";
-import { Paper } from "@material-ui/core";
+import { Divider, Paper } from "@material-ui/core";
 import PieChart from "../../../PieChart/PieChart";
 import LineChart from "./LineChart/LineChart";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { _ } from "ag-grid-community";
 
 const AnalyticsModal = () => {
   const { store, actions } = useContext(Context);
   const [isVisible, setVisibility] = useState(false);
   const [pieChartInput, setPieChartInput] = useState(null);
   const [pieChartData, setPieChartData] = useState(null);
+  const [date0, setDate0] = useState(null);
+  const [date1, setDate1] = useState(null);
 
   useEffect(() => {
     if (store.ui.analyticsModalIsVisible !== undefined) {
@@ -51,6 +56,40 @@ const AnalyticsModal = () => {
         flexDirection: "row",
         justifyContent: "space-around",
       },
+      dateContainer: {
+        fontFamily: "Montserrat",
+        fontSize: "1.5rem",
+
+        color: "#FFFFFF",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-around",
+        marginBottom: "3rem",
+      },
+      pieChartContainer: {
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-around",
+        marginRight: "auto",
+        marginLeft: "auto",
+      },
+      lineChartContainer: {
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-around",
+        marginRight: "auto",
+        marginLeft: "auto",
+        width: "100%",
+      },
+      pieChartText: {
+        fontFamily: "Montserrat",
+        fontSize: "1.5rem",
+        textAlign: "center",
+        color: "#FFFFFF",
+      },
+      divider: {
+        background: "#fff",
+      },
     };
   });
 
@@ -65,6 +104,58 @@ const AnalyticsModal = () => {
     }
   };
 
+  const parseDate = (date) => {
+    if (date !== null) {
+      var dateStr = date.toString().split(" ");
+      var monthStr = dateStr[1];
+      var dayStr = dateStr[2];
+      var yearStr = dateStr[3];
+
+      if (monthStr === "Jan") {
+        monthStr = "01";
+      } else if (monthStr === "Feb") {
+        monthStr = "02";
+      } else if (monthStr === "Mar") {
+        monthStr = "03";
+      } else if (monthStr === "Apr") {
+        monthStr = "04";
+      } else if (monthStr === "May") {
+        monthStr = "05";
+      } else if (monthStr === "Jun") {
+        monthStr = "06";
+      } else if (monthStr === "Jul") {
+        monthStr = "07";
+      } else if (monthStr === "Aug") {
+        monthStr = "08";
+      } else if (monthStr === "Sep") {
+        monthStr = "09";
+      } else if (monthStr === "Oct") {
+        monthStr = "10";
+      } else if (monthStr === "Nov") {
+        monthStr = "11";
+      } else if (monthStr === "Dec") {
+        monthStr = "12";
+      } else {
+        return "Invalid month chosen.";
+      }
+
+      var formattedStr = yearStr + monthStr + dayStr;
+      return formattedStr;
+    } else {
+      return null;
+    }
+  }; // Tue Dec 07 2021 00:00:00 GMT-0600 (Central Standard Time)
+
+  useEffect(() => {
+    let formattedDate = parseDate(date0);
+    actions.setStoreDate0(formattedDate);
+  }, [date0]);
+
+  useEffect(() => {
+    let formattedDate = parseDate(date1);
+    actions.setStoreDate1(formattedDate);
+  }, [date1]);
+
   useEffect(() => {
     if (pieChartInput !== null) {
       // Call function immediately
@@ -73,26 +164,10 @@ const AnalyticsModal = () => {
     //pieChartInput ? setPieChartData(data) : setPieChartData(null);
   }, [pieChartInput]);
 
-  useEffect(() => {
-    console.log(pieChartData);
-    //pieChartInput ? setPieChartData(data) : setPieChartData(null);
-  }, [pieChartData]);
-
   const updatePieChartInput = (e) => {
     e.preventDefault();
     setPieChartInput(e.target.value);
   };
-
-  const theme = createTheme({
-    palette: {
-      primary: {
-        light: "#5e97ff",
-        main: "#367eff",
-        dark: "#2558b2",
-        contrastText: "#9d9d9d",
-      },
-    },
-  });
 
   const classes = useStyles();
 
@@ -101,9 +176,9 @@ const AnalyticsModal = () => {
       <div className={classes.form}>
         <div className={classes.pieChartContainer}>
           {pieChartData ? (
-            <PieChart data={pieChartData} innerRadius={0} outerRadius={150} />
+            <PieChart data={pieChartData} innerRadius={0} outerRadius={100} />
           ) : (
-            "No data selected."
+            <p className={classes.pieChartText}>"No data selected."</p>
           )}
           <select
             required
@@ -126,7 +201,30 @@ const AnalyticsModal = () => {
             <option value="decision">Decision</option>
           </select>
         </div>
-        <LineChart />
+        <Divider
+          style={{ marginTop: "4rem" }}
+          classes={{ root: classes.divider }}
+          variant="middle"
+        />
+        <div className={classes.lineChartContainer}>
+          <LineChart />
+          <div className={classes.dateContainer}>
+            <div>
+              <p>Start Date:</p>
+              <DatePicker
+                selected={date0}
+                onChange={(date) => setDate0(date)}
+              />
+            </div>
+            <div>
+              <p>End Date:</p>
+              <DatePicker
+                selected={date1}
+                onChange={(date) => setDate1(date)}
+              />
+            </div>
+          </div>
+        </div>
         <button onClick={handleClose}>Close Modal</button>
       </div>
     </Paper>

@@ -8,6 +8,7 @@
     font-size: 16px;
     color: #666;
     padding: 25px;
+    transform: translate(5rem,3rem);
   }
   
   .wrapper svg {
@@ -28,4 +29,12 @@
   .axis .domain,
   .axis.xAxis line {
     display: none;
+  }
+
+  .line-chart-text {
+    font-family: Montserrat;
+    font-size: 1.5rem;
+    text-align: center;
+    color: #FFFFFF;
+    margin-top: 3rem;
   }

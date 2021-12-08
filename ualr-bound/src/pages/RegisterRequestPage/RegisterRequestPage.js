@@ -113,8 +113,7 @@ const RegisterRequestPage = () => {
     setScrollbarWidth(getScrollbarSize().width);
   }, []);
 
-  if (store.user.access_level !== "Caller")
-  {
+  if (store.user.access_level !== "Caller") {
     return (
       <div className="register-request-container">
         <Table
@@ -130,11 +129,9 @@ const RegisterRequestPage = () => {
         <FileUploader ref={fileRef} />
       </div>
     );
+  } else {
+    return <Redirect to="/prospects" />;
   }
-  else
-  {
-    return <Redirect to = "/prospects"/>  
-  };
 };
 
 export default RegisterRequestPage;

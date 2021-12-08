@@ -32,7 +32,7 @@ const NavigationBar = () => {
     width: window.innerWidth,
   });
   const [importFocused, setImportFocused] = useState(false);
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(false);
 
   const setIconsFocus = (boolean) => {
     setEditCallersFocused(boolean);
@@ -71,9 +71,8 @@ const NavigationBar = () => {
     };
   }
   useEffect(() => {
-    if (store.user.access_level === "Root")
-    {
-      setIsVisible(true)
+    if (store.user.access_level === "Root") {
+      setIsVisible(true);
     }
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({
@@ -212,7 +211,6 @@ const NavigationBar = () => {
     position: "relative",
     ...outerIconStyle,
   };
-
 
   return (
     <div
@@ -367,7 +365,6 @@ const NavigationBar = () => {
           <ArrowIcon
             onClick={() => {
               setIsCollapsed(!isCollapsed);
-              console.log(isCollapsed);
             }}
             style={{
               transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
@@ -379,7 +376,6 @@ const NavigationBar = () => {
     </div>
   );
 };
-
 
 NavigationBar.propTypes = {
   editCallersFunc: PropTypes.func,

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import * as d3 from "d3";
-import { AxisBottom } from "../components/LineChart/AxisBottom";
-import { AxisLeft } from "../components/LineChart/AxisLeft";
-import { Marks } from "../components/LineChart/Marks";
 import LineChart from "../components/Table/components/AnalyticsModal/LineChart/LineChart";
 
 const TestAnalytics = () => {
