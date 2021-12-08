@@ -73,7 +73,6 @@ const Table = React.forwardRef((props, ref) => {
     }
 
     if (props.rowSelectionCallback !== null) {
-      console.log(res);
       props.option === "editCallers"
         ? props.rowSelectionCallback(uid)
         : props.rowSelectionCallback(tNumber);
@@ -88,8 +87,6 @@ const Table = React.forwardRef((props, ref) => {
     let initialize = async () => {
       var initFrameworkComponents = await props.getFrameworkComponents();
       var initColumnDefs = await props.getColumnDefs();
-
-      console.log(initColumnDefs);
 
       setFrameworkComponents(initFrameworkComponents);
       setColumnDefs(initColumnDefs);
@@ -128,7 +125,7 @@ const Table = React.forwardRef((props, ref) => {
             onBlur={onSearchBlur}
             className="table-searchbar"
             onChange={onFilterTextChange}
-            placeholder="Search for a request..."
+            placeholder="Search"
           />
         </div>
         <AgGridReact

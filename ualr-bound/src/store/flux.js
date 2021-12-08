@@ -4,6 +4,10 @@ import * as constants from "../utils/Constants";
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      lineChart: {
+        date0: null,
+        date1: null,
+      },
       isProspectUpdated: false,
       selectedProspectSRAData: null,
       callResponse: null,
@@ -37,6 +41,28 @@ const getState = ({ getStore, getActions, setStore }) => {
       requests: null,
     },
     actions: {
+      getStoreDate0: () => {
+        const store = getStore();
+        return store.lineChart.date0;
+      },
+      getStoreDate1: () => {
+        const store = getStore();
+        return store.lineChart.date1;
+      },
+      setStoreDate0: (date) => {
+        const store = getStore();
+        setStore({
+          lineChart: { date0: date },
+        });
+        return store.lineChart.date0;
+      },
+      setStoreDate1: (date) => {
+        const store = getStore();
+        setStore({
+          lineChart: { date1: date },
+        });
+        return store.lineChart.date1;
+      },
       setIsProspectUpdated: (bool) => {
         setStore({
           isProspectUpdated: bool,
@@ -54,6 +80,50 @@ const getState = ({ getStore, getActions, setStore }) => {
           callNotes: callNotes,
         });
         return 1;
+      },
+      getPieChartData: async (pieChartInput) => {
+        const store = getStore();
+
+        const newData = {
+          column_name: pieChartInput,
+        };
+
+        const opts = {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + store.token,
+          },
+          body: JSON.stringify(newData),
+        };
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getFullStudentsRatio/`;
+
+        try {
+          const response = await fetch(endpoint, opts);
+
+          if (response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+
+          var row_data = [Object.keys(data).length];
+
+          for (let i = 0; i < Object.keys(data).length; i++) {
+            var new_data = {
+              label: Object.keys(data)[i],
+              value: data[Object.keys(data)[i]],
+            };
+            row_data[i] = new_data;
+          }
+
+          return row_data;
+        } catch (error) {
+          console.error("Error", error);
+          console.log("Error", error);
+        }
       },
       updateProspectSRAData: async (callResponse, callNotes) => {
         const store = getStore();
@@ -156,14 +226,15 @@ const getState = ({ getStore, getActions, setStore }) => {
         try {
           const response = await fetch(endpoint, opts);
 
-          if (response.status !== 200) {
-            alert("There has been some error");
-            return false;
-          }
-
           const data = await response.json();
 
+          console.log(response);
           console.log(data);
+
+          if (response.status !== 200) {
+            return { status: data.status, msg: data.msg };
+          }
+
           setStore({
             prospect: data.tNumber,
             callResponse: null,
@@ -537,7 +608,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         return true;
       },
-
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
         const headers = {
@@ -592,7 +662,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           //alert("There has been an error logging in.");
         }
       },
-
       logout: () => {
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("username");
@@ -604,7 +673,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           user: { username: null, email: null, access_level: null },
         });
       },
-
       syncTokenFromSessionStore: () => {
         const token = sessionStorage.getItem("token");
         const username = sessionStorage.getItem("username");
@@ -622,13 +690,11 @@ const getState = ({ getStore, getActions, setStore }) => {
           });
         }
       },
-
       setDecisionBtnHeight: (size) => {
         setStore({
           decisionBtnHeight: size,
         });
       },
-
       getMessage: () => {
         const store = getStore();
         const opts = {
@@ -645,7 +711,6 @@ const getState = ({ getStore, getActions, setStore }) => {
             console.log("Error loading message from backend", error)
           );
       },
-
       updateRequestDecision: async (data, isApproved) => {
         const store = getStore();
 
@@ -680,7 +745,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error", error);
         }
       },
-
       getRegistrationRequests: async () => {
         const store = getStore();
         const opts = {
@@ -734,7 +798,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error", error);
         }
       },
-
       getCallers: async () => {
         const store = getStore();
 
@@ -825,6 +888,60 @@ const getState = ({ getStore, getActions, setStore }) => {
                   : row.name1 + " " + row.name3,
               email: row.email,
               status: row.status === "True" ? "ACTIVE" : "INACTIVE",
+            };
+            new_data.push(row_data);
+          }
+          return new_data;
+        } catch (error) {
+          console.log("Error", error);
+        }
+      },
+      getStudentsSRA: async () => {
+        const store = getStore();
+
+        //define the type of HTTP request and content type and authorization
+        const opts = {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + store.token,
+          },
+        };
+
+        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudentsSRA`;
+
+        try {
+          const response = await fetch(endpoint, opts);
+
+          //throw an error is status isn't ok
+          if (response.status !== 200) {
+            alert("There has been some error");
+            return false;
+          }
+
+          const data = await response.json();
+          var count = Object.keys(data[0]).length;
+
+          var new_data = [];
+
+          //set the student data
+          for (let i = 0; i < count; i++) {
+            var row = data[0][i];
+            var row_data = {
+              tNumber: row.tNumber,
+              name:
+                row.name2 !== "None"
+                  ? row.name1 + " " + row.name2 + " " + row.name3
+                  : row.name1 + " " + row.name3,
+              wasCalled: row.wasCalled ? "Yes" : "No",
+              wasEmailed: row.wasEmailed ? "Yes" : "No",
+              numTimesCalled: row.numTimesCalled,
+              callResponse0: row.callResponse0 ? row.callResponse0 : "N/A",
+              callResponse1: row.callResponse1 ? row.callResponse1 : "N/A",
+              ethnicity: row.ethnicity ? row.ethnicity : "N/A",
+              sex: row.sex ? row.sex : "N/A",
+              program: row.program ? row.program : "N/A",
+              college: row.college ? row.college : "N/A",
+              department: row.department ? row.department : "N/A",
             };
             new_data.push(row_data);
           }

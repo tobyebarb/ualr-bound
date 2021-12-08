@@ -102,8 +102,7 @@ const StudentsPage = () => {
     setScrollbarWidth(getScrollbarSize().width);
   }, []);
 
-  if (store.user.access_level !== "Caller")
-  {
+  if (store.user.access_level !== "Caller") {
     return (
       <div className="students-container">
         <div className="table-components">
@@ -122,23 +121,21 @@ const StudentsPage = () => {
             ref={detailsRef}
             updateData={updateData}
             selectedTNumber={selectStudentTNum}
+            buttonOption={true}
           />
         </div>
         <StudentDetailsModal
           updateData={updateData}
           updateFunc={updateDetails}
           selectedTNumber={selectStudentTNum}
-          buttonOption={true}
         />
         <NavigationBar />
         <FileUploader ref={fileRef} />
       </div>
     );
+  } else {
+    return <Redirect to="/prospects" />;
   }
-  else
-  {
-    return <Redirect to = "/prospects"/>  
-  };
 };
 
 export default StudentsPage;

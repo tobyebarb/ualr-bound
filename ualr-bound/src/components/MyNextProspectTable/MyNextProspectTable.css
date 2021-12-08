@@ -40,14 +40,14 @@
     color: #FFFFFF;
 }
 
-.prospect-text-container-noninit p {
+.prospect-table-text-noninit p {
     font-family: Montserrat;
     font-size: 1.5rem;
 
     color: #FFFFFF;
 }
 
-.prospect-text-container-noninit p:last-child {
+.prospect-table-text-noninit p:last-child {
     font-family: Montserrat;
     font-size: 1.5rem;
 

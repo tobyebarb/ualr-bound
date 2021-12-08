@@ -182,7 +182,7 @@ class ProspectImportData(db.Model):
     #Might make studentType an enum
     studentType = db.Column(db.String(200))
     status = db.Column(db.Boolean)
-    timeLastAccessed = db.Column(db.DateTime)
+    timeLastAccessed = db.Column(db.DateTime) # Caller toby is assigned to a student T0000 2021-07-12 10:00:00
     assignedCaller = db.Column(db.String(40), db.ForeignKey('valid_user_set.username'), nullable=True)
 
     #Requires entry as pandas dataframe
