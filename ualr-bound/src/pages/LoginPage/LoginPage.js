@@ -221,8 +221,8 @@ const LoginPage = () => {
     return <Redirect to = "/prospects"/>  
   }
   else {
-    console.log("Redirecting to dashboard.");
-    return <Redirect to="/" />;
+    console.log("Redirecting to prospsects.");
+    return <Redirect to="/prospects" />;
   }
 };
 
