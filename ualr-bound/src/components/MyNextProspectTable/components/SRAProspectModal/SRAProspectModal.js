@@ -200,6 +200,10 @@ const SRAProspectModal = (props) => {
             <p className={classes.inputTextHeader}>Call Response:</p>
             <select
               required
+              style={{
+                backgroundColor: "lightgray",
+                color: "black",
+              }}
               type="text"
               className={classes.inputTextDesc}
               name="call_response"

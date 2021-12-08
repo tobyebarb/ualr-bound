@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+/*import React, { useState, useEffect } from "react";
 import * as d3 from "d3";
 import { AxisBottom } from "../components/LineChart/AxisBottom";
 import { AxisLeft } from "../components/LineChart/AxisLeft";
@@ -73,4 +73,4 @@ const TestAnalytics = () => {
 
 };
 
-export default TestAnalytics
+export default TestAnalytics*/
