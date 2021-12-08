@@ -252,7 +252,7 @@ const StudentDetailsModal = (props) => {
         </div>
         <div className="input-container">
           <p className="student-input-header">Program:</p>
-          <input
+          <select
             required
             type="text"
             className="student-input"
@@ -266,11 +266,27 @@ const StudentDetailsModal = (props) => {
             value={programInput}
             onChange={(e) => setProgramInput(e.target.value)}
             content={focusColor}
-          />
+          >
+            <option value="" selected disabled hidden>
+              Choose one...
+            </option>
+            <option value="ACCT-BBA">ACCT-BBA / Accounting</option>
+            <option value="ANTH-BA">ANTH-BA / Anthropology</option>
+            <option value="BIOL-BS-1">BIOL-BS / Biology, Ecology & Organismal Concentration</option>
+            <option value="BIOL-BS-2">BIOL-BS / Biology, Education Track</option>
+            <option value="BIOL-BS-3">BIOL-BS / Biology, General Biology Concentration</option>
+            <option value="BIOL-BS-4">BIOL-BS / Biology, Molecular Biotechnology Concentration</option>
+            <option value="CHEM-BS">CHEM-BS / Chemistry</option>
+            <option value="CPSC-BS">CPSC-BS / Computer Science</option>
+            <option value="CPSCG-BS ">CPSCG-BS / Computer Science, Game-BS</option>
+            <option value="CPSC-BA">CPSC-BA / Computer Science</option>
+            <option value="CPSCG-BA">CPSCG-BA / Computer Science, Game-BA</option>
+            <option value="OTHER">Other</option>
+          </select>
         </div>
         <div className="input-container">
           <p className="student-input-header">College:</p>
-          <input
+          <select
             required
             type="text"
             className="student-input"
@@ -284,11 +300,19 @@ const StudentDetailsModal = (props) => {
             value={collegeInput}
             onChange={(e) => setCollegeInput(e.target.value)}
             content={focusColor}
-          />
+          >
+            <option value="" selected disabled hidden>
+              Choose one...
+            </option>
+            <option value="COLLEGE_1">Donaghey Col Sci Tech Eng Math</option>
+            <option value="COLLEGE_2">College of Business, Health, and Human Services </option>
+            <option value="COLLEGE_3">School of Business</option>
+            <option value="COLLEGE_4">College of Humanities, Arts, Social Sciences, and Education </option>
+          </select>
         </div>
         <div className="input-container">
           <p className="student-input-header">Department:</p>
-          <input
+          <select
             required
             type="text"
             className="student-input"
@@ -302,7 +326,26 @@ const StudentDetailsModal = (props) => {
             value={departmentInput}
             onChange={(e) => setDepartmentInput(e.target.value)}
             content={focusColor}
-          />
+          >
+            <option value="" selected disabled hidden>
+              Choose one...
+            </option>
+            <option value="ACCT">ACCT</option>
+            <option value="ANTH">ANTH</option>
+            <option value="BIOL">BIOL</option>
+            <option value="CHEM">CHEM</option>
+            <option value="CPSC">CPSC</option>
+            <option value="ENGL">ENGL</option>
+            <option value="MATH">MATH</option>
+            <option value="MSCI">MSCI</option>
+            <option value="MUED">MUED</option>
+            <option value="MUTH">MUTH</option>
+            <option value="NURS">NURS</option>
+            <option value="PHYS">PHYS</option>
+            <option value="SOCI">SOCI</option>
+            <option value="THEA">THEA</option>
+            <option value="OTHER">OTHER</option>
+          </select>
         </div>
         <div className="input-container">
           <p className="student-input-header">Decision:</p>
