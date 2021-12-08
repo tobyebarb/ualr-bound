@@ -632,6 +632,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           if (response.status !== 200) {
             return { status: data.status, msg: data.msg };
           }
+
           const parseAccessLevelStr = (string) => {
             const capitalize = (str) => {
               if (typeof str === "string") {
