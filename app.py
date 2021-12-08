@@ -1,6 +1,6 @@
 from datetime import timedelta, date, datetime
 import os
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, make_response
 from flask.helpers import send_from_directory
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import create_access_token
@@ -19,7 +19,7 @@ CORS(app)
 
 MAIL_USERNAME = 'ualrboundemailtest@gmail.com'
 MAIL_PASSWORD = 'WhiteTiger2'
-SENDER_NAME = 'UALRBound'
+SENDER_NAME = 'Team Inc. LLC'
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_DATABASE_URL')
@@ -91,7 +91,7 @@ def compareStudents(entry, student):
     term=parseCampaign(new_student)[1]
     year=parseCampaign(new_student)[0]
 
-    sra_data = ProspectSRA.query.filter_by(tNumber=new_student[0][1])
+    sra_data = ProspectSRA.query.filter_by(tNumber=new_student[0][1]) #new_student[1] = ['name1', Toby]
     count = sra_data.count()
 
     for index in range(count): # Go through each entry of sra_data with same T Number and find their year and term
@@ -171,25 +171,55 @@ def compareStudents(entry, student):
         db.session.commit()
         return
 
+@app.route("/api/getStudentSRAInfo/<tNumber>", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getStudentSRAInfo(tNumber):
+    student = ProspectSRA.query.filter_by(tNumber=tNumber).first()
+    if student:
+        jsonData = row2dict(student, [
+            "tNumber", 
+            "term", 
+            "year", 
+            "wasCalled", 
+            "prevCaller", 
+            "dateCalled", 
+            "numTimesCalled",
+            "callResponse0",
+            "callResponse1",
+            "callNotes0", 
+            "callNotes1", 
+            "wasEmailed", 
+            "dateEmailed", 
+            "emailText",])
+        return jsonify(jsonData), 200
+    return jsonify({"msg": "student doesn't exist"}), 404
+    
 @app.route("/api/getNextProspect", methods=["POST"])
+@jwt_required()
 @cross_origin()
 def getNextProspect():
     if request.method == 'POST':
-        callerUsername = request.json.get("username", None) # Check for POST body, if username was provided (DEBUG PURPOSES ONLY)
 
         current_time = datetime.utcnow() # Get current_time
         expiration_interval_delta_time = current_time - timedelta(minutes=30) # Get expired token DateTime object from 30 minutes ago
         call_interval_delta_time = current_time - timedelta(days=2) # Get CALL_INTERVAL token DateTime object from 2 days ago
 
-        caller = ValidUser.query.filter_by(username=callerUsername).first() # Check for caller if username given in POST body (DEBUG PURPOSES ONLY)
+        #caller = ValidUser.query.filter_by(username=callerUsername).first() # Check for caller if username given in POST body (DEBUG PURPOSES ONLY)
 
-        if callerUsername == None: # POST body doesn't provide 'username' and caller is found via JWT identity
-            caller = ValidUser.query.filter_by(username=get_jwt_identity()).first() # Caller object assigned via JWT
+        #if callerUsername == None: # POST body doesn't provide 'username' and caller is found via JWT identity
+        caller = ValidUser.query.filter_by(username=get_jwt_identity()).first() # Caller object assigned via JWT
 
         if caller == None: # If POST body username not given or JWT token's username not matching any users in ValidUser
             return jsonify({'msg': 'Caller not found in database'}), 404
 
         temp_prospect = ProspectImportData.query.filter_by(assignedCaller=caller.username).first() # Check if current caller already has prospect assigned to them.
+        
+        print(temp_prospect)
+        if temp_prospect:
+            temp_sra = ProspectSRA.query.filter_by(tNumber = temp_prospect.tNumber).first()
+            print(temp_sra)
+
 
         if temp_prospect: # If current caller already has prospect assigned to them, return that prospect's T# and update timeLastAccessed
             print("Caller " + caller.username + " already assigned to prospect with T#: " + temp_prospect.tNumber)
@@ -241,6 +271,7 @@ def getNextProspect():
             print("EXPIRED TNUMBER:", prospect.tNumber)
                 
         if len(prospect_list) == 0 and expired_prospects.count() == 0:
+            print("No prospects avaliable")
             return jsonify({'msg': 'No prospects avaliable'}), 400
         
         if expired_prospects.count() > 0:
@@ -297,7 +328,7 @@ def getNextProspect():
         return jsonify({'msg': 'Unexpected error: Reached end of method'}), 400
     return jsonify({'msg': 'Request method not supported.'}), 404
 
-@app.route('/api/updateProspect', methods=['POST'])
+@app.route('/api/updateProspectData', methods=["POST"])
 @jwt_required()
 @cross_origin()
 def updateProspectData():
@@ -309,8 +340,21 @@ def updateProspectData():
         current_time = datetime.utcnow()
         
         import_data = ProspectImportData.query.filter_by(assignedCaller=get_jwt_identity()).first()
-        sra_data = ProspectSRA.query.filter_by(tNumber = import_data.tNumber).last()
+        sra_data = ProspectSRA.query.filter_by(tNumber = import_data.tNumber).first()
         caller = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+
+        print("Caller " + caller.username + " just called student " + import_data.tNumber)
+
+        print(callResponse)
+
+        if sra_data.numTimesCalled == 0:
+            sra_data.callResponse0 = callResponse
+            sra_data.callNotes0 = callNotes
+            sra_data.dateCalled0 = current_time
+        else:
+            sra_data.callResponse1 = callResponse
+            sra_data.callNotes1 = callNotes
+            sra_data.dateCalled1 = current_time
 
         newNumTimesCalled = sra_data.numTimesCalled + 1
 
@@ -318,13 +362,9 @@ def updateProspectData():
         import_data.assignedCaller = None
         import_data.wasCalled = True
         sra_data.prevCaller = caller.username
-        sra_data.dateCalled = current_time
         sra_data.numTimesCalled = newNumTimesCalled
 
-        sra_data.callResponse = callResponse # Frontend should limit responses to enum type
-        sra_data.callNotes = callNotes
-
-        if newNumTimesCalled == 2:
+        if newNumTimesCalled == 2 and callResponse != "ANSWERED_BY_PROSPECTIVE_STUDENT": #If answered, then don't email?
             emailSubject = "UALR BOUND - Caller Message"
             if emailText:
                 emailBody = emailText
@@ -359,6 +399,322 @@ def get_message():
 
     return jsonify(dictionary)
 
+
+def getIndex(d, date):
+    for i in range(len(d['date'])):
+        if d['date'][i] == date:
+            return i
+    return -1
+
+@app.route("/api/debug", methods=["GET"])
+@cross_origin()
+def debug():
+    current_time = datetime.utcnow() # Get current_time
+
+    import_list = db.session.query(ProspectImportData).all()
+
+    import_list[0].assignedCaller = None
+    import_list[0].timeLastAccessed = None
+    import_list[1].assignedCaller = None
+    import_list[1].timeLastAccessed = None
+    import_list[2].assignedCaller = None
+    import_list[2].timeLastAccessed = None
+    import_list[3].assignedCaller = None
+    import_list[4].assignedCaller = None
+
+    prospect_list = db.session.query(ProspectSRA).all()
+    print(len(prospect_list))
+    print(prospect_list[0])
+    print(prospect_list[1])
+    print(prospect_list[2])
+    print(prospect_list[3])
+    print(prospect_list[4])
+
+    prospect_list[0].numTimesCalled = 1
+    prospect_list[1].numTimesCalled = 2
+    prospect_list[2].numTimesCalled = 2
+    prospect_list[3].numTimesCalled = 2
+    prospect_list[4].numTimesCalled = 2
+    
+    prospect_list[0].callResponse1 = None
+    
+    prospect_list[0].wasEmailed = False
+    prospect_list[1].wasEmailed = True
+    prospect_list[2].wasEmailed = True
+    prospect_list[4].wasEmailed = True
+
+    prospect_list[0].dateCalled0 = current_time - timedelta(days=4)
+    prospect_list[0].dateCalled1 = None
+    prospect_list[1].dateCalled0 = current_time - timedelta(days=3)
+    prospect_list[1].dateCalled1 = current_time - timedelta(hours=3)
+    prospect_list[2].dateCalled0 = current_time - timedelta(days=2, hours=8)
+    prospect_list[2].dateCalled1 = current_time
+    prospect_list[3].dateCalled0 = current_time + timedelta(hours=3)
+    prospect_list[4].dateCalled0 = current_time + timedelta(hours=8)
+    prospect_list[4].dateCalled1 = current_time + timedelta(days=2, hours=10)
+
+    db.session.commit()
+
+
+    return jsonify({"msg": "Request method not supported."}), 404
+
+@app.route("/api/getNumberOfCallsMade/<date0>/<date1>", methods=["GET"]) # /api/getNumberOfCallsMade/20211203/20211218
+@cross_origin()
+def getNumberOfCallsMade(date0, date1):
+    if request.method == 'GET':
+
+        formatted_date0 = datetime(int(date0[:4]), int(date0[4:6]), int(date0[6:]))
+        formatted_date1 = datetime(int(date1[:4]), int(date1[4:6]), int(date1[6:])) + timedelta(hours=23, minutes=59, seconds=59)
+
+
+        res = {}
+        
+        filtered_list = ProspectSRA.query.filter(
+            (
+                ((ProspectSRA.dateCalled0 >= formatted_date0) & (ProspectSRA.dateCalled0 <= formatted_date1) & (ProspectSRA.dateCalled1 == None)) 
+                | 
+                ((ProspectSRA.dateCalled1 >= formatted_date0) & (ProspectSRA.dateCalled1 <= formatted_date1)) 
+                | 
+                ((ProspectSRA.dateCalled0 >= formatted_date0) & (ProspectSRA.dateCalled0 <= formatted_date1))
+            )
+        )
+
+        print("\nFinding range between " + str(formatted_date0) + " and " + str(formatted_date1) + "\n")
+        for i in range(filtered_list.count()):
+            #print("T#: " + filtered_list[i].tNumber + " date0: " + str(filtered_list[i].dateCalled0) + " date1: " + str(filtered_list[i].dateCalled1))
+            # Need to loop through each prospect in the filtered list and check their date0 if they have only been called once
+            # If they have been called twice, check both date0 and date 1, if both are in range, add two to the dates
+            if filtered_list[i].numTimesCalled == 1:
+                indexed_date = filtered_list[i].dateCalled0
+                if indexed_date >= formatted_date0 and indexed_date <= formatted_date1:
+                    key = indexed_date.strftime('%Y%m%d')
+                    if key in res: # if indexed_date is already in the dictionary, just add to the number of calls made on said indexed_date
+                        res[key] += 1
+                    else:
+                        res[key] = 1
+
+            elif filtered_list[i].numTimesCalled == 2:
+                indexed_date0 = filtered_list[i].dateCalled0
+                indexed_date1 = filtered_list[i].dateCalled1
+                if indexed_date0 >= formatted_date0 and indexed_date0 <= formatted_date1:
+                    key = indexed_date0.strftime('%Y%m%d')
+                    if key in res: # if indexed_date is already in the dictionary, just add to the number of calls made on said indexed_date
+                        res[key] += 1
+                    else:
+                        res[key] = 1
+                
+                if indexed_date1 >= formatted_date0 and indexed_date1 <= formatted_date1:
+                    key = indexed_date1.strftime('%Y%m%d')
+                    if key in res: # if indexed_date is already in the dictionary, just add to the number of calls made on said indexed_date
+                        res[key] += 1
+                    else:
+                        res[key] = 1
+
+        df = convertDict2DataFrame(res)
+        df=df.set_index('date')
+        resp = make_response(df.to_csv())
+        resp.headers["Content-Disposition"] = "attachment; filename=export.csv"
+        resp.headers["Content-Type"] = "text/csv"
+
+        #print(res)
+        #print(sorted(res))
+        #print("AMOUNT:",filtered_list.count())
+
+        return resp
+    return jsonify({"msg": "Request method not supported."}), 404
+
+# d = {
+#             'date': 
+#                 ['20211130', '20211201', '20211202', '20211203', '20211204', '20211205'],
+#             'data': [0, 1, 2, 3, 3, 1] 
+#             }
+
+def convertDict2DataFrame(dict):
+    print(len(dict))
+
+    d = {'date':[],'data':[]}
+
+    for entry in sorted(dict):
+        d['date'].append(entry)
+        d['data'].append(dict[entry])
+
+    return pd.DataFrame(d)
+
+@app.route("/api/getFullStudentsRatio/", methods=["POST"])
+@jwt_required()
+@cross_origin()
+def getFullStudentsRatio():
+    if request.method == 'POST': 
+        column_name = request.json.get("column_name", None)
+
+        prospect_list = ProspectSRA.query.join(ProspectImportData)
+        res = {}
+
+        if column_name == "sex":
+            query = ProspectImportData.query.with_entities(ProspectImportData.sex).distinct()
+            titles = [row.sex for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(sex = title).count()
+                res[title]=count
+        elif column_name == "ethnicity":
+            query = ProspectImportData.query.with_entities(ProspectImportData.ethnicity).distinct()
+            titles = [row.ethnicity for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(ethnicity = title).count()
+                res[title]=count
+        elif column_name == "admissionType":
+            query = ProspectImportData.query.with_entities(ProspectImportData.admissionType).distinct()
+            titles = [row.admissionType for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(admissionType = title).count()
+                res[title]=count
+        elif column_name == "program":
+            query = ProspectImportData.query.with_entities(ProspectImportData.program).distinct()
+            titles = [row.program for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(program = title).count()
+                res[title]=count
+        elif column_name == "college":
+            query = ProspectImportData.query.with_entities(ProspectImportData.college).distinct()
+            titles = [row.college for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(college = title).count()
+                res[title]=count
+        elif column_name == "department":
+            query = ProspectImportData.query.with_entities(ProspectImportData.department).distinct()
+            titles = [row.department for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(department = title).count()
+                res[title]=count
+        elif column_name == "decision":
+            query = ProspectImportData.query.with_entities(ProspectImportData.decision).distinct()
+            titles = [row.decision for row in query.all()]
+            print(len(titles))
+            for title in titles:
+                count = prospect_list.filter_by(decision = title).count()
+                res[title]=count
+        else:
+            print('Column name not supported.')
+
+        return jsonify(res), 200
+    return jsonify({"msg": "Request method not supported."}), 404
+
+""" 
+    ~~~Function getStudentsRatio~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Requires: request.json must be in format of {"column_name" : "<column_name>", 
+                                                "column_data": {
+                                                    "0": "<column_data0>",
+                                                    "1": "<column_data1>",
+                                                    "N": "<column_dataN>",
+                                                    }
+                                                }
+            The column data must be a type found in the database, i.e, you cannot ask for "Freshman" when pulling from <column_name> = "sex"
+
+    Desc: Returns JSON object for creating ratios of students based on data given in HTTPS POST request body
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~Function getStudentsRatio~~~
+"""
+
+@app.route("/api/getStudentsRatio/", methods=["POST"])
+@cross_origin()
+def getStudentsRatio():
+    if request.method == 'POST': 
+        column_name = request.json.get("column_name", None)
+        column_data = request.json.get("column_data", None)
+
+        prospect_list = ProspectSRA.query.join(ProspectImportData)
+
+        res = {}
+
+        for i in range(len(column_data)):
+            if column_name == "sex":
+                count = prospect_list.filter_by(sex = column_data[str(i)]).count()
+                res[column_data[str(i)]]=count
+            elif column_name == "ethnicity":
+                count = prospect_list.filter_by(ethnicity = column_data[str(i)]).count()
+                res[column_data[str(i)]]=count
+            elif column_name == "admissionType":
+                count = prospect_list.filter_by(admissionType = column_data[str(i)]).count()
+                res[column_data[str(i)]]=count
+            elif column_name == "program":
+                count = prospect_list.filter_by(program = column_data[str(i)]).count()
+                res[column_data[str(i)]]=count
+            elif column_name == "college":
+                count = prospect_list.filter_by(college = column_data[str(i)]).count()
+                res[column_data[str(i)]]=count
+            elif column_name == "department":
+                count = prospect_list.filter_by(department = column_data[str(i)]).count()
+                res[column_data[str(i)]]=count
+            elif column_name == "decision":
+                count = prospect_list.filter_by(decision = column_data[str(i)]).count()
+                res[column_data[str(i)]]=count
+            else:
+                print('Column name not supported.')
+
+        return jsonify(res), 200
+    return jsonify({"msg": "Request method not supported."}), 404
+
+@app.route("/api/getStudentsSRA", methods=["GET"])
+@jwt_required()
+@cross_origin()
+def getStudentsSRA():
+    user = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+    if str(user.accessLevel) == "accessLevel.root" or str(user.accessLevel) == "accessLevel.admin":
+        data = ProspectSRA.query.join(ProspectImportData).add_columns(
+            ProspectSRA.tNumber, 
+            ProspectImportData.name1, 
+            ProspectImportData.name2,
+            ProspectImportData.name3,
+            ProspectSRA.wasCalled,
+            ProspectSRA.numTimesCalled,
+            ProspectSRA.callResponse0,
+            ProspectSRA.callResponse1,
+            ProspectSRA.wasEmailed,
+            ProspectImportData.ethnicity,
+            ProspectImportData.sex,
+            ProspectImportData.program,
+            ProspectImportData.college,
+            ProspectImportData.department,
+            )
+
+        col_count = 14
+
+        #wantedColumns = ["tNumber", "name1", "name2", "name3", "wasCalled", "numTimesCalled", "callResponse0", "callResponse1", "wasEmailed", "ethnicity", "sex", "program", "college", "department"]
+        
+        #data = ProspectSRA.query.join(ProspectImportData).all()
+        #data = db.session.query(ProspectSRA).all()
+        count = data.count()
+        jsonData = {}
+        for i in range(count):
+            d = {}
+            d['tNumber'] = data[i].tNumber
+            d['name1'] = data[i].name1 
+            d['name2'] = data[i].name2
+            d['name3'] = data[i].name3
+            d['wasCalled'] = data[i].wasCalled
+            d['numTimesCalled'] = data[i].numTimesCalled
+            d['callResponse0'] = data[i].callResponse0
+            d['callResponse1'] = data[i].callResponse1
+            d['wasEmailed'] = data[i].wasEmailed
+            d['ethnicity'] = data[i].ethnicity
+            d['sex'] = data[i].sex
+            d['program'] = data[i].program
+            d['college'] = data[i].college
+            d['department'] = data[i].department
+
+            jsonData[i] = d 
+        #jsonData = formatQuery(data, count, ["tNumber", "name1", "name2", "name3", "wasCalled", "numTimesCalled", "callResponse0", "callResponse1", "wasEmailed", "ethnicity", "sex", "program", "college", "department"])
+        return jsonify(jsonData, 200)
+        
+    return jsonify({"msg":"fail"}), 401
+
 @app.route("/api/getStudents", methods=["GET"])
 @jwt_required()
 @cross_origin()
@@ -373,7 +729,7 @@ def getStudents():
         
     return jsonify({"msg":"fail"}), 401
 
-@app.route("/api/uploadFile", methods=["POST"])
+@app.route("/api/uploadFile", methods=["OPTIONS", "POST"])
 @jwt_required()
 @cross_origin()
 def uploadFile():
@@ -385,7 +741,7 @@ def uploadFile():
         
         count = data.shape[0]
         for i in range(count):
-            entry = data.iloc[i]
+            entry = data.iloc[i] 
             #print(entry)
             
             student = ProspectImportData.query.filter_by(tNumber=entry.name).first()

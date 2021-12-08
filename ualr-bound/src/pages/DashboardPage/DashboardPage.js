@@ -16,7 +16,6 @@ const DashboardPage = () => {
 
   useEffect(() => {
     if (store.ui.importIsVisible) {
-      console.log(store.ui.importIsVisible);
       fileRef.current.openUploader();
     }
   }, [store.ui.importIsVisible]);
@@ -26,7 +25,12 @@ const DashboardPage = () => {
       actions.getMessage();
   }, [store.token]);
 
-  if ((store.token && store.token !== "" && store.token !== undefined) && (store.user.access_level !== "Caller")) {
+  if (
+    store.token &&
+    store.token !== "" &&
+    store.token !== undefined &&
+    store.user.access_level !== "Caller"
+  ) {
     return (
       <div className="dashboard-container">
         <h1>UALR Bound Dashboard :)</h1>
@@ -37,12 +41,14 @@ const DashboardPage = () => {
         <FileUploader ref={fileRef} />
       </div>
     );
-  }
-  else if((store.token && store.token !== "" && store.token !== undefined) && (store.user.access_level === "Caller"))
-  {
-    return <Redirect to="/prospects" />
-  }
-  else {
+  } else if (
+    store.token &&
+    store.token !== "" &&
+    store.token !== undefined &&
+    store.user.access_level === "Caller"
+  ) {
+    return <Redirect to="/prospects" />;
+  } else {
     return <Redirect to="/login" />;
   }
 };

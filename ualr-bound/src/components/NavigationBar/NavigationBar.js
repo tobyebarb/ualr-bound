@@ -32,7 +32,7 @@ const NavigationBar = () => {
     width: window.innerWidth,
   });
   const [importFocused, setImportFocused] = useState(false);
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(false);
 
   const setIconsFocus = (boolean) => {
     setEditCallersFocused(boolean);
@@ -71,9 +71,8 @@ const NavigationBar = () => {
     };
   }
   useEffect(() => {
-    if (store.user.access_level === "Root")
-    {
-      setIsVisible(true)
+    if (store.user.access_level === "Root") {
+      setIsVisible(true);
     }
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({

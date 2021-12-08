@@ -149,27 +149,6 @@ class RegistrationRequest(db.Model):
     def getId(self):
         return f''
 
-#Prospect Information
-
-# class ProspectList(db.Model):
-#     __tablename__ = 'prospect_list'
-#     id = db.Column(db.Integer, primary_key = True)
-#     tNumber = db.Column(db.String(9), db.ForeignKey('prospect_import_data.tNumber'), unique = True)
-#     campaignStatus = db.Column(db.Boolean)
-#     numCampaigns = db.Column(db.Integer)
-
-#     def __init__(self, tNumber):
-#         self.tNumber = tNumber
-#         self.campaignStatus = True
-#         self.numCampaigns = 0
-
-#     def __repr__(self):
-#         return "{}({!r})".format(self.__class__.__name__, self.__dict__)
-
-#     def getId(self):
-#         return f''
-
-
 class ProspectImportData(db.Model):
     __tablename__ = 'prospect_import_data'
     id = db.Column(db.Integer, primary_key = True)
@@ -203,7 +182,7 @@ class ProspectImportData(db.Model):
     #Might make studentType an enum
     studentType = db.Column(db.String(200))
     status = db.Column(db.Boolean)
-    timeLastAccessed = db.Column(db.DateTime)
+    timeLastAccessed = db.Column(db.DateTime) # Caller toby is assigned to a student T0000 2021-07-12 10:00:00
     assignedCaller = db.Column(db.String(40), db.ForeignKey('valid_user_set.username'), nullable=True)
 
     #Requires entry as pandas dataframe
@@ -261,11 +240,14 @@ class ProspectSRA(db.Model):
     #wasCalled may be unnecessary
     wasCalled = db.Column(db.Boolean)
     prevCaller = db.Column(db.String(100))
-    dateCalled = db.Column(db.Text)
+    dateCalled0 = db.Column(db.DateTime)
+    dateCalled1 = db.Column(db.DateTime)
     numTimesCalled = db.Column(db.Integer, nullable=False)
     #Information about previous call
-    callResponse = db.Column(db.Enum(response))
-    callNotes = db.Column(db.String(500))
+    callResponse0 = db.Column(db.Enum(response))
+    callResponse1 = db.Column(db.Enum(response))
+    callNotes0 = db.Column(db.String(500))
+    callNotes1 = db.Column(db.String(500))
     #Information about email
     wasEmailed = db.Column(db.Boolean)
     dateEmailed = db.Column(db.Text)

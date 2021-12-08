@@ -35,21 +35,21 @@
 
 .prospect-text-container p {
     font-family: Montserrat;
-    font-size: 2rem;
+    font-size: 1.5rem;
 
     color: #FFFFFF;
 }
 
-.prospect-text-container-noninit p {
+.prospect-table-text-noninit p {
     font-family: Montserrat;
-    font-size: 2rem;
+    font-size: 1.5rem;
 
     color: #FFFFFF;
 }
 
-.prospect-text-container-noninit p:last-child {
+.prospect-table-text-noninit p:last-child {
     font-family: Montserrat;
-    font-size: 2rem;
+    font-size: 1.5rem;
 
     color: #FFFFFF;
     margin-top: auto;
@@ -58,14 +58,14 @@
 
 .prospect-top-text-container {
     font-family: Montserrat;
-    font-size: 2rem;
+    font-size: 1.5rem;
 
     color: #FFFFFF;
 }
 
 .prospect-mid-text-container {
     font-family: Montserrat;
-    font-size: 2rem;
+    font-size: 1.5rem;
 
     color: #FFFFFF;
 
@@ -73,7 +73,7 @@
 
 .prospect-bottom-text-container {
     font-family: Montserrat;
-    font-size: 2rem;
+    font-size: 1.5rem;
 
     color: #FFFFFF;
 
