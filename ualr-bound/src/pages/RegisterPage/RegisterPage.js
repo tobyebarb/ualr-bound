@@ -88,7 +88,6 @@ const RegisterPage = () => {
           accessLevelInput
         );
         response.then((value) => {
-          console.log(value.msg);
           setErrorMsg(value.msg);
           if (value && value.status !== 200) {
             value.msg === "Fill out name field."
@@ -113,7 +112,6 @@ const RegisterPage = () => {
       } else {
         setCheckPassInvalid(true);
         setErrorMsg("Passwords don't match!");
-        console.log("Passwords don't match"); //TODO: User feedback when password not matching
       }
     } else {
       setEmailInvalid(true);

@@ -18,12 +18,6 @@ const LineChart = () => {
   const [dataInit, setDataInit] = useState(false);
 
   useEffect(() => {
-    console.log(data);
-    console.log(data.length);
-    console.log(dataInit);
-  }, [data]);
-
-  useEffect(() => {
     let date = actions.getStoreDate0();
     if (date !== undefined) setDate0(date);
   }, [store.lineChart.date0]);

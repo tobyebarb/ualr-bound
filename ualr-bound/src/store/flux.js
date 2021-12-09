@@ -98,7 +98,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           body: JSON.stringify(newData),
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getFullStudentsRatio/`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getFullStudentsRatio/`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -151,7 +151,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           Authorization: "Bearer " + store.token,
         };
 
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateProspectData`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/updateProspectData`;
 
         fetch(endpoint, {
           method: "POST",
@@ -181,7 +181,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           method: "GET",
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudentSRAInfo/${tNumber}`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getStudentSRAInfo/${tNumber}`;
         // fetching data from the backend
         const response = await fetch(endpoint, opts);
 
@@ -244,7 +244,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       getNextProspect: async () => {
         const store = getStore();
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getNextProspect`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getNextProspect`;
 
         const opts = {
           method: "POST",
@@ -277,7 +277,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       setFile: async (file) => {
         const store = getStore();
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/uploadFile`; //http://127.0.0.1:5000/api/uploadFile
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/uploadFile`; //http://127.0.0.1:5000/api/uploadFile
 
         const data = new FormData();
         data.append("file", file);
@@ -317,8 +317,6 @@ const getState = ({ getStore, getActions, setStore }) => {
         return true;
       },
       setDimensions: (width, height) => {
-        console.log("Width", width);
-        console.log("Height", height);
         setStore({
           window: { width: width, height: height },
         });
@@ -360,7 +358,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           body: JSON.stringify(newData),
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateStudentInfo/${tNumber}`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/updateStudentInfo/${tNumber}`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -396,7 +394,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           body: JSON.stringify(newData),
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateUserInfo/${userID}`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/updateUserInfo/${userID}`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -423,7 +421,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           method: "GET",
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudentInfo/${tNumber}`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getStudentInfo/${tNumber}`;
         // fetching data from the backend
         const response = await fetch(endpoint, opts);
 
@@ -473,7 +471,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           method: "GET",
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudentInfo/${tNumber}`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getStudentInfo/${tNumber}`;
         // fetching data from the backend
         const response = await fetch(endpoint, opts);
 
@@ -550,7 +548,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           method: "GET",
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getUserInfo/${userID}`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getUserInfo/${userID}`;
         // fetching data from the backend
         const response = await fetch(endpoint, opts);
 
@@ -606,7 +604,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           "Content-Type": "application/json",
         };
 
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/register`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/register`;
 
         var newData = {
           name: nameInput,
@@ -658,7 +656,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       login: async (usernameInput, passwordInput) => {
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/token`; //http://127.0.0.1:5000/token
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/token`; //http://127.0.0.1:5000/token
         const headers = {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -752,7 +750,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             Authorization: "Bearer " + store.token,
           },
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/message`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/message`;
         // fetching data from the backend
         fetch(endpoint, opts)
           .then((resp) => resp.json())
@@ -777,7 +775,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
           body: JSON.stringify(newData),
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/updateRegistrationRequests`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/updateRegistrationRequests`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -805,7 +803,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             Authorization: "Bearer " + store.token,
           },
         };
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getRegistrationRequests`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getRegistrationRequests`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -841,7 +839,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 
           setStore({ requests: new_data });
           // updateRowsFunc(new_data);
-          console.log("Updated rows.", store.requests);
           return new_data;
         } catch (error) {
           console.error("Error", error);
@@ -860,7 +857,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
         };
 
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getCallers`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getCallers`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -911,7 +908,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
         };
 
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudents`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getStudents`;
 
         try {
           const response = await fetch(endpoint, opts);
@@ -957,7 +954,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
         };
 
-        const endpoint = `${constants.ENDPOINT_URL.LOCAL}/api/getStudentsSRA`;
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/api/getStudentsSRA`;
 
         try {
           const response = await fetch(endpoint, opts);

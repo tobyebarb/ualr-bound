@@ -366,7 +366,6 @@ const NavigationBar = () => {
             <ArrowIcon
               onClick={() => {
                 setIsCollapsed(!isCollapsed);
-                console.log(isCollapsed);
               }}
               style={{
                 transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
@@ -513,7 +512,6 @@ const NavigationBar = () => {
             <ArrowIcon
               onClick={() => {
                 setIsCollapsed(!isCollapsed);
-                console.log(isCollapsed);
               }}
               style={{
                 transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
@@ -588,7 +586,6 @@ const NavigationBar = () => {
             <ArrowIcon
               onClick={() => {
                 setIsCollapsed(!isCollapsed);
-                console.log(isCollapsed);
               }}
               style={{
                 transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
@@ -663,7 +660,6 @@ const NavigationBar = () => {
             <ArrowIcon
               onClick={() => {
                 setIsCollapsed(!isCollapsed);
-                console.log(isCollapsed);
               }}
               style={{
                 transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
