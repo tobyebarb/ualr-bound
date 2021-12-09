@@ -27,8 +27,6 @@ const MyNextProspectTable = (props) => {
           setStudentData(data);
           const sra = await actions.getStudentSRAInfo(props.selectedTNumber);
           setStudentSRAData(sra);
-          console.log("DATA:", data);
-          console.log("SRA:", sra);
         } catch (err) {
           console.log("Error", err);
           setStudentData(null);
