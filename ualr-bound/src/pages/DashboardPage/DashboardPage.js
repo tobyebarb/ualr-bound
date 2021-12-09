@@ -20,33 +20,7 @@ const DashboardPage = () => {
     }
   }, [store.ui.importIsVisible]);
 
-  useEffect(() => {
-    if (store.token && store.token !== "" && store.token !== undefined)
-      actions.getMessage();
-  }, [store.token]);
-
-  if (
-    store.token &&
-    store.token !== "" &&
-    store.token !== undefined &&
-    store.user.access_level !== "Caller"
-  ) {
-    return (
-      <div className="dashboard-container">
-        <h1>UALR Bound Dashboard :)</h1>
-        <h2>{store.message === null ? "Loading..." : store.message}</h2>
-        <button onClick={actions.logout}>Logout</button>
-        <NavigationBar />
-
-        <FileUploader ref={fileRef} />
-      </div>
-    );
-  } else if (
-    store.token &&
-    store.token !== "" &&
-    store.token !== undefined &&
-    store.user.access_level === "Caller"
-  ) {
+  if (store.token && store.token !== "" && store.token !== undefined) {
     return <Redirect to="/prospects" />;
   } else {
     return <Redirect to="/login" />;
