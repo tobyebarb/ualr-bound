@@ -145,6 +145,10 @@ const getState = ({ getStore, getActions, setStore }) => {
           console.log("Error");
           return { msg: "Please fill out response and notes.", status: 400 };
         }
+
+      login: async (usernameInput, passwordInput) => {
+        const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/token`; //http://127.0.0.1:5000/token
+
         const headers = {
           Accept: "application/json",
           "Content-Type": "application/json",
