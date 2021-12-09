@@ -31,7 +31,7 @@ const LineChart = () => {
     if (date0 !== null && date1 !== null) {
       setDataInit(true);
       d3.csv(
-        `${constants.ENDPOINT_URL.LOCAL}/api/getNumberOfCallsMade/${date0}/${date1}`
+        `${constants.ENDPOINT_URL.PRODUCTION}/api/getNumberOfCallsMade/${date0}/${date1}`
       ).then((d) => {
         const parseDate = d3.timeParse("%Y%m%d");
         d.forEach((i) => {
