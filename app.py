@@ -1105,10 +1105,22 @@ def register():
         email = request.json.get("email", None)
         access_level = request.json.get("access-level", None)
         userMatch = False
+        emailMatch = False
         regMatch = False
 
         print(f'\nRecieved Request:\nName:{name}\nUsername:{username}\nPassword:{password}\nEmail:{email}\nAccess Level:{access_level}\n')
         
+        if not name:
+            return jsonify({"msg":  "Fill out name field."}), 400
+        if not username:
+            return jsonify({"msg":  "Fill out username field."}), 400
+        if not password:
+            return jsonify({"msg":  "Fill out password field."}), 400
+        if not email:
+            return jsonify({"msg":  "Fill out email field."}), 400
+        if not access_level:
+            return jsonify({"msg":  "Fill out access level field."}), 400
+
         if name and username and password and email and access_level:
 
             if RegistrationRequest.query.filter_by(username=username).first():
@@ -1118,9 +1130,9 @@ def register():
             if RegistrationRequest.query.filter_by(email=email).first():
                 regMatch = True
             if ValidUser.query.filter_by(email=email).first():
-                userMatch = True
+                emailMatch = True
 
-            if not (userMatch or regMatch):
+            if not (userMatch or regMatch or emailMatch):
                 print('\nCreating row in database...\n')
                 regRequest = RegistrationRequest(name=name, username=username, password=password, email=email, accessLevel=access_level)
                 db.session.add(regRequest)
@@ -1148,11 +1160,17 @@ def register():
                     "email_status": True
                     }), 200
             elif userMatch:
-                print('\nA user with that information already exists!')
-                return jsonify({"msg":  "Information already exists among valid users."}), 400
-            else:
+                print('\nA user with that username already exists!')
+                return jsonify({"msg":  "A user with that username already exists!"}), 400
+            elif emailMatch:
+                print('\nA user with that email already exists!')
+                return jsonify({"msg":  "A user with that email already exists!"}), 400
+            elif regMatch:
                 print('\nA request with that information is awaiting approval.')
                 return jsonify({"msg":  "Information already exists on pending request."}), 400
+            else:
+                print('\nUnexpected error.')
+                return jsonify({"msg":  "Unexpected Error... Try Again."}), 400
     #access_token = create_access_token(identity=username)
     #return jsonify(access_token=access_token)
 
