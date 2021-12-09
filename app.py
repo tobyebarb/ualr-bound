@@ -183,7 +183,8 @@ def getStudentSRAInfo(tNumber):
             "year", 
             "wasCalled", 
             "prevCaller", 
-            "dateCalled", 
+            "dateCalled0", 
+            "dateCalled1", 
             "numTimesCalled",
             "callResponse0",
             "callResponse1",
@@ -203,7 +204,7 @@ def getNextProspect():
 
         current_time = datetime.utcnow() # Get current_time
         expiration_interval_delta_time = current_time - timedelta(minutes=30) # Get expired token DateTime object from 30 minutes ago
-        call_interval_delta_time = current_time - timedelta(days=2) # Get CALL_INTERVAL token DateTime object from 2 days ago
+        #call_interval_delta_time = current_time - timedelta(days=2) # Get CALL_INTERVAL token DateTime object from 2 days ago
 
         #caller = ValidUser.query.filter_by(username=callerUsername).first() # Check for caller if username given in POST body (DEBUG PURPOSES ONLY)
 
@@ -241,6 +242,21 @@ def getNextProspect():
             & (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
             )
 
+        never_called_prospect_list = ProspectSRA.query.join(ProspectImportData).add_columns(
+            ProspectSRA.id, 
+            ProspectImportData.tNumber, 
+            ProspectImportData.status, 
+            ProspectImportData.timeLastAccessed, 
+            ProspectImportData.assignedCaller,
+            ProspectSRA.wasCalled,
+            ProspectSRA.numTimesCalled,
+            ).filter(
+                (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
+                & (ProspectImportData.assignedCaller == None) # Make sure the prospects don't have a currently assigned caller
+                & (ProspectSRA.numTimesCalled == 0) # Make sure the prospects haven't been called more than two times
+                & (ProspectImportData.timeLastAccessed == None)
+                ).all()
+
         prospect_list = ProspectSRA.query.join(ProspectImportData).add_columns(
             ProspectSRA.id, 
             ProspectImportData.tNumber, 
@@ -253,10 +269,10 @@ def getNextProspect():
                 (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
                 & (ProspectImportData.assignedCaller == None) # Make sure the prospects don't have a currently assigned caller
                 & (ProspectSRA.numTimesCalled <= 1) # Make sure the prospects haven't been called more than two times
-                & ( # Make sure the prospect haven't been called in the past two days or they haven't been called at all
-                    (ProspectImportData.timeLastAccessed < call_interval_delta_time)
-                    | (ProspectImportData.timeLastAccessed == None)
-                    )
+                #& ( # Make sure the prospect haven't been called in the past two days or they haven't been called at all
+                    #(ProspectImportData.timeLastAccessed < call_interval_delta_time)
+                    #| (ProspectImportData.timeLastAccessed == None)
+                    #)
             ).order_by(
                 ProspectSRA.numTimesCalled.desc(), # Number of time called has top priority
                 ProspectImportData.timeLastAccessed.desc()).all() # Time last accessed as secondary priority
@@ -297,7 +313,31 @@ def getNextProspect():
                 return jsonify(jsonData), 200
             else:
                 return jsonify({'msg': 'Unexpected error: Expired prospect not found.'}), 404
-        
+
+        elif len(never_called_prospect_list) > 0:
+            """
+            Happy path (no expired students): Provide student who has least calls and latest timeLastAccessed,
+                1. Update student's SRA data to assign to new caller
+                2. Update students's SRA data to new timeLastAccessed to "current_time"
+            """
+            prospect = ProspectImportData.query.filter_by(tNumber=never_called_prospect_list[0].tNumber).first()
+            if prospect:
+                print("Updating prospect's assigned caller and time last accessed...")
+                prospect.assignedCaller = caller.username
+                prospect.timeLastAccessed = current_time
+                print(
+                    "Prospect " + prospect.tNumber + 
+                    "\nNew assignedCaller: " + caller.username + 
+                    "\nNew timeLastAccessed: " + str(current_time)
+                    )
+                db.session.commit()
+                print("Returning prospect...")
+                jsonData = row2dict(prospect, ["tNumber"])
+                print("Returning data:", jsonData)
+                return jsonify(jsonData), 200
+            else:
+                return jsonify({'msg': 'Unexpected error: Prospect not found.'}), 404
+
         elif len(prospect_list) > 0:
             """
             Happy path (no expired students): Provide student who has least calls and latest timeLastAccessed,
@@ -360,7 +400,7 @@ def updateProspectData():
 
         import_data.timeLastAccessed = current_time
         import_data.assignedCaller = None
-        import_data.wasCalled = True
+        sra_data.wasCalled = True
         sra_data.prevCaller = caller.username
         sra_data.numTimesCalled = newNumTimesCalled
 

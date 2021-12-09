@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import PhoneIcon from "../icons/PhoneIcon";
 import * as constants from "../utils/Constants";
 
 const getState = ({ getStore, getActions, setStore }) => {
@@ -191,16 +192,46 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         const data = await response.json();
 
+        const getDateCalled = () => {
+          if (data.numTimesCalled === "0") {
+            return null;
+          } else if (data.numTimesCalled === "1") {
+            return data.dateCalled0.toString().split(" ")[0];
+          } else {
+            return null;
+          }
+        };
+
+        const getCallResponse = () => {
+          if (data.numTimesCalled === "0") {
+            return null;
+          } else if (data.numTimesCalled === "1") {
+            return data.callResponse0.toString().split(".")[1];
+          } else {
+            return null;
+          }
+        };
+
+        const getCallNotes = () => {
+          if (data.numTimesCalled === "0") {
+            return null;
+          } else if (data.numTimesCalled === "1") {
+            return data.callNotes0;
+          } else {
+            return null;
+          }
+        };
+
         var row_data = {
           tNumber: data.tNumber,
           term: data.term.split(".")[1],
           year: data.year,
           wasCalled: data.wasCalled === "None" ? null : data.wasCalled,
           prevCaller: data.prevCaller === "None" ? null : data.prevCaller,
-          dateCalled: data.dateCalled === "None" ? null : data.dateCalled,
+          dateCalled: getDateCalled(),
           numTimesCalled: data.numTimesCalled,
-          callResponse: data.callResponse === "None" ? null : data.callResponse,
-          callNotes: data.callNotes === "None" ? null : data.callNotes,
+          callResponse: getCallResponse(),
+          callNotes: getCallNotes(),
           wasEmailed: data.wasEmailed === "None" ? null : data.wasEmailed,
           dateEmailed: data.dateEmailed === "None" ? null : data.dateEmailed,
           emailText: data.emailText === "None" ? null : data.emailText,
@@ -227,9 +258,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           const response = await fetch(endpoint, opts);
 
           const data = await response.json();
-
-          console.log(response);
-          console.log(data);
 
           if (response.status !== 200) {
             return { status: data.status, msg: data.msg };
