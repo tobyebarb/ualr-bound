@@ -19,9 +19,7 @@ const LoginPage = () => {
   const [passInvalid, setPassInvalid] = useState(false);
   const history = useHistory();
 
-  console.log("Token: ", store.token);
-
- /* var shake = keyframes`
+  /* var shake = keyframes`
     0% { transform: translateX(0); }
     25% { transform: translateX(-2rem); }
     50% { transform: translateX(2rem); }
@@ -216,11 +214,14 @@ const LoginPage = () => {
         </div>
       </div>
     );
-  }
-  else if((store.token && store.token !== "" && store.token !== null) && (store.user.access_level === "Caller")) {
-    return <Redirect to = "/prospects"/>  
-  }
-  else {
+  } else if (
+    store.token &&
+    store.token !== "" &&
+    store.token !== null &&
+    store.user.access_level === "Caller"
+  ) {
+    return <Redirect to="/prospects" />;
+  } else {
     console.log("Redirecting to prospsects.");
     return <Redirect to="/prospects" />;
   }

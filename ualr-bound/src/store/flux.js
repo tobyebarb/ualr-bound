@@ -321,8 +321,6 @@ const getState = ({ getStore, getActions, setStore }) => {
         return true;
       },
       setDimensions: (width, height) => {
-        console.log("Width", width);
-        console.log("Height", height);
         setStore({
           window: { width: width, height: height },
         });
@@ -612,7 +610,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/register`;
 
-        var data = {
+        var newData = {
           name: nameInput,
           username: usernameInput,
           email: emailInput,
@@ -620,25 +618,46 @@ const getState = ({ getStore, getActions, setStore }) => {
           "access-level": accessLevelInput,
         };
 
-        fetch(endpoint, {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(data),
-        })
-          .then((response) => {
-            return response.json();
-          })
-          .then((data) => {
-            window.location.assign("/");
-          })
-          .catch((error) => {
-            console.error(
-              "There was an error with your request. Try again.\nError: " +
-                error
-            );
+        // fetch(endpoint, {
+        //   method: "POST",
+        //   headers: headers,
+        //   body: JSON.stringify(data),
+        // })
+        //   .then((response) => {
+        //     return response.json();
+        //   })
+        //   .then((data) => {
+        //     window.location.assign("/");
+        //     return data;
+        //   })
+        //   .catch((error) => {
+        //     console.error(
+        //       "There was an error with your request. Try again.\nError: " +
+        //         error
+        //     );
+        //   });
+
+        // return true;
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(newData),
           });
 
-        return true;
+          const data = await response.json();
+
+          if (response.status !== 200) {
+            return { status: data.status, msg: data.msg };
+          }
+
+          window.location.href = "/";
+
+          return data;
+        } catch (error) {
+          return error;
+          //alert("There has been an error logging in.");
+        }
       },
       login: async (usernameInput, passwordInput) => {
         const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/token`; //http://127.0.0.1:5000/token
@@ -824,7 +843,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 
           setStore({ requests: new_data });
           // updateRowsFunc(new_data);
-          console.log("Updated rows.", store.requests);
           return new_data;
         } catch (error) {
           console.error("Error", error);
