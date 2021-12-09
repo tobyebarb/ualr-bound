@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import "./MyNextProspectTable.css";
-import ualrLogo from "../../icons/UALR Logo.svg";
+import { ReactComponent as UALRLogo } from "../../icons/UALR Logo.svg";
 import { Redirect } from "react-router-dom";
 import { Context } from "../../store/appContext";
 import StudentDetails from "../../components/Table/components/StudentDetails/StudentDetails";
@@ -123,6 +123,10 @@ const MyNextProspectTable = (props) => {
             Click on the next button in the bottom-right to get your next
             prospect!
           </p>
+        </div>
+
+        <div className="ualr-logo">
+          <UALRLogo />
         </div>
       </div>
     );

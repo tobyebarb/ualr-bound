@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import "./MyNextProspectPage.css";
-import ualrLogo from "../../icons/UALR Logo.svg";
 import { Redirect } from "react-router-dom";
 import { Context } from "../../store/appContext";
 import StudentDetails from "../../components/Table/components/StudentDetails/StudentDetails";

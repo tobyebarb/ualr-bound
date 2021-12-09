@@ -272,15 +272,27 @@ const StudentDetailsModal = (props) => {
             </option>
             <option value="ACCT-BBA">ACCT-BBA / Accounting</option>
             <option value="ANTH-BA">ANTH-BA / Anthropology</option>
-            <option value="BIOL-BS-1">BIOL-BS / Biology, Ecology & Organismal Concentration</option>
-            <option value="BIOL-BS-2">BIOL-BS / Biology, Education Track</option>
-            <option value="BIOL-BS-3">BIOL-BS / Biology, General Biology Concentration</option>
-            <option value="BIOL-BS-4">BIOL-BS / Biology, Molecular Biotechnology Concentration</option>
+            <option value="BIOL-BS-1">
+              BIOL-BS / Biology, Ecology & Organismal Concentration
+            </option>
+            <option value="BIOL-BS-2">
+              BIOL-BS / Biology, Education Track
+            </option>
+            <option value="BIOL-BS-3">
+              BIOL-BS / Biology, General Biology Concentration
+            </option>
+            <option value="BIOL-BS-4">
+              BIOL-BS / Biology, Molecular Biotechnology Concentration
+            </option>
             <option value="CHEM-BS">CHEM-BS / Chemistry</option>
             <option value="CPSC-BS">CPSC-BS / Computer Science</option>
-            <option value="CPSCG-BS ">CPSCG-BS / Computer Science, Game-BS</option>
+            <option value="CPSCG-BS ">
+              CPSCG-BS / Computer Science, Game-BS
+            </option>
             <option value="CPSC-BA">CPSC-BA / Computer Science</option>
-            <option value="CPSCG-BA">CPSCG-BA / Computer Science, Game-BA</option>
+            <option value="CPSCG-BA">
+              CPSCG-BA / Computer Science, Game-BA
+            </option>
             <option value="OTHER">Other</option>
           </select>
         </div>
@@ -304,10 +316,16 @@ const StudentDetailsModal = (props) => {
             <option value="" selected disabled hidden>
               Choose one...
             </option>
-            <option value="COLLEGE_1">Donaghey Col Sci Tech Eng Math</option>
-            <option value="COLLEGE_2">College of Business, Health, and Human Services </option>
-            <option value="COLLEGE_3">School of Business</option>
-            <option value="COLLEGE_4">College of Humanities, Arts, Social Sciences, and Education </option>
+            <option value="Donaghey Col Sci Tech Eng Math">
+              Donaghey Col Sci Tech Eng Math
+            </option>
+            <option value="College of Business, Health, and Human Services">
+              College of Business, Health, and Human Services
+            </option>
+            <option value="School of Business">School of Business</option>
+            <option value="College of Humanities, Arts, Social Sciences, and Education">
+              College of Humanities, Arts, Social Sciences, and Education
+            </option>
           </select>
         </div>
         <div className="input-container">

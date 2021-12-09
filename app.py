@@ -666,6 +666,7 @@ def getStudentsRatio():
 @cross_origin()
 def getStudentsSRA():
     user = ValidUser.query.filter_by(username=get_jwt_identity()).first()
+
     if str(user.accessLevel) == "accessLevel.root" or str(user.accessLevel) == "accessLevel.admin":
         data = ProspectSRA.query.join(ProspectImportData).add_columns(
             ProspectSRA.tNumber, 
@@ -684,12 +685,6 @@ def getStudentsSRA():
             ProspectImportData.department,
             )
 
-        col_count = 14
-
-        #wantedColumns = ["tNumber", "name1", "name2", "name3", "wasCalled", "numTimesCalled", "callResponse0", "callResponse1", "wasEmailed", "ethnicity", "sex", "program", "college", "department"]
-        
-        #data = ProspectSRA.query.join(ProspectImportData).all()
-        #data = db.session.query(ProspectSRA).all()
         count = data.count()
         jsonData = {}
         for i in range(count):
@@ -700,8 +695,8 @@ def getStudentsSRA():
             d['name3'] = data[i].name3
             d['wasCalled'] = data[i].wasCalled
             d['numTimesCalled'] = data[i].numTimesCalled
-            d['callResponse0'] = data[i].callResponse0
-            d['callResponse1'] = data[i].callResponse1
+            d['callResponse0'] = str(data[i].callResponse0).split(".")[1] if data[i].callResponse0 != None else None
+            d['callResponse1'] = str(data[i].callResponse1).split(".")[1] if data[i].callResponse1 != None else None
             d['wasEmailed'] = data[i].wasEmailed
             d['ethnicity'] = data[i].ethnicity
             d['sex'] = data[i].sex
@@ -1064,11 +1059,6 @@ def formatQuery(data, rowCount, wantedColumns):
 @cross_origin()
 def register():
     if request.method == 'POST':
-        tard = RegistrationRequest(name = "Aaron Murtishaw", username = "tardcarter", password ="donuts", email="tard@gmail.com", accessLevel="root")
-        validTard = ValidUser(name = tard.name, username = tard.username, password = tard.hashedPassword, email = tard.email, accessLevel = tard.accessLevel, activationStatus = True);
-        db.session.add(validTard)
-        db.session.commit()
-
         name = request.json.get("name", None)
         username = request.json.get("username", None)
         password = request.json.get("password", None)

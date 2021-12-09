@@ -160,9 +160,9 @@ class ProspectImportData(db.Model):
     #term = db.Column(db.Text)
     #Might make enum for level
     level = db.Column(db.String(30))
-    program = db.Column(db.String(30))
-    college = db.Column(db.String(30))
-    department = db.Column(db.String(30))
+    program = db.Column(db.Text)
+    college = db.Column(db.Text)
+    department = db.Column(db.Text)
     decision = db.Column(db.Text)
     admitDate = db.Column(db.Text)
     address1 = db.Column(db.String(100), nullable=False)

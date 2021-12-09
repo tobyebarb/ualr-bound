@@ -45,6 +45,7 @@
     font-size: 1.5rem;
 
     color: #FFFFFF;
+    margin-left: 3rem;
 }
 
 .prospect-table-text-noninit p:last-child {
@@ -105,4 +106,9 @@
 
 .prospect-update-button-container button:hover {
     border: 5px solid #413f3f;
+}
+
+.ualr-logo {
+    margin-left: auto;
+    margin-right: 3rem;
 }
