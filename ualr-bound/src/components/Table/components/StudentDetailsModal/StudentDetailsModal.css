@@ -61,6 +61,14 @@
   /* transform-origin: 100% 50%; */
 }
 
+.student-input > option {
+  font-family: Montserrat;
+  font-style: normal;
+  font-size: 1.25rem;
+  background-color: lightgray;
+  color: black;
+}
+
 .student-input:focus {
   background: transparent;
   outline: none;
