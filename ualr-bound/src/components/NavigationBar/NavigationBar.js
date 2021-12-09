@@ -5,6 +5,7 @@ import styled from "styled-components";
 import "./NavigationBar.css";
 import * as constants from "../../utils/Constants";
 import { Context } from "../../store/appContext";
+import ImportIcon from "../../icons/ImportIcon";
 import EditCallersIcon from "../../icons/EditCallersIcon";
 import RequestsIcon from "../../icons/RequestsIcon";
 import StudentsIcon from "../../icons/StudentsIcon";
@@ -14,16 +15,24 @@ import ArrowIcon from "../../icons/ArrowIcon";
 import NavBarUserIcon from "../../icons/NavBarUserIcon";
 import NavBarAccessLevelIcon from "../../icons/NavBarAccessLevelIcon";
 import NavBarLabelIcon from "../../icons/NavBarLabelIcon";
+import PhoneIcon from "../../icons/PhoneIcon";
 
 const NavigationBar = () => {
   const { store, actions } = useContext(Context);
   const [collapseOffset, setCollapseOffset] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [prospectFocused, setProspectFocused] = useState(false);
   const [editCallersFocused, setEditCallersFocused] = useState(false);
   const [requestsFocused, setRequestsFocused] = useState(false);
   const [studentsFocused, setStudentsFocused] = useState(false);
   const [analyticsFocused, setAnalyticsFocused] = useState(false);
   const [logoutFocused, setLogoutFocused] = useState(false);
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth,
+  });
+  const [importFocused, setImportFocused] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const setIconsFocus = (boolean) => {
     setEditCallersFocused(boolean);
@@ -31,6 +40,8 @@ const NavigationBar = () => {
     setStudentsFocused(boolean);
     setAnalyticsFocused(boolean);
     setLogoutFocused(boolean);
+    setImportFocused(boolean);
+    setProspectFocused(boolean);
   };
 
   const svgContainerStyle = {
@@ -44,13 +55,57 @@ const NavigationBar = () => {
   const arrowWidthRef = useRef(null);
   const dividerWidthRef = useRef(null);
 
+  const timeDelay = 250;
+
+  function debounce(fn, ms) {
+    let timer;
+
+    return (_) => {
+      clearTimeout(timer);
+
+      timer = setTimeout((_) => {
+        timer = null;
+
+        fn.apply(this, arguments);
+      }, ms);
+    };
+  }
+  useEffect(() => {
+    if (store.user.access_level === "Root") {
+      setIsVisible(true);
+    }
+    const debouncedHandleResize = debounce(function handleResize() {
+      setDimensions({
+        height: window.innerHeight,
+        width: window.innerWidth,
+      });
+
+      actions.setDimensions(window.innerWidth, window.innerHeight);
+    }, timeDelay);
+
+    window.addEventListener("resize", debouncedHandleResize);
+
+    return (_) => {
+      window.removeEventListener("resize", debouncedHandleResize);
+    };
+  });
+
+  useEffect(() => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth,
+    });
+
+    actions.setDimensions(window.innerWidth, window.innerHeight);
+  }, []); // resize handler?
+
   useEffect(() => {
     setCollapseOffset(
       navWidthRef.current.offsetWidth -
         (arrowWidthRef.current.offsetWidth +
           dividerWidthRef.current.offsetWidth)
     );
-  }, []);
+  }, [dimensions]); // resize handler?
 
   const svgStyle = {
     width: "50px",
@@ -64,21 +119,8 @@ const NavigationBar = () => {
     // marginTop: "-65px",
   };
 
-  const parseAccessLevelStr = (string) => {
-    const capitalize = (str) => {
-      if (typeof str === "string") {
-        return str.replace(/^\w/, (c) => c.toUpperCase());
-      } else {
-        return "";
-      }
-    };
-    return capitalize(string.split(".")[1]);
-  };
-
   const username = store.user.username;
-  const access_level = store.user.access_level
-    ? parseAccessLevelStr(store.user.access_level)
-    : "";
+  const access_level = store.user.access_level;
 
   const focusColor = "#FFFFFF";
 
@@ -159,153 +201,480 @@ const NavigationBar = () => {
     margin-right: 1rem;
   `;
 
-  return (
-    <div
-      className="navigation-container"
-      isCollapsed={isCollapsed}
-      ref={navWidthRef}
-      style={{
-        transform: isCollapsed
-          ? `translateX(calc(-${collapseOffset}px + 3rem ))` //TODO Media Query so small screen dont get collapsed menu invisible
-          : "translateX(0)",
-      }}
-    >
-      {/* ---------------------------------- */}
-      <UserDetailsContainer>
-        <UserDetailsSection>
-          <NavBarUserIcon id="user-detail-user" />
-          <TextContainer> : {username}</TextContainer>
-        </UserDetailsSection>
-        <UserDetailsSection>
-          <NavBarAccessLevelIcon id="user-detail-level" />
-          <TextContainer> : {access_level}</TextContainer>
-        </UserDetailsSection>
-      </UserDetailsContainer>
-      {/* ---------------------------------- */}
-      <TaskBarContainer>
-        <div
-          onMouseEnter={() => setEditCallersFocused(true)}
-          onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            marginLeft: "2rem",
-            position: "relative",
-            ...outerIconStyle,
-          }}
-        >
-          <NavBarLabelIcon
-            style={navBarLabelStyle}
-            id="icon-div"
-            isFocused={editCallersFocused}
-            text="Edit Callers"
-          />
-          <EditCallersIcon
-            style={svgContainerStyle}
-            focused={editCallersFocused}
-            focusedColor={focusColor}
-          />
-        </div>
-        <Divider />
-        <div
-          onMouseEnter={() => setRequestsFocused(true)}
-          onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            position: "relative",
-            ...outerIconStyle,
-          }}
-        >
-          <NavBarLabelIcon
-            style={navBarLabelStyle}
-            id="icon-div"
-            isFocused={requestsFocused}
-            text="Requests"
-          />
-          <RequestsIcon
-            style={svgContainerStyle}
-            focused={requestsFocused}
-            focusedColor={focusColor}
-          />
-        </div>
-        <Divider />
-        <div
-          onMouseEnter={() => setStudentsFocused(true)}
-          onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            position: "relative",
-            ...outerIconStyle,
-          }}
-        >
-          <NavBarLabelIcon
-            style={navBarLabelStyle}
-            id="icon-div"
-            isFocused={studentsFocused}
-            text="Students"
-          />
-          <StudentsIcon
-            style={svgContainerStyle}
-            focused={studentsFocused}
-            focusedColor={focusColor}
-          />
-        </div>
-        <Divider />
-        <div
-          onMouseEnter={() => setAnalyticsFocused(true)}
-          onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            position: "relative",
-            ...outerIconStyle,
-          }}
-        >
-          <NavBarLabelIcon
-            style={navBarLabelStyle}
-            id="icon-div"
-            isFocused={analyticsFocused}
-            text="Analytics"
-          />
-          <AnalyticsIcon
-            style={svgContainerStyle}
-            focused={analyticsFocused}
-            focusedColor={focusColor}
-          />
-        </div>
-        <Divider />
-        <div
-          onMouseEnter={() => setLogoutFocused(true)}
-          onMouseLeave={() => setIconsFocus(false)}
-          style={{
-            position: "relative",
-            ...outerIconStyle,
-          }}
-        >
-          <NavBarLabelIcon
-            style={navBarLabelStyle}
-            id="icon-div"
-            isFocused={logoutFocused}
-            text="Logout"
-          />
-          <LogoutIcon
-            style={svgContainerStyle}
-            focused={logoutFocused}
-            focusedColor={focusColor}
-          />
-        </div>
-        <Divider ref={dividerWidthRef} />
-        <ArrowContainer ref={arrowWidthRef}>
-          <ArrowIcon
-            onClick={() => {
-              setIsCollapsed(!isCollapsed);
-              console.log(isCollapsed);
-            }}
-            style={{
-              transform: isCollapsed
-                ? `rotate(180deg)` //TODO: Create media queries so navbar doesn't go too far left on collapse
-                : "rotate(0deg)",
-            }}
-          />
-        </ArrowContainer>
-      </TaskBarContainer>
-      {/* ---------------------------------- */}
-    </div>
-  );
+  var firstIconStyle = {
+    marginLeft: "2rem",
+    position: "relative",
+    ...outerIconStyle,
+  };
+
+  var iconStyle = {
+    position: "relative",
+    ...outerIconStyle,
+  };
+
+  if (store.user.access_level === "Root") {
+    return (
+      <div
+        className="navigation-container"
+        ref={navWidthRef}
+        style={{
+          transform: isCollapsed
+            ? `translateX(calc(-${collapseOffset}px + 3rem ))`
+            : "translateX(0)",
+        }}
+      >
+        {/* ---------------------------------- */}
+        <UserDetailsContainer>
+          <UserDetailsSection>
+            <NavBarUserIcon id="user-detail-user" />
+            <TextContainer> : {username}</TextContainer>
+          </UserDetailsSection>
+          <UserDetailsSection>
+            <NavBarAccessLevelIcon id="user-detail-level" />
+            <TextContainer> : {access_level}</TextContainer>
+          </UserDetailsSection>
+        </UserDetailsContainer>
+        {/* ---------------------------------- */}
+        <TaskBarContainer>
+          <div
+            onMouseEnter={() => setProspectFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={firstIconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={prospectFocused}
+              text="MyNextProspect"
+            />
+            <PhoneIcon
+              style={svgContainerStyle}
+              focused={prospectFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setImportFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={importFocused}
+              text="Import Data"
+            />
+            <ImportIcon
+              style={svgContainerStyle}
+              focused={importFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setEditCallersFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={editCallersFocused}
+              text="Edit Callers"
+            />
+            <EditCallersIcon
+              style={svgContainerStyle}
+              focused={editCallersFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setRequestsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={requestsFocused}
+              text="Requests"
+            />
+            <RequestsIcon
+              style={svgContainerStyle}
+              focused={requestsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setStudentsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={studentsFocused}
+              text="Students"
+            />
+            <StudentsIcon
+              style={svgContainerStyle}
+              focused={studentsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setAnalyticsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={analyticsFocused}
+              text="Analytics"
+            />
+            <AnalyticsIcon
+              style={svgContainerStyle}
+              focused={analyticsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setLogoutFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={logoutFocused}
+              text="Logout"
+            />
+            <LogoutIcon
+              style={svgContainerStyle}
+              focused={logoutFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider ref={dividerWidthRef} />
+          <ArrowContainer ref={arrowWidthRef}>
+            <ArrowIcon
+              onClick={() => {
+                setIsCollapsed(!isCollapsed);
+                console.log(isCollapsed);
+              }}
+              style={{
+                transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
+              }}
+            />
+          </ArrowContainer>
+        </TaskBarContainer>
+        {/* ---------------------------------- */}
+      </div>
+    );
+  } else if (store.user.access_level === "Admin") {
+    return (
+      <div
+        className="navigation-container"
+        ref={navWidthRef}
+        style={{
+          transform: isCollapsed
+            ? `translateX(calc(-${collapseOffset}px + 3rem ))`
+            : "translateX(0)",
+        }}
+      >
+        {/* ---------------------------------- */}
+        <UserDetailsContainer>
+          <UserDetailsSection>
+            <NavBarUserIcon id="user-detail-user" />
+            <TextContainer> : {username}</TextContainer>
+          </UserDetailsSection>
+          <UserDetailsSection>
+            <NavBarAccessLevelIcon id="user-detail-level" />
+            <TextContainer> : {access_level}</TextContainer>
+          </UserDetailsSection>
+        </UserDetailsContainer>
+        {/* ---------------------------------- */}
+        <TaskBarContainer>
+          <div
+            onMouseEnter={() => setProspectFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={firstIconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={prospectFocused}
+              text="MyNextProspect"
+            />
+            <PhoneIcon
+              style={svgContainerStyle}
+              focused={prospectFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setEditCallersFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={editCallersFocused}
+              text="Edit Callers"
+            />
+            <EditCallersIcon
+              style={svgContainerStyle}
+              focused={editCallersFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setRequestsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={requestsFocused}
+              text="Requests"
+            />
+            <RequestsIcon
+              style={svgContainerStyle}
+              focused={requestsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setStudentsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={studentsFocused}
+              text="Students"
+            />
+            <StudentsIcon
+              style={svgContainerStyle}
+              focused={studentsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setAnalyticsFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={analyticsFocused}
+              text="Analytics"
+            />
+            <AnalyticsIcon
+              style={svgContainerStyle}
+              focused={analyticsFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setLogoutFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={logoutFocused}
+              text="Logout"
+            />
+            <LogoutIcon
+              style={svgContainerStyle}
+              focused={logoutFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider ref={dividerWidthRef} />
+          <ArrowContainer ref={arrowWidthRef}>
+            <ArrowIcon
+              onClick={() => {
+                setIsCollapsed(!isCollapsed);
+                console.log(isCollapsed);
+              }}
+              style={{
+                transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
+              }}
+            />
+          </ArrowContainer>
+        </TaskBarContainer>
+        {/* ---------------------------------- */}
+      </div>
+    );
+  } else if (store.user.access_level === "Caller") {
+    return (
+      <div
+        className="navigation-container"
+        ref={navWidthRef}
+        style={{
+          transform: isCollapsed
+            ? `translateX(calc(-${collapseOffset}px + 3rem ))`
+            : "translateX(0)",
+        }}
+      >
+        {/* ---------------------------------- */}
+        <UserDetailsContainer>
+          <UserDetailsSection>
+            <NavBarUserIcon id="user-detail-user" />
+            <TextContainer> : {username}</TextContainer>
+          </UserDetailsSection>
+          <UserDetailsSection>
+            <NavBarAccessLevelIcon id="user-detail-level" />
+            <TextContainer> : {access_level}</TextContainer>
+          </UserDetailsSection>
+        </UserDetailsContainer>
+        {/* ---------------------------------- */}
+        <TaskBarContainer>
+          <div
+            onMouseEnter={() => setProspectFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={firstIconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={prospectFocused}
+              text="MyNextProspect"
+            />
+            <PhoneIcon
+              style={svgContainerStyle}
+              focused={prospectFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setLogoutFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={logoutFocused}
+              text="Logout"
+            />
+            <LogoutIcon
+              style={svgContainerStyle}
+              focused={logoutFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider ref={dividerWidthRef} />
+          <ArrowContainer ref={arrowWidthRef}>
+            <ArrowIcon
+              onClick={() => {
+                setIsCollapsed(!isCollapsed);
+                console.log(isCollapsed);
+              }}
+              style={{
+                transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
+              }}
+            />
+          </ArrowContainer>
+        </TaskBarContainer>
+        {/* ---------------------------------- */}
+      </div>
+    );
+  } else {
+    return (
+      <div
+        className="navigation-container"
+        ref={navWidthRef}
+        style={{
+          transform: isCollapsed
+            ? `translateX(calc(-${collapseOffset}px + 3rem ))`
+            : "translateX(0)",
+        }}
+      >
+        {/* ---------------------------------- */}
+        <UserDetailsContainer>
+          <UserDetailsSection>
+            <NavBarUserIcon id="user-detail-user" />
+            <TextContainer> : {username}</TextContainer>
+          </UserDetailsSection>
+          <UserDetailsSection>
+            <NavBarAccessLevelIcon id="user-detail-level" />
+            <TextContainer> : {access_level}</TextContainer>
+          </UserDetailsSection>
+        </UserDetailsContainer>
+        {/* ---------------------------------- */}
+        <TaskBarContainer>
+          <div
+            onMouseEnter={() => setProspectFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={firstIconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={prospectFocused}
+              text="MyNextProspect"
+            />
+            <PhoneIcon
+              style={svgContainerStyle}
+              focused={prospectFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider />
+          <div
+            onMouseEnter={() => setLogoutFocused(true)}
+            onMouseLeave={() => setIconsFocus(false)}
+            style={iconStyle}
+          >
+            <NavBarLabelIcon
+              style={navBarLabelStyle}
+              id="icon-div"
+              isFocused={logoutFocused}
+              text="Logout"
+            />
+            <LogoutIcon
+              style={svgContainerStyle}
+              focused={logoutFocused}
+              focusedColor={focusColor}
+            />
+          </div>
+          <Divider ref={dividerWidthRef} />
+          <ArrowContainer ref={arrowWidthRef}>
+            <ArrowIcon
+              onClick={() => {
+                setIsCollapsed(!isCollapsed);
+                console.log(isCollapsed);
+              }}
+              style={{
+                transform: isCollapsed ? `rotate(180deg)` : "rotate(0deg)",
+              }}
+            />
+          </ArrowContainer>
+        </TaskBarContainer>
+        {/* ---------------------------------- */}
+      </div>
+    );
+  }
 };
 
 NavigationBar.propTypes = {

@@ -15,12 +15,11 @@ const DecisionButton = (props) => {
   const data = props.params.data;
 
   const onCheckClick = () => {
-    console.log("yes", data);
     props.updateRows(data, true);
+    //actions.sendRegistrationApprovedEmail();
   };
 
   const onCrossClick = () => {
-    console.log("no", data);
     props.updateRows(data, false);
   };
 

@@ -1,43 +1,56 @@
+import React, { useContext, useState } from "react";
 /* TODO: Add first and last name as an entry to registration */
-
-import React, { useState } from "react";
+import validator from "validator";
 import { motion } from "framer-motion";
 import "./RegisterPage.css";
+import NameIcon from "../../icons/NameIcon";
 import UserIcon from "../../icons/UserIcon";
 import PassIcon from "../../icons/PassIcon";
 import EmailIcon from "../../icons/EmailIcon";
 import AccessLevelIcon from "../../icons/AccessLevelIcon";
 import ualrLogo from "../../icons/UALR Logo.svg";
+import { Context } from "../../store/appContext";
 import { Link, BrowserRouter } from "react-router-dom";
 import * as constants from "../../utils/Constants";
 
 const RegisterPage = () => {
+  const { store, actions } = useContext(Context);
+  const [nameInput, setNameInput] = useState("");
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
+  const [checkPasswordInput, setCheckPasswordInput] = useState("");
   const [emailInput, setEmailInput] = useState("");
   const [accessLevelInput, setAccessLevelInput] = useState("");
 
+  const [nameFocused, setNameFocused] = useState(false);
   const [userFocused, setUserFocused] = useState(false);
   const [passFocused, setPassFocused] = useState(false);
+  const [checkPassFocused, setCheckPassFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [accessLevelFocused, setAccessLevelFocused] = useState(false);
+  const [emailInvalid, setEmailInvalid] = useState(false);
+  const [passInvalid, setPassInvalid] = useState(false);
 
+ /* var shake = keyframes`
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2rem); }
+    50% { transform: translateX(2rem); }
+    100% { transform: translateX(0); }
+`;
+*/
+
+  const namePlaceholder = "Name";
   const usernamePlaceholder = "Username";
   const passwordPlaceholder = "Password";
+  const checkPasswordPlaceholder = "Re-Enter Password";
   const emailPlaceholder = "Email";
   const accessLevelPlaceholder = "Choose one...";
 
   const focusColor = "#4c212c";
+  const invalidFocusColor = "#ff0000";
 
   const RegisterBlockDuration = "1";
   const RegisterBlockImgDisplacement = "0.75rem";
-
-  const headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  };
-
-  const endpoint = `${constants.ENDPOINT_URL.PRODUCTION}/register`;
 
   const svgContainerStyle = {
     margin: "0.3rem",
@@ -46,32 +59,55 @@ const RegisterPage = () => {
     float: "left",
   };
 
-  const handleSubmit = () => {
-    //TODO: Put this in store like login func. Also, make sure to redirect user to login page after this.
-    //TODO: Handle invalid emails
-    var data = {
-      username: usernameInput,
-      email: emailInput,
-      password: passwordInput,
-      "access-level": accessLevelInput,
-    };
+  const onKeyPressHandler = (e) => {
+    if (e.key === "Enter") {
+      // do something
+      e.preventDefault();
+      console.log("Enter key pressed!");
+      handleSubmit();
+    }
+  };
 
-    fetch(endpoint, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error(
-          "There was an error with your request. Try again.\nError: " + error
-        );
-      });
+  //Needed for password validation stylization (shakes the input field)
+  if(document.getElementById("checkedPass")){
+    var passElement = document.getElementById("checkedPass")
+    var addPassError = function() { passElement.classList.add("error"); };
+    var removePassError = function() { passElement.classList.remove("error"); };
+  }
+
+  if(document.getElementById("email")){
+    var emailElement = document.getElementById("email")
+    var addEmailError = function() { emailElement.classList.add("error"); };
+    var removeEmailError = function() { emailElement.classList.remove("error") }
+  }
+
+
+  const handleSubmit = () => {
+    //TODO: Handle invalid emails
+    if (validator.isEmail(emailInput)) {
+      if (passwordInput === checkPasswordInput) {
+           actions.register(
+            nameInput,
+            usernameInput,
+            emailInput,
+            passwordInput,
+            accessLevelInput
+          );
+        } 
+        else {
+          setPassInvalid(true);
+          console.log("Passwords don't match"); //TODO: User feedback when password not matching
+        }
+      }
+      else{
+        setEmailInvalid(true);
+      }
+  
+  };
+
+  const updateName = (e) => {
+    e.preventDefault();
+    setNameInput(e.target.value);
   };
 
   const updateUsername = (e) => {
@@ -84,9 +120,16 @@ const RegisterPage = () => {
     setPasswordInput(e.target.value);
   };
 
+  const updateValidatePassword = (e) => {
+    e.preventDefault();
+    setCheckPasswordInput(e.target.value);
+    setPassInvalid(false);
+  };
+
   const updateEmail = (e) => {
     e.preventDefault();
     setEmailInput(e.target.value);
+    setEmailInvalid(false);
   };
 
   const updateAccessLevel = (e) => {
@@ -94,10 +137,14 @@ const RegisterPage = () => {
     setAccessLevelInput(e.target.value);
   };
 
+  const onNameFocus = () => setNameFocused(true);
+  const onNameBlur = () => setNameFocused(false);
   const onUserFocus = () => setUserFocused(true);
   const onUserBlur = () => setUserFocused(false);
   const onPassFocus = () => setPassFocused(true);
   const onPassBlur = () => setPassFocused(false);
+  const onCheckPassFocus = () => setCheckPassFocused(true);
+  const onCheckPassBlur = () => setCheckPassFocused(false);
   const onEmailFocus = () => setEmailFocused(true);
   const onEmailBlur = () => setEmailFocused(false);
   const onAccessLevelFocus = () => setAccessLevelFocused(true);
@@ -125,6 +172,35 @@ const RegisterPage = () => {
             <div className="register-form-container">
               <div
                 style={{
+                  border: nameFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className="register-input-row"
+              >
+                <NameIcon
+                  style={svgContainerStyle}
+                  focused={nameFocused}
+                  focusedColor={focusColor}
+                />
+                <input
+                  required
+                  type="text"
+                  className="register-input"
+                  onFocus={onNameFocus}
+                  onBlur={onNameBlur}
+                  placeholder={namePlaceholder}
+                  name="name"
+                  id="name"
+                  value={nameInput}
+                  onChange={updateName}
+                  content={focusColor}
+                  onKeyPress={onKeyPressHandler}
+                />
+              </div>
+
+              <div
+                style={{
                   border: userFocused
                     ? `5px solid ${focusColor}`
                     : "5px solid #FFFFFF",
@@ -148,21 +224,28 @@ const RegisterPage = () => {
                   value={usernameInput}
                   onChange={updateUsername}
                   content={focusColor}
+                  onKeyPress={onKeyPressHandler}
                 />
               </div>
 
               <div
                 style={{
-                  border: emailFocused
+                  border: emailInvalid
+                    ? `5px solid ${invalidFocusColor}`
+                    : userFocused
                     ? `5px solid ${focusColor}`
                     : "5px solid #FFFFFF",
                 }}
-                className="register-input-row"
+                className={
+                  emailInvalid ? "register-input-row invalid" : "register-input-row"
+                }
               >
                 <EmailIcon
                   style={svgContainerStyle}
+                  invalid={emailInvalid}
                   focused={emailFocused}
                   focusedColor={focusColor}
+                  invalidFocusColor={invalidFocusColor}
                 />
                 <input
                   required
@@ -176,6 +259,7 @@ const RegisterPage = () => {
                   value={emailInput}
                   onChange={updateEmail}
                   content={focusColor}
+                  onKeyPress={onKeyPressHandler}
                 />
               </div>
 
@@ -212,6 +296,42 @@ const RegisterPage = () => {
                   value={passwordInput}
                   onChange={updatePassword}
                   content={focusColor}
+                  onKeyPress={onKeyPressHandler}
+                />
+              </div>
+
+              <div
+                style={{
+                  border: passInvalid
+                    ? `5px solid ${invalidFocusColor}`
+                    : passFocused
+                    ? `5px solid ${focusColor}`
+                    : "5px solid #FFFFFF",
+                }}
+                className={
+                  passInvalid ? "register-input-row invalid" : "register-input-row"
+                }
+              >
+                <PassIcon
+                  style={svgContainerStyle}
+                  invalid={passInvalid}
+                  focused={checkPassFocused}
+                  focusedColor={focusColor}
+                  invalidFocusColor={invalidFocusColor}
+                />
+                <input
+                  required
+                  type="password"
+                  className="register-input"
+                  onFocus={onCheckPassFocus}
+                  onBlur={onCheckPassBlur}
+                  placeholder={checkPasswordPlaceholder}
+                  name="password"
+                  id="checkedPass"
+                  value={checkPasswordInput}
+                  onChange={updateValidatePassword}
+                  content={focusColor}
+                  onKeyPress={onKeyPressHandler}
                 />
               </div>
 
@@ -258,15 +378,15 @@ const RegisterPage = () => {
               <button
                 content={focusColor}
                 className="register-form-button"
-                onClick={handleSubmit}
+                onClick={() => handleSubmit()}
               >
                 Send Request
               </button>
               <BrowserRouter>
                 <Link
-                  to="/"
+                  to="/login"
                   onClick={() => {
-                    window.location.href = "/";
+                    window.location.href = "/login";
                   }}
                   content={focusColor}
                   className="register-form-button"

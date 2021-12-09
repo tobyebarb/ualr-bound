@@ -74,6 +74,18 @@
     transition: all 250ms ease-in-out;
 }
 
+.invalid{
+    animation: wiggle 0.75s linear;
+    position: relative;
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+   20%, 60% { transform: rotate(2.5deg); }
+   40%, 80% { transform: rotate(-2.5deg); }
+  }
+
+
 .icon path {
     transition: all 250ms ease-in-out;
 }
@@ -160,11 +172,13 @@
     font-style: normal;
     font-size: 3rem;
 
-    color: #FFFFFF;
+    background-color: lightgray;
+    color: black;
     border-bottom: solid 0 #fff;  
     transition: all 250ms ease-in-out;
 
 }
+
 
 .register-content {
     display: flex;
@@ -228,8 +242,10 @@
 
 @media screen and (min-width: 1200px) and (max-width: 1920px) {
     .register-input-row {
-        margin-top: 2rem;
-        margin-bottom: 2rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+
+        height: 5rem;
     }
 
     .register-form-button-container-col {
@@ -240,7 +256,7 @@
         margin-left: auto;
         margin-right: auto;
         margin-top: 0;
-        width: 15rem;
+        width: 10rem;
     }
 
     .register-details-divider {
@@ -257,6 +273,18 @@
         max-height: 40rem;
         margin-top: auto;
         margin-bottom: auto;
+    }
+
+    .register-input-row > div > .icon {
+        width: 4rem;
+        height: 4rem;
+
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
+    .register-input {
+        font-size: 2rem;
     }
 }
 
@@ -312,8 +340,8 @@
     }
     
     .register-input-row {
-        margin-top: 2.5rem;
-        margin-bottom: 2.5rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
         display: flex;
         flex-direction: row;
         border: 5px solid #FFFFFF;

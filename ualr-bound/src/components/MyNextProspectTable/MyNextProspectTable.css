@@ -1,0 +1,114 @@
+.prospect-table-container {
+    width: 70vw;
+    background: #4D212C;
+    border-radius: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.prospect-text-container-noninit {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
+}
+
+.prospect-section {
+    margin-left: 3rem;
+    margin-right: 3rem;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.prospect-text-container {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: space-between;
+}
+
+.prospect-text-container p {
+    font-family: Montserrat;
+    font-size: 1.5rem;
+
+    color: #FFFFFF;
+}
+
+.prospect-table-text-noninit p {
+    font-family: Montserrat;
+    font-size: 1.5rem;
+
+    color: #FFFFFF;
+    margin-left: 3rem;
+}
+
+.prospect-table-text-noninit p:last-child {
+    font-family: Montserrat;
+    font-size: 1.5rem;
+
+    color: #FFFFFF;
+    margin-top: auto;
+    margin-bottom: 10rem;
+}
+
+.prospect-top-text-container {
+    font-family: Montserrat;
+    font-size: 1.5rem;
+
+    color: #FFFFFF;
+}
+
+.prospect-mid-text-container {
+    font-family: Montserrat;
+    font-size: 1.5rem;
+
+    color: #FFFFFF;
+
+}
+
+.prospect-bottom-text-container {
+    font-family: Montserrat;
+    font-size: 1.5rem;
+
+    color: #FFFFFF;
+
+}
+
+.prospect-update-button-container {
+    margin-left: auto;
+    margin-right: 3rem;
+}
+
+.prospect-update-button-container button {
+    background: #582633;
+    border: 5px solid #FFFFFF;
+    box-sizing: border-box;
+    border-radius: 10px;
+
+    
+    font-family: Montserrat;
+    font-style: normal;
+    font-size: 1.25rem;
+    padding: 0.825rem;
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    color: #FFFFFF;
+    transition: all ease-in-out 0.3s;
+}
+
+.prospect-update-button-container button:hover {
+    border: 5px solid #413f3f;
+}
+
+.ualr-logo {
+    margin-left: auto;
+    margin-right: 3rem;
+}
