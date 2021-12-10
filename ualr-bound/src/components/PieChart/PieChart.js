@@ -1,8 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import * as d3 from "d3";
+import { Context } from "../../store/appContext";
 
 const PieChart = (props) => {
+  const { store, actions } = useContext(Context);
   const { data, outerRadius, innerRadius } = props;
+  const [screenWidth, setScreenWidth] = useState(store.window.width);
 
   const margin = {
     top: 50,
@@ -22,6 +25,11 @@ const PieChart = (props) => {
   useEffect(() => {
     drawChart();
   }, [data]);
+
+  useEffect(() => {
+    setScreenWidth(store.window.width);
+    drawChart();
+  }, [store.window]);
 
   function drawChart() {
     // Remove the old svg
@@ -68,7 +76,12 @@ const PieChart = (props) => {
       .on("mousemove", (e, d) => {
         tooldiv
           .style("top", e.pageY + "px")
-          .style("left", e.pageX - width + "px");
+          .style(
+            "left",
+            screenWidth > 2000
+              ? e.pageX - width + "px"
+              : e.pageX - screenWidth + screenWidth * 0.82 + "px"
+          );
       })
       .on("mouseout", () => {
         tooldiv.style("visibility", "hidden");
