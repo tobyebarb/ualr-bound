@@ -67,8 +67,8 @@ const PieChart = (props) => {
       })
       .on("mousemove", (e, d) => {
         tooldiv
-          .style("top", e.pageY - 50 + "px")
-          .style("left", e.pageX - 150 + "px");
+          .style("top", e.pageY + "px")
+          .style("left", e.pageX - width + "px");
       })
       .on("mouseout", () => {
         tooldiv.style("visibility", "hidden");

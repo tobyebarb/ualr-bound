@@ -979,7 +979,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             var row_data = {
               tNumber: row.tNumber,
               name:
-                row.name2 !== "None"
+                row.name2 !== null
                   ? row.name1 + " " + row.name2 + " " + row.name3
                   : row.name1 + " " + row.name3,
               wasCalled: row.wasCalled ? "Yes" : "No",
@@ -995,6 +995,8 @@ const getState = ({ getStore, getActions, setStore }) => {
             };
             new_data.push(row_data);
           }
+
+          console.log(data);
           return new_data;
         } catch (error) {
           console.log("Error", error);
