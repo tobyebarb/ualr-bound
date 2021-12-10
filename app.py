@@ -204,7 +204,7 @@ def getNextProspect():
 
         current_time = datetime.utcnow() # Get current_time
         expiration_interval_delta_time = current_time - timedelta(minutes=30) # Get expired token DateTime object from 30 minutes ago
-        #call_interval_delta_time = current_time - timedelta(days=2) # Get CALL_INTERVAL token DateTime object from 2 days ago
+        call_interval_delta_time = current_time - timedelta(days=2) # Get CALL_INTERVAL token DateTime object from 2 days ago
 
         #caller = ValidUser.query.filter_by(username=callerUsername).first() # Check for caller if username given in POST body (DEBUG PURPOSES ONLY)
 
@@ -269,10 +269,10 @@ def getNextProspect():
                 (ProspectImportData.status == True)  # Make sure the prospects are active in the campaign
                 & (ProspectImportData.assignedCaller == None) # Make sure the prospects don't have a currently assigned caller
                 & (ProspectSRA.numTimesCalled <= 1) # Make sure the prospects haven't been called more than two times
-                #& ( # Make sure the prospect haven't been called in the past two days or they haven't been called at all
-                    #(ProspectImportData.timeLastAccessed < call_interval_delta_time)
-                    #| (ProspectImportData.timeLastAccessed == None)
-                    #)
+                & ( # Make sure the prospect haven't been called in the past two days or they haven't been called at all
+                    (ProspectImportData.timeLastAccessed < call_interval_delta_time)
+                    | (ProspectImportData.timeLastAccessed == None)
+                    )
             ).order_by(
                 ProspectSRA.numTimesCalled.desc(), # Number of time called has top priority
                 ProspectImportData.timeLastAccessed.desc()).all() # Time last accessed as secondary priority
